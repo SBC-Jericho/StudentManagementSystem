@@ -1,0 +1,144 @@
+﻿@page "/register-single-user/{id:int}"
+@page "/register-user"
+@inject IClientStudentService ClientCharacterService
+@inject IClientAuthService ClientAuthService
+@inject ISnackbar Snackbar
+@layout AuthLayout
+
+@inject NavigationManager NavigationManager
+
+<h3>Register user</h3>
+
+<EditForm Model="user" OnSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <MudCard>
+        <MudCardContent>
+            <MudTextField 
+                Label="Email" 
+                @bind-Value="user.Email"
+                For="@(() => user.Email)"
+            />
+
+            <MudTextField 
+                Label="Password" 
+                @bind-Value="user.Password"
+                Lines="2"
+            />
+            <ValidationMessage For="@(() => user.Password)" />
+
+            <MudSelect 
+                Label="Role" 
+                @bind-Value="user.Role">
+                <MudSelectItem Value="@("Admin")" />
+                <MudSelectItem Value="@("Student")" />
+                <MudSelectItem Value="@("Professor")" />
+            </MudSelect>
+            <ValidationMessage For="@(() => user.Role)" />
+
+            <MudTextField 
+                Label="First Name" 
+                @bind-Value="user.studentDTO.FirstName"
+                For="@(() => user.studentDTO.FirstName)"
+            />
+
+            <MudTextField 
+                Label="Last Name" 
+                @bind-Value="user.studentDTO.LastName"
+                For="@(() => user.studentDTO.LastName)"
+                Lines="2"
+            />
+
+            <MudTextField 
+                Label="Contact" 
+                @bind-Value="user.studentDTO.Contact"
+                For="@(() => user.studentDTO.Contact)"
+            />
+
+            <MudTextField 
+                Label="Address" 
+                @bind-Value="user.studentDTO.Address"
+                For="@(() => user.studentDTO.Address)"
+            />
+
+            <MudDatePicker 
+                Label="Birth Date"
+                @bind-Date="user.studentDTO.BirthDate"
+            />
+
+            <br />
+            <InputFile id="fileInput" OnChange="OnFileChange" hidden />
+            <MudButton HtmlTag="label"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Filled.CloudUpload"
+                       for="fileInput">
+                Upload Image
+            </MudButton>
+            <br />
+            <MudImage Src="@user.studentDTO.Image" Elevation="25" Class="rounded my-2"></MudImage>
+            <br/> 
+            <MudButton ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary"
+                       Variant="Variant.Filled">Register</MudButton>
+            <MudButton OnClick="NavigateLogin" ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary"
+                       Variant="Variant.Filled">Login</MudButton>
+        </MudCardContent>
+    </MudCard>
+
+    <p style="height:500px;"></p>
+
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    string btnText = string.Empty;
+
+    userDTO user = new userDTO();
+
+    protected override async Task OnInitializedAsync()
+    {
+        btnText = Id == null ? "Save new user" : "Update User";
+        user.studentDTO = new studentDTO();
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id is null)
+        {
+            await ClientAuthService.Register(user);
+            NavigationManager.NavigateTo("login");
+
+            Snackbar.Add(
+            "Registration Successful",
+            Severity.Success,
+            config =>
+            {
+                config.ShowTransitionDuration = 200;
+                config.HideTransitionDuration = 400;
+                config.VisibleStateDuration = 2500;
+            });
+        }
+
+    }
+
+    async Task OnFileChange(InputFileChangeEventArgs e)
+    {
+        var format = "image/png";
+        var resizedImage = await e.File.RequestImageFileAsync(format, 200, 200);
+        var buffer = new byte[resizedImage.Size];
+        await resizedImage.OpenReadStream().ReadAsync(buffer);
+        var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
+        user.studentDTO.Image = imageData;
+
+    }
+
+
+    private void NavigateLogin()
+    {
+        NavigationManager.NavigateTo("login");
+
+    }
+
+}

@@ -1,0 +1,34 @@
+﻿@inject NavigationManager NavigationManager
+@inject ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ISnackbar Snackbar
+
+
+<MudButton OnClick="Logout"
+           Class="mt-4"
+           Color="Color.Error"
+           Variant="Variant.Filled">Logout</MudButton>
+@code {
+    void Login()
+    {
+        NavigationManager.NavigateTo("login");
+    }
+
+    async Task Logout()
+    {
+        await LocalStorage.RemoveItemAsync("token");
+        await AuthStateProvider.GetAuthenticationStateAsync();
+
+        NavigationManager.NavigateTo("login");
+
+        Snackbar.Add(
+             "Logout Successfully!",
+             Severity.Success,
+             config =>
+             {
+                 config.ShowTransitionDuration = 200;
+                 config.HideTransitionDuration = 400;
+                 config.VisibleStateDuration = 2500;
+             });
+    }
+}

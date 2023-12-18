@@ -1,0 +1,86 @@
+﻿@page "/login"
+@inject HttpClient Http
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ILocalStorageService LocalStorage
+@inject IClientStudentService ClientCharacterService
+@inject IClientAuthService ClientAuthService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@layout AuthLayout
+
+
+<h3>Login</h3>
+
+@if (errorMessage != null)
+{
+    <p class="text-danger">@errorMessage</p>
+}
+
+<EditForm Model="user" OnSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+    <MudCard>
+        <MudCardContent>
+            <MudTextField Label="Email" @bind-Value="user.Email"
+                          For="@(() => user.Email)"></MudTextField>
+
+            <MudTextField Label="Password" @bind-Value="user.Password"
+                          For="@(() => user.Password)"></MudTextField>
+
+            <MudButton ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary"
+                       Variant="Variant.Filled">Login</MudButton>
+            <MudButton OnClick="NavigateRegister" ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary"
+                       Variant="Variant.Filled">Register</MudButton>
+
+        </MudCardContent>
+    </MudCard>
+</EditForm>
+
+@code {
+
+    userLoginDTO user = new userLoginDTO();
+    private string errorMessage;
+    async Task HandleLogin()
+    {
+        var response = await ClientAuthService.Login(user);
+        var token = ClientAuthService.token.value;
+
+        if (response == "success")
+        {
+            await LocalStorage.SetItemAsync("token", token);
+
+            var auth_state = await AuthStateProvider.GetAuthenticationStateAsync();
+
+            if (auth_state.User.IsInRole("Admin"))
+            {
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                NavigationManager.NavigateTo("/");
+            }
+            Snackbar.Add(
+           "Login Successfully!",
+           Severity.Success,
+           config =>
+           {
+               config.ShowTransitionDuration = 200;
+               config.HideTransitionDuration = 400;
+               config.VisibleStateDuration = 2500;
+           });
+        }
+        else
+        {
+            errorMessage = response;
+            StateHasChanged();
+        }
+
+    }
+
+    private void NavigateRegister()
+    {
+        NavigationManager.NavigateTo("register-user");
+
+    }
+
+
+}

@@ -1,0 +1,6 @@
+@BlazorWasmDotnet8AspNetCoreHosted.Server_HostAddress = http://localhost:5095
+
+GET {{BlazorWasmDotnet8AspNetCoreHosted.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

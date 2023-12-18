@@ -1,0 +1,48 @@
+﻿@inject AuthenticationStateProvider AuthStateProvider
+@inject IClientAuthService ClientAuthService
+@inject NavigationManager NavigationManager
+
+
+<CascadingAuthenticationState>
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+            <NotAuthorized>
+                Sorry, but you are not allowed to see this.
+            </NotAuthorized>
+        </AuthorizeRouteView>
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>Not found</PageTitle>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <p role="alert">Sorry, there's nothing at this address.</p>
+        </LayoutView>
+    </NotFound>
+</Router>
+</CascadingAuthenticationState>
+
+@code{
+
+    protected override async Task OnInitializedAsync()
+    {
+        //LOGOUT IF TOKEN EXPIRE OR INVALID
+        if (string.IsNullOrEmpty(ClientAuthService.token.value))
+        {
+            AuthenticationState token_auth_state = await AuthStateProvider.GetAuthenticationStateAsync();
+            if (token_auth_state.User.Identity != null)
+            {
+
+                if (token_auth_state.User.Identity.IsAuthenticated != true)
+                {
+                    NavigationManager.NavigateTo("login");
+                }
+
+            }
+            else
+            {  
+                NavigationManager.NavigateTo("login");
+            }
+        }
+    }
+}

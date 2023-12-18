@@ -1,0 +1,88 @@
+﻿@page "/all-student"
+@inject IClientStudentService ClientStudentService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+<PageTitle>Student</PageTitle>
+
+
+<h1>Student</h1>
+
+<MudTable Items="ClientStudentService.ClientStudent" Hover="true" Striped="true" Dense="true" Class="mb-2">
+    <HeaderContent>
+        <MudTh></MudTh>
+        <MudTh>First Name</MudTh>
+        <MudTh>Last Name</MudTh>
+        <MudTh>Birthday</MudTh>
+        <MudTh>Contact</MudTh>
+        <MudTh>Address</MudTh>
+    </HeaderContent>
+    <RowTemplate Context="Student">
+        <MudTd DataLabel="Image"><MudAvatar Image="@Student.Image" /></MudTd>
+        <MudTd DataLabel="First Name">@Student.FirstName</MudTd>
+            <MudTd DataLabel="Last Name">@Student.LastName</MudTd>
+            <MudTd DataLabel="BirthDate">@Student.BirthDate</MudTd>
+            <MudTd DataLabel="Contact">@Student.Contact</MudTd>
+            <MudTd DataLabel="Address">@Student.Address</MudTd>
+            <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <MudTd DataLabel="Edit">
+                        <MudIconButton OnClick="(() => EditStudent(Student.Id))"
+                                       Icon="@Icons.Material.Filled.Edit"
+                                       Color="Color.Primary"
+                                       Variant="Variant.Filled"></MudIconButton>
+                    </MudTd>
+                    <MudTd DataLabel="Delete">
+                        <MudIconButton OnClick="(() => DeleteStudent(Student.Id))"
+                                       Icon="@Icons.Material.Filled.Delete"
+                                       Color="Color.Error"
+                                       Variant="Variant.Filled"></MudIconButton>
+                    </MudTd>
+                </Authorized>
+            </AuthorizeView>
+        </RowTemplate>
+
+    </MudTable>
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+            <MudButton @onclick="CreateNewStudent" Color="Color.Primary" Variant="Variant.Filled">Create new Student</MudButton>
+        </Authorized>
+    </AuthorizeView>
+    @* <button class="btn btn-primary"
+        @onclick="CreateNewStudent">
+    Create new Student
+</button> *@
+    <p style="height:500px;"></p>
+    @code {
+
+    // lifecycle method
+    protected override async Task OnInitializedAsync()
+    {
+        await ClientStudentService.GetAllStudent();
+    }
+
+    void EditStudent(int id)
+    {
+        //Navigate the user to another page - inject  NavigationManager NavigationManager
+        NavigationManager.NavigateTo($"single-Student/{id}");
+    }
+
+    void CreateNewStudent()
+    {
+        NavigationManager.NavigateTo("/single-Student");
+    }
+
+    async Task DeleteStudent(int id)
+    {
+        await ClientStudentService.DeleteStudent(id);
+        StateHasChanged();
+        Snackbar.Add(
+        "Student Deleted",
+        Severity.Success,
+        config =>
+        {
+            config.ShowTransitionDuration = 200;
+            config.HideTransitionDuration = 400;
+            config.VisibleStateDuration = 2500;
+        });
+    }
+}
