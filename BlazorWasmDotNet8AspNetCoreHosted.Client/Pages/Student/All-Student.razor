@@ -37,6 +37,11 @@
                                        Color="Color.Error"
                                        Variant="Variant.Filled"></MudIconButton>
                     </MudTd>
+                    <MudTd DataLabel="View">
+                        <MudIconButton OnClick="(() => ViewStudent(Student.Id))"
+                                       Color="Color.Tertiary"
+                                       Variant="Variant.Filled">View Details</MudIconButton>
+                    </MudTd>
                 </Authorized>
             </AuthorizeView>
         </RowTemplate>
@@ -44,7 +49,7 @@
     </MudTable>
     <AuthorizeView Roles="Admin">
         <Authorized>
-            <MudButton @onclick="CreateNewStudent" Color="Color.Primary" Variant="Variant.Filled">Create new Student</MudButton>
+            <MudButton @onclick="CreateNewStudent" Color="Color.Primary" Variant="Variant.Filled">Register new Student</MudButton>
         </Authorized>
     </AuthorizeView>
     @* <button class="btn btn-primary"
@@ -68,7 +73,12 @@
 
     void CreateNewStudent()
     {
-        NavigationManager.NavigateTo("/single-Student");
+        NavigationManager.NavigateTo("/register-user");
+    }
+
+    void ViewStudent(int id)
+    {
+        NavigationManager.NavigateTo($"/enrollment-details/{id}");
     }
 
     async Task DeleteStudent(int id)

@@ -1,0 +1,96 @@
+﻿@page "/single-book"
+@page "/single-book/{id:int}"
+@inject IClientBookService ClientBookService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+@if (Id is null)
+{
+    <PageTitle>Create new Book</PageTitle>
+    <h3>Create new Book</h3>
+}
+else
+{
+    <PageTitle>Edit @book.Title</PageTitle>
+    <h3>Edit @book.Title</h3>
+}
+
+<EditForm Model="book" OnSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <MudCard>
+        <MudCardContent>
+            <MudTextField Label="Title" @bind-Value="book.Title"
+                          For="@(() => book.Title)"></MudTextField>
+            <MudTextField Label="Description" @bind-Value="book.Description"
+                          For="@(() => book.Description)"></MudTextField>
+        </MudCardContent>
+    </MudCard>
+    <MudButton ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary" Variant="Variant.Filled">
+        @btnText
+    </MudButton>
+    <ValidationSummary />
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    string btnText = string.Empty;
+
+    Book book = new Book();
+
+    protected override async Task OnInitializedAsync()
+    {
+        btnText = Id == null ? "Save new Book" : "Update Book";
+        await ClientBookService.GetAllBook();
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await ClientBookService.GetSingleBook((int)Id);
+            if (result is not null)
+                book = result;
+            else
+                NavigationManager.NavigateTo("/single-book");
+
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id is null)
+        {
+            if (string.IsNullOrEmpty(book.Title))
+            {
+                Snackbar.Add(
+                "Book name is required!",
+                Severity.Warning,
+                config =>
+            {
+                config.ShowTransitionDuration = 200;
+                config.HideTransitionDuration = 400;
+                config.VisibleStateDuration = 2500;
+            });
+                return;
+            }
+            await ClientBookService.AddBook(book);
+            StateHasChanged();
+
+        }
+        else
+        {
+            await ClientBookService.UpdateBook((int)Id, book);
+        }
+    }
+
+    async Task DeleteBook()
+    {
+        await ClientBookService.DeleteBook(book.Id);
+        StateHasChanged();
+    }
+
+}

@@ -1,0 +1,48 @@
+﻿@page "/bookborrowed-details"
+@page "/bookborrowed-details/{id:int}"
+
+@inject IClientSubjectService ClientSubjectService
+@inject IClientBorrowedBookService ClientBorrowedBookService
+@inject IClientStudentService ClientStudentService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<MudTable Items="borrowedBooks"
+          Hover="true"
+          Striped="true"
+          Dense="true"
+          Class="mb-2">
+
+    <HeaderContent>
+        <MudTh>Books Title</MudTh>
+        <MudTh>Description</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Book">@context.Book.Title</MudTd>
+        <MudTd DataLabel="Book">@context.Book.Description</MudTd>
+        </RowTemplate>
+    </MudTable>
+
+
+    @code {
+
+
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    public List<BorrowedBooks> borrowedBooks = new List<BorrowedBooks>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await ClientBorrowedBookService.GetSingleBorrowedBooks((int)Id);
+            if (result is not null)
+                borrowedBooks = result;
+            else
+                NavigationManager.NavigateTo("/single-student");
+
+        }
+    }
+}

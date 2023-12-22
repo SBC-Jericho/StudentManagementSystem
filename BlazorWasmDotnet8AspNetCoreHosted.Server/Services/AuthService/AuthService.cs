@@ -25,6 +25,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AuthService
         {
             var users = await _context.Users
               .Include(c => c.Students)
+              .Include(c => c.Professor)
               .ToListAsync();
             return users;
         }
@@ -64,17 +65,33 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AuthService
             {
                 Student student_details = new Student
                 {
-                    FirstName = request.studentDTO.FirstName,
-                    LastName = request.studentDTO.LastName,
-                    Contact = request.studentDTO.Contact,
-                    Address = request.studentDTO.Address,
-                    Image = request.studentDTO.Image,
-                    BirthDate = request.studentDTO.BirthDate,
+                    FirstName = request.userDetailsDTO.FirstName,
+                    LastName = request.userDetailsDTO.LastName,
+                    Contact = request.userDetailsDTO.Contact,
+                    Address = request.userDetailsDTO.Address,
+                    Image = request.userDetailsDTO.Image,
+                    BirthDate = request.userDetailsDTO.BirthDate,
                     User = new_user,
                     UserId = new_user.Id
                 };
 
                 _context.Students.Add(student_details);
+            }
+            else if (request.Role == "Professor")
+            {
+                Professor professor_details = new Professor
+                {
+                    FirstName = request.userDetailsDTO.FirstName,
+                    LastName = request.userDetailsDTO.LastName,
+                    Contact = request.userDetailsDTO.Contact,
+                    Address = request.userDetailsDTO.Address,
+                    Image = request.userDetailsDTO.Image,
+                    BirthDate = request.userDetailsDTO.BirthDate,
+                    User = new_user,
+                    UserId = new_user.Id
+                };
+
+                _context.Professors.Add(professor_details);
             }
 
             _context.Users.Add(new_user);

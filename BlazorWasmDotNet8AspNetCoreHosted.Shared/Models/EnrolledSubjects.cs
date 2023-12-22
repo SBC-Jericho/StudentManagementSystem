@@ -1,0 +1,18 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.Models
+{
+    public class EnrolledSubjects
+    {
+        public int Id { get; set; }
+        public Subject Subject { get; set; }
+        public int SubjectId { get; set; }
+        public Enrollment Enrollment { get; set; }  
+        public int EnrollmentId { get; set;}
+
+    }
+}

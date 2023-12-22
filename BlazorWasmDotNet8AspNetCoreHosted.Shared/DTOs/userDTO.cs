@@ -11,6 +11,6 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.DTOs
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public string Role { get; set; }
-        public studentDTO studentDTO { get; set; } 
+        public UserDetailsDTO? userDetailsDTO { get; set; } = new UserDetailsDTO();
     }
 }

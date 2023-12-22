@@ -1,0 +1,94 @@
+﻿@page "/single-subject"
+@page "/single-subject/{id:int}"
+@inject IClientSubjectService ClientSubjectService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+@if (Id is null)
+{
+    <PageTitle>Create a new Subject</PageTitle>
+    <h3>Create a new Subject</h3>
+}
+else
+{
+    <PageTitle>Edit @subject.Name</PageTitle>
+    <h3>Edit @subject.Name</h3>
+}
+
+<EditForm Model="subject" OnSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <MudCard>
+        <MudCardContent>
+            <MudTextField Label="Name" @bind-Value="subject.Name"
+                          For="@(() => subject.Name)"></MudTextField>
+        </MudCardContent>
+    </MudCard>
+    <MudButton ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary" Variant="Variant.Filled">
+        @btnText
+    </MudButton>
+    <ValidationSummary />
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    string btnText = string.Empty;
+
+    Subject subject = new Subject();
+
+    protected override async Task OnInitializedAsync()
+    {
+        btnText = Id == null ? "Save new Subject" : "Update Subject";
+        await ClientSubjectService.GetAllSubject();
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await ClientSubjectService.GetSingleSubject((int)Id);
+            if (result is not null)
+                subject = result;
+            else
+                NavigationManager.NavigateTo("/single-subject");
+
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id is null)
+        {
+            if (string.IsNullOrEmpty(subject.Name))
+            {
+                Snackbar.Add(
+                "Subject name is required!",
+                Severity.Warning,
+                config =>
+            {
+                config.ShowTransitionDuration = 200;
+                config.HideTransitionDuration = 400;
+                config.VisibleStateDuration = 2500;
+            });
+                return;
+            }
+            await ClientSubjectService.AddSubject(subject);
+            StateHasChanged();
+
+        }
+        else
+        {
+            await ClientSubjectService.UpdateSubject((int)Id, subject);
+        }
+    }
+
+    async Task DeleteSubject()
+    {
+        await ClientSubjectService.DeleteSubject(subject.Id);
+        StateHasChanged();
+    }
+
+}

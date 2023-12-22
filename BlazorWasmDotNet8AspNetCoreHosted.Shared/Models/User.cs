@@ -14,5 +14,6 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.Models
         public byte[] PasswordSalt { get; set; }
         public string Role { get; set; }
         public Student? Students { get; set; }
+        public Professor? Professor { get; set;}
     }
 }

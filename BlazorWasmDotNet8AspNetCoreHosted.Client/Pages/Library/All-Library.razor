@@ -1,0 +1,61 @@
+﻿@page "/all-library"
+@inject IClientStudentService ClientStudentService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+<PageTitle>Library</PageTitle>
+
+
+<h1>Library</h1>
+
+<MudTable Items="ClientStudentService.ClientStudent" Hover="true" Striped="true" Dense="true" Class="mb-2">
+    <HeaderContent>
+        <MudTh></MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Subject</MudTh>
+        <MudTh>Book</MudTh>
+    </HeaderContent>
+    <RowTemplate Context="Student">
+        <MudTd DataLabel="Image"><MudAvatar Image="@Student.Image" /></MudTd>
+        <MudTd DataLabel="First Name">@Student.FirstName @Student.LastName</MudTd>
+            <MudTd DataLabel="BirthDate">@Student.BirthDate</MudTd>
+            <MudTd DataLabel="Contact">@Student.Contact</MudTd>
+            <MudTd DataLabel="Address">@Student.Address</MudTd>
+            <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <MudTd DataLabel="Add Book">
+                        <MudButton OnClick="(() => AddBook(Student.Id))"
+                                   Variant="Variant.Filled"
+                                   Size="Size.Small"
+                                   Color="Color.Primary">Add Book</MudButton>
+                    </MudTd>
+                    <MudTd DataLabel="View">
+                        <MudIconButton OnClick="(() => ViewBorrowedBooks(Student.Id))"
+                                       Color="Color.Tertiary"
+                                       Variant="Variant.Filled">View Details</MudIconButton>
+                    </MudTd>
+                </Authorized>
+            </AuthorizeView>
+        </RowTemplate>
+
+    </MudTable>
+
+    <p style="height:500px;"></p>
+    @code {
+
+    // lifecycle method
+    protected override async Task OnInitializedAsync()
+    {
+        await ClientStudentService.GetAllStudent();
+    }
+
+    void ViewBorrowedBooks(int id)
+    {
+        NavigationManager.NavigateTo($"/bookborrowed-details/{id}");
+    }
+    void AddBook(int id)
+    {
+        //Navigate the user to another page - inject  NavigationManager NavigationManager
+        NavigationManager.NavigateTo($"single-library/{id}");
+    }
+
+}

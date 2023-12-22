@@ -1,0 +1,52 @@
+﻿@page "/all-enrollment"
+@inject IClientStudentService ClientStudentService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+<PageTitle>Enrollment</PageTitle>
+
+
+<h1>Enrollment</h1>
+
+<MudTable Items="ClientStudentService.ClientStudent" Hover="true" Striped="true" Dense="true" Class="mb-2">
+    <HeaderContent>
+        <MudTh></MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>Subject</MudTh>
+        <MudTh>Book</MudTh>
+    </HeaderContent>
+    <RowTemplate Context="Student">
+        <MudTd DataLabel="Image"><MudAvatar Image="@Student.Image" /></MudTd>
+        <MudTd DataLabel="First Name">@Student.FirstName @Student.LastName</MudTd>
+            <MudTd DataLabel="BirthDate">@Student.BirthDate</MudTd>
+            <MudTd DataLabel="Contact">@Student.Contact</MudTd>
+            <MudTd DataLabel="Address">@Student.Address</MudTd>
+            <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <MudTd DataLabel="Add Subject">
+                        <MudButton OnClick="(() => AddSubject(Student.Id))" 
+                                   Variant="Variant.Filled"
+                                   Size = "Size.Small"
+                                   Color="Color.Primary">Add Subject</MudButton>
+                    </MudTd>
+                </Authorized>
+            </AuthorizeView>
+        </RowTemplate>
+
+    </MudTable>
+
+    <p style="height:500px;"></p>
+    @code {
+
+    // lifecycle method
+    protected override async Task OnInitializedAsync()
+    {
+        await ClientStudentService.GetAllStudent();
+    }
+
+    void AddSubject(int id)
+    {
+        //Navigate the user to another page - inject  NavigationManager NavigationManager
+        NavigationManager.NavigateTo($"single-enrollment/{id}");
+    }
+   
+}

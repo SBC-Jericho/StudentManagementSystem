@@ -1,0 +1,62 @@
+﻿@page "/all-book"
+@inject IClientBookService ClientBookService
+@inject NavigationManager NavigationManager
+<PageTitle>Books</PageTitle>
+
+<h3>Books</h3>
+
+<MudTable Items="ClientBookService.ClientBook" Hover="true" Striped="true" Dense="true" Class="mb-2">
+
+    <HeaderContent>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Title">@context.Title</MudTd>
+        <MudTd DataLabel="Description">@context.Description</MudTd>
+
+            <MudTd>
+                <MudTd DataLabel="Edit">
+                    <MudIconButton OnClick="(() => EditBook(context.Id))"
+                                   Icon="@Icons.Material.Filled.Edit"
+                                   Color="Color.Primary"
+                                   Variant="Variant.Filled">
+                    </MudIconButton>
+                </MudTd>
+                <MudTd DataLabel="Delete">
+                    <MudIconButton OnClick="(() => DeleteBook(context.Id))"
+                                   Icon="@Icons.Material.Filled.Delete"
+                                   Color="Color.Error"
+                                   Variant="Variant.Filled">
+                    </MudIconButton>
+                </MudTd>
+            </MudTd>
+        </RowTemplate>
+
+    </MudTable>
+
+    <MudButton @onclick=CreateNewBook Color="Color.Primary" Variant="Variant.Filled">Add Book</MudButton>
+
+
+    @code {
+
+    // lifecycle method
+    protected override async Task OnInitializedAsync()
+    {
+        await ClientBookService.GetAllBook();
+    }
+
+    void EditBook(int id)
+    {
+        //Navigate the user to another page - inject  NavigationManager NavigationManager
+        NavigationManager.NavigateTo($"single-book/{id}");
+    }
+
+    void CreateNewBook()
+    {
+        NavigationManager.NavigateTo("single-book");
+    }
+
+    async Task DeleteBook(int id)
+    {
+        await ClientBookService.DeleteBook(id);
+    }
+}

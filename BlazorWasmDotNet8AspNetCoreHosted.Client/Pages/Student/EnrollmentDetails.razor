@@ -1,0 +1,46 @@
+﻿@page "/enrollment-details"
+@page "/enrollment-details/{id:int}"
+
+@inject IClientSubjectService ClientSubjectService
+@inject IClientEnrolledSubjectsService ClientEnrolledSubjectsService
+@inject IClientStudentService ClientStudentService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<MudTable Items="enrolledSubjects"
+          Hover="true"
+          Striped="true"
+          Dense="true"
+          Class="mb-2">
+
+    <HeaderContent>
+        <MudTh>Subject Name</MudTh>
+       </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Subject">@context.Subject.Name</MudTd>  
+        </RowTemplate>
+    </MudTable>
+
+
+@code {
+
+
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    public List<EnrolledSubjects> enrolledSubjects = new List<EnrolledSubjects>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await ClientEnrolledSubjectsService.GetSingleEnrolledSubjects((int)Id);
+            if (result is not null)
+                enrolledSubjects = result;
+            else
+                NavigationManager.NavigateTo("/single-student");
+
+        }
+    }
+}

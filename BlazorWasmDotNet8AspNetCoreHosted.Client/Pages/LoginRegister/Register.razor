@@ -25,7 +25,6 @@
                 Lines="2"
             />
             <ValidationMessage For="@(() => user.Password)" />
-
             <MudSelect 
                 Label="Role" 
                 @bind-Value="user.Role">
@@ -34,49 +33,83 @@
                 <MudSelectItem Value="@("Professor")" />
             </MudSelect>
             <ValidationMessage For="@(() => user.Role)" />
+           
+            @if(user.Role == "Student")
+            {
+                <MudTextField 
+                Label="First Name"
+                              @bind-Value="user.userDetailsDTO.FirstName"
+                              For="@(() => user.userDetailsDTO.FirstName)" />
 
-            <MudTextField 
-                Label="First Name" 
-                @bind-Value="user.studentDTO.FirstName"
-                For="@(() => user.studentDTO.FirstName)"
-            />
-
-            <MudTextField 
-                Label="Last Name" 
-                @bind-Value="user.studentDTO.LastName"
-                For="@(() => user.studentDTO.LastName)"
+                <MudTextField 
+                Label="Last Name"
+                              @bind-Value="user.userDetailsDTO.LastName"
+                              For="@(() => user.userDetailsDTO.LastName)"
                 Lines="2"
-            />
+                />
 
-            <MudTextField 
-                Label="Contact" 
-                @bind-Value="user.studentDTO.Contact"
-                For="@(() => user.studentDTO.Contact)"
-            />
+                <MudTextField 
+                Label="Contact"
+                              @bind-Value="user.userDetailsDTO.Contact"
+                              For="@(() => user.userDetailsDTO.Contact)" />
 
-            <MudTextField 
-                Label="Address" 
-                @bind-Value="user.studentDTO.Address"
-                For="@(() => user.studentDTO.Address)"
-            />
+                <MudTextField 
+                Label="Address"
+                              @bind-Value="user.userDetailsDTO.Address"
+                              For="@(() => user.userDetailsDTO.Address)" />
 
-            <MudDatePicker 
+                <MudDatePicker 
                 Label="Birth Date"
-                @bind-Date="user.studentDTO.BirthDate"
-            />
+                               @bind-Date="user.userDetailsDTO.BirthDate" />
 
-            <br />
-            <InputFile id="fileInput" OnChange="OnFileChange" hidden />
-            <MudButton HtmlTag="label"
-                       Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       StartIcon="@Icons.Filled.CloudUpload"
-                       for="fileInput">
-                Upload Image
-            </MudButton>
-            <br />
-            <MudImage Src="@user.studentDTO.Image" Elevation="25" Class="rounded my-2"></MudImage>
-            <br/> 
+                <br />
+                <InputFile id="fileInput" OnChange="OnFileChange" hidden />
+                <MudButton HtmlTag="label"
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+                StartIcon="@Icons.Filled.CloudUpload"
+                for="fileInput">
+                    Upload Image
+                </MudButton>
+                <br />
+                <MudImage Src="@user.userDetailsDTO.Image" Elevation="25" Class="rounded my-2"></MudImage>
+                <br />
+            }
+            else if (user.Role == "Professor")
+            {
+                <MudTextField Label="First Name"
+                              @bind-Value="user.userDetailsDTO.FirstName"
+                              For="@(() => user.userDetailsDTO.FirstName)" />
+
+                <MudTextField Label="Last Name"
+                              @bind-Value="user.userDetailsDTO.LastName"
+                              For="@(() => user.userDetailsDTO.LastName)"
+                              Lines="2" />
+
+                <MudTextField Label="Contact"
+                              @bind-Value="user.userDetailsDTO.Contact"
+                              For="@(() => user.userDetailsDTO.Contact)" />
+
+                <MudTextField Label="Address"
+                              @bind-Value="user.userDetailsDTO.Address"
+                              For="@(() => user.userDetailsDTO.Address)" />
+
+                <MudDatePicker Label="Birth Date"
+                               @bind-Date="user.userDetailsDTO.BirthDate" />
+
+                <br />
+                <InputFile id="fileInput" OnChange="OnFileChange" hidden />
+                <MudButton HtmlTag="label"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Filled.CloudUpload"
+                           for="fileInput">
+                    Upload Image
+                </MudButton>
+                <br />
+                <MudImage Src="@user.userDetailsDTO.Image" Elevation="25" Class="rounded my-2"></MudImage>
+                <br />
+            }
             <MudButton ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary"
                        Variant="Variant.Filled">Register</MudButton>
             <MudButton OnClick="NavigateLogin" ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary"
@@ -100,7 +133,7 @@
     protected override async Task OnInitializedAsync()
     {
         btnText = Id == null ? "Save new user" : "Update User";
-        user.studentDTO = new studentDTO();
+       
     }
 
     async Task HandleSubmit()
@@ -130,10 +163,9 @@
         var buffer = new byte[resizedImage.Size];
         await resizedImage.OpenReadStream().ReadAsync(buffer);
         var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
-        user.studentDTO.Image = imageData;
+        user.userDetailsDTO.Image = imageData;
 
     }
-
 
     private void NavigateLogin()
     {

@@ -14,7 +14,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.StudentService
         {
             _context = context;
         }
-        public async Task<List<Student>> AddStudent(studentDTO stud)
+        public async Task<List<Student>> AddStudent(UserDetailsDTO stud)
         {
             var newStudent = new Student
             {
@@ -60,7 +60,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.StudentService
             return student;
         }
 
-        public async Task<List<Student>?> UpdateStudent(int id, studentDTO request)
+        public async Task<List<Student>?> UpdateStudent(int id, UserDetailsDTO request)
         {
             var student = await _context.Students
                 .Include(u => u.User)

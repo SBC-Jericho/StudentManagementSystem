@@ -1,0 +1,186 @@
+﻿@page "/single-library"
+@page "/single-library/{id:int}"
+
+
+@inject IClientStudentService ClientStudentService
+@inject IClientBorrowedBookService ClientBorrowedBookService
+@inject IClientBookService ClientBookService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+@if (Id == null)
+{
+    <PageTitle>Borrow Books</PageTitle>
+    <h3>Add Books</h3>
+}
+else
+{
+    <PageTitle>Edit Borrowed Books</PageTitle>
+    <h3>Edit Borrowed Books</h3>
+}
+
+<EditForm Model="libraryDTO" OnSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+
+    <MudDatePicker Label="Date Borrowed"
+                   @bind-Date="libraryDTO.DateBorrowed" />
+
+    <MudDatePicker Label="Date Returned"
+                   @bind-Date="libraryDTO.DateReturn" />
+
+    <MudTextField Label="Reason"
+                  @bind-Value="libraryDTO.BorrowedReason"
+                  For="@(() => libraryDTO.BorrowedReason)" />
+
+    <div class="d-flex">
+        <div class="flex-grow-1">
+            <MudSelect Label="Books" @bind-Value="book.Id">
+                <MudSelectItem Value="0">Select Book</MudSelectItem>
+                @foreach (var books in ClientBookService.ClientBook)
+                {
+                    <MudSelectItem Value="books.Id">@books.Title</MudSelectItem>
+                }
+            </MudSelect>
+        </div>
+        <div class="ml-2 mt-4">
+            <!-- Added mt-4 for top margin -->
+            <MudButton OnClick="AddBook" ButtonType="ButtonType.Button" Color="Color.Primary" Variant="Variant.Filled">
+                Add Book
+            </MudButton>
+        </div>
+    </div>
+
+    <br />
+    <div style="border-bottom: 2px solid black; margin-top: 20px; margin-bottom: 20px;"></div>
+    <br />
+
+    <h3>Books Enrolled</h3>
+
+    <MudTable Items="BorrowedBooksList"
+              Hover="true"
+              Striped="true"
+              Dense="true"
+              Class="mb-2">
+
+        <HeaderContent>
+            <MudTh>Book Name</MudTh>
+        </HeaderContent>
+        <RowTemplate Context="book">
+            <MudTd Class="text-center pt-sm-3 pb-sm-3" DataLabel="Book">@bookNames[@book.BookId]</MudTd>
+                <MudTd>
+                    <MudButton OnClick="@(() => RemoveBook(book.BookId))"
+                               Icon="@Icons.Material.Filled.Remove"
+                               Size="Size.Small"
+                               ButtonType="ButtonType.Button"
+                               Class="mt-4"
+                               Color="Color.Error"
+                               Variant="Variant.Filled">
+                        Remove
+                    </MudButton>
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+
+        <MudButton ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary" Variant="Variant.Filled">
+            Enroll
+        </MudButton>
+
+
+        <ValidationSummary />
+    </EditForm>
+    @code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    LibraryDTO libraryDTO = new LibraryDTO();
+
+    BorrowedBooksDTO borrowedBooksDTO = new BorrowedBooksDTO();
+
+    Book book = new Book();
+
+    Student student = new Student();
+
+    private Dictionary<int, string> bookNames = new Dictionary<int, string>();
+
+    List<BorrowedBooksDTO> BorrowedBooksList = new List<BorrowedBooksDTO>();
+    protected override async Task OnInitializedAsync()
+    {
+        await ClientBookService.GetAllBook();
+
+        foreach (var book in ClientBookService.ClientBook)
+        {
+            bookNames[book.Id] = book.Title;
+        }
+
+    }
+    private void RemoveBook(int id)
+    {
+        var prodDelete = BorrowedBooksList.Find(c => c.BookId == id);
+
+        var selectedProduct = BorrowedBooksList
+            .FirstOrDefault(product => product.BookId == id);
+
+        if (prodDelete != null)
+        {
+            Snackbar.Add($"{bookNames[prodDelete.BookId]} has been removed.", Severity.Error, config =>
+            {
+                config.ShowTransitionDuration = 200;
+                config.HideTransitionDuration = 400;
+                config.VisibleStateDuration = 2500;
+            });
+            BorrowedBooksList.Remove(prodDelete);
+        }
+    }
+
+    private void AddBook()
+    {
+        if (!BorrowedBooksList.Any(s => s.BookId == book.Id))
+        {
+            borrowedBooksDTO.BookId = book.Id;
+            BorrowedBooksList.Add(borrowedBooksDTO);
+            borrowedBooksDTO = new BorrowedBooksDTO();
+        }
+        else
+        {
+            Snackbar.Add("Book already exists on the list.", Severity.Warning, config =>
+            {
+                config.ShowTransitionDuration = 200;
+                config.HideTransitionDuration = 400;
+                config.VisibleStateDuration = 2500;
+            });
+        }
+
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id != null)
+        {
+            var result = await ClientStudentService.GetSingleStudent((int)Id);
+            if (result is not null)
+                student = result;
+            else
+                NavigationManager.NavigateTo("/all-library");
+        }
+    }
+    async Task HandleSubmit()
+    {
+        if (Id != null)
+        {
+            libraryDTO.StudentId = Id;
+        }
+
+        libraryDTO.BorrowedBooks = BorrowedBooksList;
+        await ClientBorrowedBookService.AddBorrowedBooks(libraryDTO);
+        StateHasChanged();
+        NavigationManager.NavigateTo("/all-library");
+
+    }
+
+    async Task DeleteBook()
+    {
+        await ClientBookService.DeleteBook(book.Id);
+        StateHasChanged();
+    }
+}

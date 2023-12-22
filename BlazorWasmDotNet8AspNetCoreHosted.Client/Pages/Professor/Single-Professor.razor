@@ -1,0 +1,146 @@
+﻿@page "/single-professor"
+@page "/single-professor/{id:int}"
+@inject IClientProfessorService ClientProfessorService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+@if (Id is null)
+{
+    <PageTitle>Create a new Professor</PageTitle>
+    <h3>Create a new Professor</h3>
+}
+else
+{
+    <PageTitle>Edit @professor.FirstName</PageTitle>
+    <h3>Edit @professor.FirstName</h3>
+}
+
+
+<EditForm Model="professor" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <MudCard>
+        <MudCardContent>
+            <MudTextField Label="First Name" @bind-Value="professor.FirstName"
+                          For="@(() => professor.FirstName)"></MudTextField>
+            <MudTextField Label="Last Name" @bind-Value="professor.LastName"
+                          For="@(() => professor.LastName)"></MudTextField>
+            <MudDatePicker Label="Birthday" @bind-Date="professor.BirthDate"></MudDatePicker>
+            <MudTextField Label="Address" @bind-Value="professor.Address"
+                          For="@(() => professor.LastName)"></MudTextField>
+            <MudTextField Label="Contact" @bind-Value="professor.Contact"
+                          For="@(() => professor. Contact)"></MudTextField>
+
+            <br />
+            <InputFile id="fileInput" OnChange="OnFileChange" hidden />
+            <MudButton HtmlTag="label"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Filled.CloudUpload"
+                       for="fileInput">
+                Upload Image
+            </MudButton>
+            <ValidationMessage For="@(() => professor.Image)" />
+            <br />
+            <MudImage Src="@professor.Image" Elevation="25" Class="rounded my-2"></MudImage>
+        </MudCardContent>
+    </MudCard>
+    <MudButton ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary" Variant="Variant.Filled">
+        @btnText
+    </MudButton>
+    <MudButton @onclick="DeleteProfessor" Class="mt-4" Color="Color.Error" Variant="Variant.Filled">
+        Delete Professor
+    </MudButton>
+
+
+    <p style="height:500px;"></p>
+    <ValidationSummary />
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    string btnText = string.Empty;
+
+    Professor professor = new Professor();
+
+    protected override async Task OnInitializedAsync()
+    {
+        btnText = Id == null ? "Save new Professor" : "Update Professor";
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await ClientProfessorService.GetSingleProfessor((int)Id);
+            if (result is not null)
+                professor = result;
+            else
+                NavigationManager.NavigateTo("/single-professor");
+
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id is null)
+        {
+            await ClientProfessorService.AddProfessor(professor);
+            StateHasChanged();
+
+            Snackbar.Add(
+            "Professor Created Successfully!",
+            Severity.Success,
+            config =>
+            {
+                config.ShowTransitionDuration = 200;
+                config.HideTransitionDuration = 400;
+                config.VisibleStateDuration = 2500;
+            });
+        }
+        else
+        {
+            await ClientProfessorService.UpdateProfessor((int)Id, professor);
+            Snackbar.Add(
+          "Professor Updated",
+          Severity.Success,
+          config =>
+          {
+              config.ShowTransitionDuration = 200;
+              config.HideTransitionDuration = 400;
+              config.VisibleStateDuration = 2500;
+          });
+        }
+
+    }
+
+    async Task OnFileChange(InputFileChangeEventArgs e)
+    {
+        var format = "image/png";
+        var resizedImage = await e.File.RequestImageFileAsync(format, 200, 200);
+        var buffer = new byte[resizedImage.Size];
+        await resizedImage.OpenReadStream().ReadAsync(buffer);
+        var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
+        professor.Image = imageData;
+
+    }
+
+    async Task DeleteProfessor()
+    {
+        await ClientProfessorService.DeleteProfessor(professor.Id);
+        NavigationManager.NavigateTo("/all-professor");
+        StateHasChanged();
+        Snackbar.Add(
+       "Professor Deleted",
+       Severity.Success,
+       config =>
+       {
+           config.ShowTransitionDuration = 200;
+           config.HideTransitionDuration = 400;
+           config.VisibleStateDuration = 2500;
+       });
+    }
+
+}

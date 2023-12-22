@@ -1,1 +1,145 @@
-﻿
+﻿@page "/single-Student/{id:int}"
+@page "/single-Student"
+@inject IClientStudentService ClientStudentService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+@if (Id is null)
+{
+    <PageTitle>Create a new Student</PageTitle>
+    <h3>Create a new Student</h3>
+}
+else
+{
+    <PageTitle>Edit @student.FirstName</PageTitle>
+    <h3>Edit @student.FirstName</h3>
+}
+
+
+<EditForm Model="student" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <MudCard>
+        <MudCardContent>
+            <MudTextField Label="First Name" @bind-Value="student.FirstName"
+                          For="@(() => student.FirstName)"></MudTextField>
+            <MudTextField Label="Last Name" @bind-Value="student.LastName"
+                          For="@(() => student.LastName)"></MudTextField>
+            <MudDatePicker Label="Birthday" @bind-Date="student.BirthDate"></MudDatePicker>
+            <MudTextField Label="Address" @bind-Value="student.Address"
+                          For="@(() => student.LastName)"></MudTextField>
+            <MudTextField Label="Contact" @bind-Value="student.Contact"
+                          For="@(() => student. Contact)"></MudTextField>
+           
+            <br />
+            <InputFile id="fileInput" OnChange="OnFileChange" hidden />
+            <MudButton HtmlTag="label"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Filled.CloudUpload"
+                       for="fileInput">
+                Upload Image
+            </MudButton>
+            <ValidationMessage For="@(() => student.Image)" />
+            <br />
+            <MudImage Src="@student.Image" Elevation="25" Class="rounded my-2"></MudImage>
+        </MudCardContent>
+    </MudCard>
+    <MudButton ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary" Variant="Variant.Filled">
+        @btnText
+    </MudButton>
+    <MudButton @onclick="DeleteStudent" Class="mt-4" Color="Color.Error" Variant="Variant.Filled">
+        Delete Student
+    </MudButton>
+
+
+    <p style="height:500px;"></p>
+    <ValidationSummary />
+</EditForm>
+
+@code {
+
+    [Parameter]
+    public int? Id { get; set; }
+
+    string btnText = string.Empty;
+
+    Student student = new Student();
+
+    protected override async Task OnInitializedAsync()
+    {
+        btnText = Id == null ? "Save new Student" : "Update Student";
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id is not null)
+        {
+            var result = await ClientStudentService.GetSingleStudent((int)Id);
+            if (result is not null)
+                student = result;
+            else
+                NavigationManager.NavigateTo("/single-student");
+
+        }
+    }
+
+    async Task HandleSubmit()
+    {
+        if (Id is null)
+        {
+            await ClientStudentService.AddStudent(student);
+            StateHasChanged();
+
+            Snackbar.Add(
+            "Student Created Successfully!",
+            Severity.Success,
+            config =>
+            {
+                config.ShowTransitionDuration = 200;
+                config.HideTransitionDuration = 400;
+                config.VisibleStateDuration = 2500;
+            });
+        }
+        else
+        {
+            await ClientStudentService.UpdateStudent((int)Id, student);
+            Snackbar.Add(
+          "Student Updated",
+          Severity.Success,
+          config =>
+          {
+              config.ShowTransitionDuration = 200;
+              config.HideTransitionDuration = 400;
+              config.VisibleStateDuration = 2500;
+          });
+        }
+
+    }
+
+    async Task OnFileChange(InputFileChangeEventArgs e)
+    {
+        var format = "image/png";
+        var resizedImage = await e.File.RequestImageFileAsync(format, 200, 200);
+        var buffer = new byte[resizedImage.Size];
+        await resizedImage.OpenReadStream().ReadAsync(buffer);
+        var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
+        student.Image = imageData;
+
+    }
+
+    async Task DeleteStudent()
+    {
+        await ClientStudentService.DeleteStudent(student.Id);
+        NavigationManager.NavigateTo("/all-Students");
+        StateHasChanged();
+        Snackbar.Add(
+       "Student Deleted",
+       Severity.Success,
+       config =>
+       {
+           config.ShowTransitionDuration = 200;
+           config.HideTransitionDuration = 400;
+           config.VisibleStateDuration = 2500;
+       });
+    }
+}

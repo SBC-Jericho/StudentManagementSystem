@@ -33,14 +33,14 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<Student>>> AddStudent(studentDTO hero)
+        public async Task<ActionResult<List<Student>>> AddStudent(UserDetailsDTO stud)
         {
-            var result = await _studentService.AddStudent(hero);
+            var result = await _studentService.AddStudent(stud);
             return Ok(result);
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Student>> UpdateStudent(int id, studentDTO request)
+        public async Task<ActionResult<Student>> UpdateStudent(int id, UserDetailsDTO request)
         {
             var result = await _studentService.UpdateStudent(id, request);
             if (result is null)

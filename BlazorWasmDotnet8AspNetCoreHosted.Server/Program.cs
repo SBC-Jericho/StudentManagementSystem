@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsService;
+using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.BorrowedBookService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +48,8 @@ builder.Services.AddScoped<IProfessorService, ProfessorService>();
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ISubjectService, SubjectService>();
+builder.Services.AddScoped<IEnrolledSubjectsService, EnrolledSubjectsService>();
+builder.Services.AddScoped<IBorrowedBookService, BorrowedBookService>();
 builder.Services.AddDbContext<DataContext>();
 
 

@@ -1,0 +1,88 @@
+﻿@page "/all-professor"
+@inject IClientProfessorService ClientProfessorService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+<PageTitle>Professor</PageTitle>
+
+
+<h1>Professor</h1>
+
+<MudTable Items="ClientProfessorService.ClientProfessor" Hover="true" Striped="true" Dense="true" Class="mb-2">
+    <HeaderContent>
+        <MudTh></MudTh>
+        <MudTh>First Name</MudTh>
+        <MudTh>Last Name</MudTh>
+        <MudTh>Birthday</MudTh>
+        <MudTh>Contact</MudTh>
+        <MudTh>Address</MudTh>
+    </HeaderContent>
+    <RowTemplate Context="professor">
+        <MudTd DataLabel="Image"><MudAvatar Image="@professor.Image" /></MudTd>
+        <MudTd DataLabel="First Name">@professor.FirstName</MudTd>
+            <MudTd DataLabel="Last Name">@professor.LastName</MudTd>
+            <MudTd DataLabel="BirthDate">@professor.BirthDate</MudTd>
+            <MudTd DataLabel="Contact">@professor.Contact</MudTd>
+            <MudTd DataLabel="Address">@professor.Address</MudTd>
+            <AuthorizeView Roles="Admin">
+                <Authorized>
+                    <MudTd DataLabel="Edit">
+                        <MudIconButton OnClick="(() => EditProfessor(professor.Id))"
+                                       Icon="@Icons.Material.Filled.Edit"
+                                       Color="Color.Primary"
+                                       Variant="Variant.Filled"></MudIconButton>
+                    </MudTd>
+                    <MudTd DataLabel="Delete">
+                        <MudIconButton OnClick="(() => DeleteProfessor(professor.Id))"
+                                       Icon="@Icons.Material.Filled.Delete"
+                                       Color="Color.Error"
+                                       Variant="Variant.Filled"></MudIconButton>
+                    </MudTd>
+                </Authorized>
+            </AuthorizeView>
+        </RowTemplate>
+
+    </MudTable>
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+            <MudButton @onclick="CreateNewProfessor" Color="Color.Primary" Variant="Variant.Filled">Register new Professor</MudButton>
+        </Authorized>
+    </AuthorizeView>
+    @* <button class="btn btn-primary"
+        @onclick="CreateNewStudent">
+    Create new Student
+</button> *@
+    <p style="height:500px;"></p>
+    @code {
+
+    // lifecycle method
+    protected override async Task OnInitializedAsync()
+    {
+        await ClientProfessorService.GetAllProfessor();
+    }
+
+    void EditProfessor(int id)
+    {
+        //Navigate the user to another page - inject  NavigationManager NavigationManager
+        NavigationManager.NavigateTo($"single-professor/{id}");
+    }
+
+    void CreateNewProfessor()
+    {
+        NavigationManager.NavigateTo("/register-user");
+    }
+
+    async Task DeleteProfessor(int id)
+    {
+        await ClientProfessorService.DeleteProfessor(id);
+        StateHasChanged();
+        Snackbar.Add(
+        "Professor Deleted",
+        Severity.Success,
+        config =>
+        {
+            config.ShowTransitionDuration = 200;
+            config.HideTransitionDuration = 400;
+            config.VisibleStateDuration = 2500;
+        });
+    }
+}

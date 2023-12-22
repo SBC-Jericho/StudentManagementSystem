@@ -18,10 +18,4 @@
     <ProjectReference Include="..\BlazorWasmDotNet8AspNetCoreHosted.Shared\BlazorWasmDotNet8AspNetCoreHosted.Shared.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Pages\Book\" />
-    <Folder Include="Pages\Subject\" />
-    <Folder Include="Pages\Professor\" />
-  </ItemGroup>
-
 </Project>
