@@ -9,41 +9,35 @@
 
 <div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
     <nav class="flex-column">
+
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
+            <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Tertiary">Dashboard</MudNavLink>
         </div>
+
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="all-student">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Students
-            </NavLink>
+            <MudNavLink Href="all-student" Icon="@Icons.Material.Filled.Person" IconColor="Color.Tertiary">Students</MudNavLink>
         </div>
+
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="all-professor">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Professor
-            </NavLink>
+            <MudNavLink Href="all-professor" Icon="@Icons.Material.Filled.Person" IconColor="Color.Tertiary">Professors</MudNavLink>
         </div>
+
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="register-user">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Register
-            </NavLink>
+            <MudNavLink Href="register-user" Icon="@Icons.Material.Filled.PersonAdd" IconColor="Color.Tertiary">Register</MudNavLink>
         </div>
+
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="login">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Login
-            </NavLink>
+            <MudNavLink Href="login" Icon="@Icons.Material.Filled.Login" IconColor="Color.Tertiary">Login</MudNavLink>
         </div>
+
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="all-subject">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Subject
-            </NavLink>
+            <MudNavLink Href="all-subject" Icon="@Icons.Material.Filled.Subject" IconColor="Color.Tertiary">Subjects</MudNavLink>
         </div>
+
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="all-book">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Book
-            </NavLink>
+            <MudNavLink Href="all-book" Icon="@Icons.Material.Filled.LibraryBooks" IconColor="Color.Tertiary">Books</MudNavLink>
         </div
+
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="all-enrollment">
                 <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Enrollment

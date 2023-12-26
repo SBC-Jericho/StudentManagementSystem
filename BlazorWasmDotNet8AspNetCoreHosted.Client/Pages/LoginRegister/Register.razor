@@ -14,17 +14,24 @@
     <MudCard>
         <MudCardContent>
             <MudTextField 
-                Label="Email" 
+                Label="Email"
+                Variant="Variant.Outlined"
                 @bind-Value="user.Email"
                 For="@(() => user.Email)"
             />
 
             <MudTextField 
-                Label="Password" 
+                Label="Password"
+                Variant="Variant.Outlined"
+                InputType="@PasswordInput"
+                Adornment="Adornment.End" 
+                AdornmentIcon="@PasswordInputIcon"
+                OnAdornmentClick="ShowPasswordButton"
+                AdornmentAriaLabel="Show Password"
                 @bind-Value="user.Password"
-                Lines="2"
             />
             <ValidationMessage For="@(() => user.Password)" />
+
             <MudSelect 
                 Label="Role" 
                 @bind-Value="user.Role">
@@ -37,26 +44,32 @@
             @if(user.Role == "Student")
             {
                 <MudTextField 
-                Label="First Name"
-                              @bind-Value="user.userDetailsDTO.FirstName"
-                              For="@(() => user.userDetailsDTO.FirstName)" />
+                    Label="First Name"
+                    Variant="Variant.Outlined"
+                    @bind-Value="user.userDetailsDTO.FirstName"
+                    For="@(() => user.userDetailsDTO.FirstName)" 
+                 />
 
                 <MudTextField 
-                Label="Last Name"
-                              @bind-Value="user.userDetailsDTO.LastName"
-                              For="@(() => user.userDetailsDTO.LastName)"
-                Lines="2"
+                     Label="Last Name"
+                     Variant="Variant.Outlined"
+                     @bind-Value="user.userDetailsDTO.LastName"
+                     For="@(() => user.userDetailsDTO.LastName)"
                 />
 
                 <MudTextField 
-                Label="Contact"
-                              @bind-Value="user.userDetailsDTO.Contact"
-                              For="@(() => user.userDetailsDTO.Contact)" />
+                    Label="Contact"
+                    Variant="Variant.Outlined"
+                    @bind-Value="user.userDetailsDTO.Contact"
+                    For="@(() => user.userDetailsDTO.Contact)"
+                />
 
                 <MudTextField 
-                Label="Address"
-                              @bind-Value="user.userDetailsDTO.Address"
-                              For="@(() => user.userDetailsDTO.Address)" />
+                    Label="Address"
+                    Variant="Variant.Outlined"
+                    @bind-Value="user.userDetailsDTO.Address"
+                    For="@(() => user.userDetailsDTO.Address)" 
+                />
 
                 <MudDatePicker 
                 Label="Birth Date"
@@ -65,7 +78,7 @@
                 <br />
                 <InputFile id="fileInput" OnChange="OnFileChange" hidden />
                 <MudButton HtmlTag="label"
-                Variant="Variant.Filled"
+                Variant="Variant.Outlined"
                 Color="Color.Primary"
                 StartIcon="@Icons.Filled.CloudUpload"
                 for="fileInput">
@@ -77,22 +90,33 @@
             }
             else if (user.Role == "Professor")
             {
-                <MudTextField Label="First Name"
-                              @bind-Value="user.userDetailsDTO.FirstName"
-                              For="@(() => user.userDetailsDTO.FirstName)" />
+                <MudTextField 
+                    Label="First Name"
+                    Variant="Variant.Outlined"
+                    @bind-Value="user.userDetailsDTO.FirstName"
+                    For="@(() => user.userDetailsDTO.FirstName)"
+                />
 
-                <MudTextField Label="Last Name"
-                              @bind-Value="user.userDetailsDTO.LastName"
-                              For="@(() => user.userDetailsDTO.LastName)"
-                              Lines="2" />
+                <MudTextField 
+                    Label="Last Name"
+                    Variant="Variant.Outlined"
+                    @bind-Value="user.userDetailsDTO.LastName"
+                    For="@(() => user.userDetailsDTO.LastName)"
+                />
 
-                <MudTextField Label="Contact"
-                              @bind-Value="user.userDetailsDTO.Contact"
-                              For="@(() => user.userDetailsDTO.Contact)" />
+                <MudTextField 
+                    Label="Contact"
+                    Variant="Variant.Outlined"
+                    @bind-Value="user.userDetailsDTO.Contact"
+                    For="@(() => user.userDetailsDTO.Contact)" 
+                />
 
-                <MudTextField Label="Address"
-                              @bind-Value="user.userDetailsDTO.Address"
-                              For="@(() => user.userDetailsDTO.Address)" />
+                <MudTextField 
+                    Label="Address"
+                    Variant="Variant.Outlined"
+                    @bind-Value="user.userDetailsDTO.Address"
+                    For="@(() => user.userDetailsDTO.Address)"
+                />
 
                 <MudDatePicker Label="Birth Date"
                                @bind-Date="user.userDetailsDTO.BirthDate" />
@@ -129,6 +153,26 @@
     string btnText = string.Empty;
 
     userDTO user = new userDTO();
+
+    bool isShow;
+    InputType PasswordInput = InputType.Password;
+    string PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    void ShowPasswordButton()
+    {
+        @if (isShow)
+        {
+            isShow = false;
+            PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            PasswordInput = InputType.Password;
+        }
+        else
+        {
+            isShow = true;
+            PasswordInputIcon = Icons.Material.Filled.Visibility;
+            PasswordInput = InputType.Text;
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
