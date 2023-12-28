@@ -16,10 +16,15 @@
     <HeaderContent>
         <MudTh>Books Title</MudTh>
         <MudTh>Description</MudTh>
+        <MudTh>Reason</MudTh>
+        <MudTh>Date Borrowed</MudTh>
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Book">@context.Book.Title</MudTd>
         <MudTd DataLabel="Book">@context.Book.Description</MudTd>
+        <MudTd DataLabel="Book">@context.Library.BorrowedReason</MudTd>
+        <MudTd DataLabel="Book">@context.Library.DateBorrowed</MudTd>
+
         </RowTemplate>
     </MudTable>
 

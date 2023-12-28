@@ -7,6 +7,7 @@
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 
+
 <MudTable Items="enrolledSubjects"
           Hover="true"
           Striped="true"
@@ -14,10 +15,17 @@
           Class="mb-2">
 
     <HeaderContent>
-        <MudTh>Subject Name</MudTh>
+        <MudTh>Subjects Enrolled</MudTh>
+        <MudTh>Semester</MudTh>
+        <MudTh>School Year</MudTh>
+        <MudTh>Professor</MudTh>
        </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Subject">@context.Subject.Name</MudTd>  
+        <MudTd DataLabel="Semester">@context.Enrollment.Semester</MudTd>
+        <MudTd DataLabel="SchoolYear">@context.Enrollment.SchoolYear</MudTd>
+         @* <MudTd DataLabel="SchoolYear">@context.Enrollment.SchoolYear</MudTd> *@
+
         </RowTemplate>
     </MudTable>
 

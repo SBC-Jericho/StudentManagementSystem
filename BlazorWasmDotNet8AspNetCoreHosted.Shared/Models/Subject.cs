@@ -17,5 +17,6 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.Models
 
         [JsonIgnore]
         public List<EnrolledSubjects> EnrolledSubjects { get; set; }
+
     }
 }

@@ -19,5 +19,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.Models
         [JsonIgnore]
         public User User { get; set; }
         public int UserId { get; set; }
+       
+
     }
 }

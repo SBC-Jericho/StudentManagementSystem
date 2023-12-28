@@ -42,12 +42,18 @@ else
                 }
             </MudSelect>
         </div>
+
         <div class="ml-2 mt-4">
             <!-- Added mt-4 for top margin -->
-            <MudButton OnClick="AddBook" ButtonType="ButtonType.Button" Color="Color.Primary" Variant="Variant.Filled">
+            <MudButton OnClick="AddBook" 
+                Disabled = "book.Id == 0 ? true : false"
+                ButtonType="ButtonType.Button" 
+                Color="Color.Primary" 
+                Variant="Variant.Filled">
                 Add Book
             </MudButton>
         </div>
+
     </div>
 
     <br />
@@ -66,7 +72,9 @@ else
             <MudTh>Book Name</MudTh>
         </HeaderContent>
         <RowTemplate Context="book">
-            <MudTd Class="text-center pt-sm-3 pb-sm-3" DataLabel="Book">@bookNames[@book.BookId]</MudTd>
+            <MudTd Class="text-center pt-sm-3 pb-sm-3" 
+                DataLabel="Book">@ClientBookService.ClientBook.First(b => b.Id == book.BookId).Title
+            </MudTd>
                 <MudTd>
                     <MudButton OnClick="@(() => RemoveBook(book.BookId))"
                                Icon="@Icons.Material.Filled.Remove"
@@ -82,7 +90,7 @@ else
         </MudTable>
 
         <MudButton ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary" Variant="Variant.Filled">
-            Enroll
+            Borrow
         </MudButton>
 
 
@@ -101,18 +109,12 @@ else
 
     Student student = new Student();
 
-    private Dictionary<int, string> bookNames = new Dictionary<int, string>();
+    // private Dictionary<int, string> bookNames = new Dictionary<int, string>();
 
     List<BorrowedBooksDTO> BorrowedBooksList = new List<BorrowedBooksDTO>();
     protected override async Task OnInitializedAsync()
     {
         await ClientBookService.GetAllBook();
-
-        foreach (var book in ClientBookService.ClientBook)
-        {
-            bookNames[book.Id] = book.Title;
-        }
-
     }
     private void RemoveBook(int id)
     {
@@ -123,7 +125,7 @@ else
 
         if (prodDelete != null)
         {
-            Snackbar.Add($"{bookNames[prodDelete.BookId]} has been removed.", Severity.Error, config =>
+            Snackbar.Add($"{ClientBookService.ClientBook.First(b => b.Id == prodDelete.BookId).Title} has been removed.", Severity.Error, config =>
             {
                 config.ShowTransitionDuration = 200;
                 config.HideTransitionDuration = 400;

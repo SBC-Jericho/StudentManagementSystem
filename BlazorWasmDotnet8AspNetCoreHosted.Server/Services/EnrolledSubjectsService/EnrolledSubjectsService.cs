@@ -65,14 +65,14 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsServ
 
         public async Task<List<EnrolledSubjects>> GetSingleEnrolledSubjects(int id)
         {
-            var subject = await _context.EnrolledSubjects
+            List <EnrolledSubjects> subjects = await _context.EnrolledSubjects
                .Include(u => u.Enrollment)
                     .ThenInclude(u => u.Student)
                .Include(u => u.Subject)
                .Where(u => u.Enrollment.StudentId == id)
                .ToListAsync();
 
-            return subject;
+            return subjects;
         
         }
     }

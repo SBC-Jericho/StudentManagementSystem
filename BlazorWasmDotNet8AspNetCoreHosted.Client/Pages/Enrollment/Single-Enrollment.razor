@@ -42,11 +42,17 @@ else
                 }
             </MudSelect>
         </div>
+
         <div class="ml-2 mt-4">
             <!-- Added mt-4 for top margin -->
-            <MudButton OnClick="AddSubject" ButtonType="ButtonType.Button" Color="Color.Primary" Variant="Variant.Filled">
+            <MudButton OnClick="AddSubject" 
+                Disabled="subject.Id == 0 ? true : false"
+                ButtonType="ButtonType.Button" 
+                Color="Color.Primary" 
+                Variant="Variant.Filled">
                 Add Subject
             </MudButton>
+
         </div>
     </div>
 
@@ -73,26 +79,34 @@ else
               Dense="true" 
               Class="mb-2">
 
-    <HeaderContent>
-        <MudTh>Subject Name</MudTh>
-    </HeaderContent>
-    <RowTemplate Context="subject">
-        <MudTd Class="text-center pt-sm-3 pb-sm-3" DataLabel="Subject">@subjectNames[@subject.SubjectId]</MudTd>
-        <MudTd>
-        <MudButton OnClick="@(() => RemoveSubject(subject.SubjectId))"
-                   Icon="@Icons.Material.Filled.Remove"
-                   Size="Size.Small" 
-                   ButtonType="ButtonType.Button" 
-                   Class="mt-4" 
-                   Color="Color.Error" 
-                   Variant="Variant.Filled">
-            Remove
-        </MudButton>
-        </MudTd>
-    </RowTemplate>
+        <HeaderContent>
+            <MudTh>Subject Name</MudTh>
+        </HeaderContent>
+            <RowTemplate Context="subject">
+
+                <MudTd Class="text-center pt-sm-3 pb-sm-3" 
+                    DataLabel="Subject">@ClientSubjectService.ClientSubject.First(s => s.Id == subject.SubjectId).Name
+                </MudTd>
+
+           <MudTd>
+                <MudButton OnClick="@(() => RemoveSubject(subject.SubjectId))"
+                           Icon="@Icons.Material.Filled.Remove"
+                           Size="Size.Small" 
+                           ButtonType="ButtonType.Button" 
+                           Class="mt-4" 
+                           Color="Color.Error" 
+                           Variant="Variant.Filled">
+                    Remove
+                </MudButton>
+           </MudTd>
+        </RowTemplate>
+
     </MudTable>
 
-    <MudButton ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary" Variant="Variant.Filled">
+    <MudButton 
+        ButtonType="ButtonType.Submit" 
+        Class="mt-4" Color="Color.Primary" 
+        Variant="Variant.Filled">
         Enroll
     </MudButton>
 
@@ -112,18 +126,12 @@ else
 
     Student student = new Student();
 
-    private Dictionary<int, string> subjectNames = new Dictionary<int, string>();
+    // private Dictionary<int, string> subjectNames = new Dictionary<int, string>();
 
     List<EnrolledSubjectsDTO> EnrolledSubjectsList = new List<EnrolledSubjectsDTO>();
     protected override async Task OnInitializedAsync()
     {
         await ClientSubjectService.GetAllSubject();
-
-        foreach (var subject in ClientSubjectService.ClientSubject)
-        {
-            subjectNames[subject.Id] = subject.Name;    
-        }
-
     }
     private void RemoveSubject(int id)
     {
@@ -134,7 +142,7 @@ else
 
         if (prodDelete != null)
         {
-            Snackbar.Add($"{subjectNames[prodDelete.SubjectId]} has been removed.", Severity.Error, config =>
+            Snackbar.Add($"{ClientSubjectService.ClientSubject.First(s => s.Id == prodDelete.SubjectId).Name} has been removed.", Severity.Error, config =>
             {
                 config.ShowTransitionDuration = 200;
                 config.HideTransitionDuration = 400;
@@ -166,7 +174,7 @@ else
 
     protected override async Task OnParametersSetAsync()
     {
-        if (Id != null)
+        if (Id != 0)
         {
             var result = await ClientStudentService.GetSingleStudent((int)Id);
             if (result is not null)
@@ -180,7 +188,7 @@ else
 
     async Task HandleSubmit()
     {
-        if (Id != null)
+        if (Id != 0)
         {
             enrollmentDTO.StudentId = Id;
         }
