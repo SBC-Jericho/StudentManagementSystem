@@ -19,13 +19,12 @@
         <MudTh>Semester</MudTh>
         <MudTh>School Year</MudTh>
         <MudTh>Professor</MudTh>
-       </HeaderContent>
+    </HeaderContent>
+
     <RowTemplate>
         <MudTd DataLabel="Subject">@context.Subject.Name</MudTd>  
         <MudTd DataLabel="Semester">@context.Enrollment.Semester</MudTd>
         <MudTd DataLabel="SchoolYear">@context.Enrollment.SchoolYear</MudTd>
-         @* <MudTd DataLabel="SchoolYear">@context.Enrollment.SchoolYear</MudTd> *@
-
         </RowTemplate>
     </MudTable>
 
@@ -48,7 +47,6 @@
                 enrolledSubjects = result;
             else
                 NavigationManager.NavigateTo("/single-student");
-
         }
     }
 }

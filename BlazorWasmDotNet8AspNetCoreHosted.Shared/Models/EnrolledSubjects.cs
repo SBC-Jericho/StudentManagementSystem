@@ -13,6 +13,8 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.Models
         public int SubjectId { get; set; }
         public Enrollment Enrollment { get; set; }  
         public int EnrollmentId { get; set;}
+        public Professor Professor { get; set; }
+        public int? ProfessorId { get; set; }
 
 
     }

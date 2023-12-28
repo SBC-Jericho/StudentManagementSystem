@@ -87,7 +87,6 @@ else
                 <MudTd Class="text-center pt-sm-3 pb-sm-3" 
                     DataLabel="Subject">@ClientSubjectService.ClientSubject.First(s => s.Id == subject.SubjectId).Name
                 </MudTd>
-
            <MudTd>
                 <MudButton OnClick="@(() => RemoveSubject(subject.SubjectId))"
                            Icon="@Icons.Material.Filled.Remove"
@@ -113,7 +112,7 @@ else
 
     <ValidationSummary />
 </EditForm>
-    @code {
+@code {
 
     [Parameter]
     public int Id { get; set; }
@@ -125,6 +124,8 @@ else
     Subject subject = new Subject();
 
     Student student = new Student();
+
+    Professor professor = new Professor();
 
     // private Dictionary<int, string> subjectNames = new Dictionary<int, string>();
 

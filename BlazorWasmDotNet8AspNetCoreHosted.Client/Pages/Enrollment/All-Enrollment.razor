@@ -22,6 +22,7 @@
             <MudTd DataLabel="Address">@Student.Address</MudTd>
             <AuthorizeView Roles="Admin">
                 <Authorized>
+
                     <MudTd DataLabel="Add Subject">
                         <MudButton OnClick="(() => AddSubject(Student.Id))" 
                                    Variant="Variant.Filled"

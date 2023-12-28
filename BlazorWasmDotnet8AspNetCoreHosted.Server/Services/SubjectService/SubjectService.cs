@@ -1,4 +1,5 @@
-﻿using BlazorWasmDotNet8AspNetCoreHosted.Shared.DTOs;
+﻿using Azure.Core;
+using BlazorWasmDotNet8AspNetCoreHosted.Shared.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.SubjectService
@@ -13,16 +14,25 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.SubjectService
         {
             _context = context;
         }
-        public async Task<List<Subject>> AddSubject(SubjectDTO subject)
+        public async Task<List<Subject>> AddSubject(SubjectDTO request)
         {
-            var newSubject = new Subject
+            Subject newSubject = new Subject()
             {
-                Name = subject.Name,
+                Name = request.Name,
+                Professors = new List<Professor>()
             };
+            foreach (int id in request.ProfessorIds)
+            {
+                // TODO: Query Professor with selectectedProf.Id
+                Professor professor = _context.Professors.First(p => p.Id == id);
+
+                newSubject.Professors.Add(professor);
+            }
 
             _context.Add(newSubject);
             await _context.SaveChangesAsync();
-            return await _context.Subjects.ToListAsync();
+            return await GetAllSubject();
+            
         }
 
         public async Task<List<Subject>?> DeleteSubject(int id)
@@ -33,26 +43,30 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.SubjectService
 
             _context.Subjects.Remove(subject);
             await _context.SaveChangesAsync();
-
-
             return await _context.Subjects.ToListAsync();   
         }
 
         public async Task<List<Subject>> GetAllSubject()
         {
-            var subject = await _context.Subjects.ToListAsync();
+            var subject = await _context.Subjects
+                .Include(p => p.Professors)
+                .ToListAsync();
             return subject;
         }
 
         public async Task<Subject?> GetSingleSubject(int id)
         {
-            var subject = await _context.Subjects.FindAsync(id);
+            var subject = await _context.Subjects
+                .Include(p => p.Professors)
+                .FirstOrDefaultAsync(p => p.Id == id);
             if (subject is null)
                 return null;
+
             return subject;
+
         }
 
-        public async Task<List<Subject>?> UpdateSubject(int id, SubjectDTO request)
+        public async Task<List<Subject>> UpdateSubject(int id, SubjectDTO request)
         {
             var subject = await _context.Subjects
                 .Where(u => u.Id == id)
@@ -64,7 +78,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.SubjectService
             
             await _context.SaveChangesAsync();
 
-            return await _context.Subjects.ToListAsync();
+            return await GetAllSubject();
         }
     }
 }

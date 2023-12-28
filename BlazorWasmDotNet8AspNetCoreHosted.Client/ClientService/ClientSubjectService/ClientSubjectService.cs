@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;
 using System.Net;
+using BlazorWasmDotNet8AspNetCoreHosted.Shared.DTOs;
 
 namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientSubjectService
 {
@@ -16,7 +17,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientSubjectSe
         }
         public List<Subject> ClientSubject { get; set; } = new List<Subject>();
 
-        public async Task AddSubject(Subject subject)
+        public async Task AddSubject(SubjectDTO subject)
         {
             // Controller end point
             await _http.PostAsJsonAsync("api/Subject/", subject);

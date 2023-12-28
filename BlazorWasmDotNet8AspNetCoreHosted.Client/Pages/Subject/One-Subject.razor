@@ -2,9 +2,10 @@
 @page "/single-subject/{id:int}"
 @inject IClientSubjectService ClientSubjectService
 @inject NavigationManager NavigationManager
+@inject IClientProfessorService ClientProfessorService
 @inject ISnackbar Snackbar
 
-@if (Id is null)
+@if (Id == 0)
 {
     <PageTitle>Create a new Subject</PageTitle>
     <h3>Create a new Subject</h3>
@@ -15,12 +16,56 @@ else
     <h3>Edit @subject.Name</h3>
 }
 
-<EditForm Model="subject" OnSubmit="HandleSubmit">
-    <DataAnnotationsValidator />
+<EditForm Model="subjects" OnValidSubmit="HandleSubmit">
+    @if (Id == 0)
+    {
+        <DataAnnotationsValidator />
+    }
     <MudCard>
         <MudCardContent>
-            <MudTextField Label="Name" @bind-Value="subject.Name"
-                          For="@(() => subject.Name)"></MudTextField>
+            <MudTextField 
+                Label="Name" @bind-Value="subjects.Name"
+                For="@(() => subjects.Name)"/>
+            @* MudMultiSelect *@
+
+            @if (Id == 0)
+            {
+                <MudSelect T="int"
+                           Label="Professors"
+                           MultiSelection="true"
+                           @bind-SelectedValues="options">
+
+                    @foreach (Professor professor in Professors)
+                    {
+                        <MudSelectItem T="int" Value="@professor.Id">@professor.LastName</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+            else
+            {
+                <MudSelect T="int"
+                           Label="Professors"
+                           MultiSelection="true"
+                           @bind-SelectedValues="options">
+
+                    @foreach (Professor professor in subject.Professors ?? new List<Professor>())
+                    {
+                        <MudSelectItem T="int" Value="@professor.Id">@professor.LastName</MudSelectItem>
+                    }
+
+                </MudSelect>
+            }
+           @*  <div class="flex-grow-1">
+                <MudSelect Label="Subjects" @bind-Value="subject.Id">
+                    <MudSelectItem Value="0">Select Subject</MudSelectItem>
+                    @foreach (var subjects in ClientSubjectService.ClientSubject)
+                    {
+                        <MudSelectItem Value="subjects.Id">@subjects.Name</MudSelectItem>
+                    }
+                </MudSelect>
+
+            </div> *@
+            
         </MudCardContent>
     </MudCard>
     <MudButton ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary" Variant="Variant.Filled">
@@ -31,64 +76,131 @@ else
 
 @code {
 
+
     [Parameter]
-    public int? Id { get; set; }
+    public int Id { get; set; }
 
     string btnText = string.Empty;
+    bool isNew = true;
+    public SubjectDTO subjects = new SubjectDTO();
+    public Subject subject = new Subject();
 
-    Subject subject = new Subject();
+    public List<Professor> Professors = new List<Professor>();
+
+    List<EnrolledSubjectsDTO> EnrolledSubjectsList = new List<EnrolledSubjectsDTO>();
+    // List<ProfessorSubjectDTO> ProfessorList = new List<ProfessorSubjectDTO>();
 
     protected override async Task OnInitializedAsync()
     {
-        btnText = Id == null ? "Save new Subject" : "Update Subject";
+        btnText = Id == 0 ? "Save new Subject" : "Update Subject";
         await ClientSubjectService.GetAllSubject();
 
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        if (Id is not null)
+        if (Id != 0)
         {
-            var result = await ClientSubjectService.GetSingleSubject((int)Id);
-            if (result is not null)
+            Subject? result = await ClientSubjectService.GetSingleSubject(Id);
+            if (result != null)
+            {
                 subject = result;
+                subjects.Name = result.Name;
+
+            }
             else
-                NavigationManager.NavigateTo("/single-subject");
+            {
+            NavigationManager.NavigateTo("/single-subject");
+                
+            }
 
         }
+        else
+        {
+            List<Professor> result = await ClientProfessorService.GetAllProfessor();
+            Professors = result;
+            
+        }
+
     }
 
     async Task HandleSubmit()
     {
-        if (Id is null)
+        if (Id==0)
         {
-            if (string.IsNullOrEmpty(subject.Name))
+            if (!string.IsNullOrEmpty(subjects.Name))
+            {
+                subjects.ProfessorIds = new List<int>();
+                foreach (int id in options)
+                {
+                    subjects.ProfessorIds.Add(id);
+                }
+                await ClientSubjectService.AddSubject(subjects);
+                Snackbar.Add(
+                "Added Subject Successfully!",
+                Severity.Success,
+                config =>
+                    {
+                    config.ShowTransitionDuration = 200;
+                    config.HideTransitionDuration = 400;
+                    config.VisibleStateDuration = 2500;
+                    });
+            }
+            else
             {
                 Snackbar.Add(
-                "Subject name is required!",
-                Severity.Warning,
-                config =>
+                   "No Subject Added",
+                   Severity.Warning, // Change Severity to Error for no subject added
+                   config =>
+                   {
+                       config.ShowTransitionDuration = 200;
+                       config.HideTransitionDuration = 400;
+                       config.VisibleStateDuration = 2500;
+                   });
+                NavigationManager.NavigateTo("/all-subjects");
+            }
+        }
+        else
+        {
+            await ClientSubjectService.UpdateSubject((int)Id, subject);
+            Snackbar.Add(
+                "Update Subject Successfully",
+                Severity.Success,
+            config =>
             {
                 config.ShowTransitionDuration = 200;
                 config.HideTransitionDuration = 400;
                 config.VisibleStateDuration = 2500;
             });
-                return;
-            }
-            await ClientSubjectService.AddSubject(subject);
-            StateHasChanged();
+        }
 
-        }
-        else
-        {
-            await ClientSubjectService.UpdateSubject((int)Id, subject);
-        }
+
     }
 
     async Task DeleteSubject()
     {
         await ClientSubjectService.DeleteSubject(subject.Id);
         StateHasChanged();
+        Snackbar.Add(
+                "Deleted Subject Successfully",
+                Severity.Success,
+            config =>
+            {
+                config.ShowTransitionDuration = 200;
+                config.HideTransitionDuration = 400;
+                config.VisibleStateDuration = 2500;
+            });
     }
 
+    // Code to Populate Multi Select
+
+    private int value { get; set; } = 0;
+    private IEnumerable<int> options { get; set; } = new HashSet<int>();
+
+    private List<Professor> GetProf(int subjectId)
+    {
+        // Assuming clientSubjectService.subjects is a collection of subjects
+        List<Professor> professors = subject.Professors ?? new List<Professor>();
+        return professors;
+    }
 }

@@ -15,8 +15,9 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.Models
         [Required(ErrorMessage = "Please, give this subject a name: ")]
         public string Name { get; set; } = string.Empty;
 
-        [JsonIgnore]
-        public List<EnrolledSubjects> EnrolledSubjects { get; set; }
+        //[JsonIgnore]
+        //public List<EnrolledSubjects> EnrolledSubjects { get; set; }
+        public List<Professor>? Professors { get; set; }
 
     }
 }

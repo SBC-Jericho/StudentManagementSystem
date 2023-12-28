@@ -17,9 +17,5 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Data
         public DbSet<BorrowedBooks> BorrowedBooks { get; set; }
         public DbSet<Library> Libraries { get; set; }
 
-
-
-      
-
     }
 }
