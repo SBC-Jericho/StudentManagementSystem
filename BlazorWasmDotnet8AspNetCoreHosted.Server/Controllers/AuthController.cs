@@ -76,6 +76,15 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
             return jwt;
         }
 
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Student>> DeleteUser(int id)
+        {
+            var result = await _authService.DeleteUser(id);
+            if (result is null)
+                return NotFound("User not Found");
+
+            return Ok(result);
+        }
         private void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
         {
             using (var hmac = new HMACSHA512())

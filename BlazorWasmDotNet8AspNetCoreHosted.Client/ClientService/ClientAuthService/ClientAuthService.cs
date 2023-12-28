@@ -18,14 +18,25 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientAuthServi
             _http = http;
             _navigationManager = navigationManager;
         }
-        public async Task<List<User>> GetAllUser()
+        public async Task GetAllUser()
         {
             var result = await _http.GetFromJsonAsync<List<User>>("api/auth/");
             if (result != null)
             {
                 ClientUser = result;
             }
-            return ClientUser;
+        }
+
+        public async Task DeleteUser(int id)
+        {
+            var result = await _http.DeleteAsync($"api/auth/{id}");
+
+
+            if (result.IsSuccessStatusCode)
+            {
+                List<User>? content = await result.Content.ReadFromJsonAsync<List<User>>();
+                if (content != null) ClientUser = content;
+            }
         }
 
         public async Task<string> Login(userLoginDTO request)

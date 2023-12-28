@@ -33,15 +33,32 @@
             <ValidationMessage For="@(() => user.Password)" />
 
             <MudSelect 
-                Label="Role" 
+                Label="Role"
+                Variant="Variant.Outlined"
                 @bind-Value="user.Role">
                 <MudSelectItem Value="@("Admin")" />
                 <MudSelectItem Value="@("Student")" />
                 <MudSelectItem Value="@("Professor")" />
             </MudSelect>
             <ValidationMessage For="@(() => user.Role)" />
-           
-            @if(user.Role == "Student")
+
+            @if (user.Role == "Admin")
+            {
+
+                <br />
+                <InputFile id="fileInput" OnChange="OnFileChange" hidden />
+                <MudButton HtmlTag="label"
+                           Variant="Variant.Outlined"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Filled.CloudUpload"
+                           for="fileInput">
+                    Upload Image
+                </MudButton>
+                <br />
+                <MudImage Src="@user.Avatar" Elevation="25" Class="rounded my-2"></MudImage>
+                <br />
+            }
+            else if(user.Role == "Student")
             {
                 <MudTextField 
                     Label="First Name"
@@ -177,7 +194,7 @@
     protected override async Task OnInitializedAsync()
     {
         btnText = Id == null ? "Save new user" : "Update User";
-       
+
     }
 
     async Task HandleSubmit()
@@ -208,6 +225,7 @@
         await resizedImage.OpenReadStream().ReadAsync(buffer);
         var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
         user.userDetailsDTO.Image = imageData;
+        user.Avatar = imageData;
 
     }
 

@@ -1,0 +1,107 @@
+﻿@page "/all-user"
+
+@inject IClientAuthService ClientAuthService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<PageTitle>Users</PageTitle>
+
+<h1>Users</h1>
+
+<MudTable Items="ClientAuthService.ClientUser" Hover="true" Striped="true" Dense="true" Class="mb-2">
+
+    <HeaderContent>
+
+        <MudTh>Image</MudTh>
+
+        <MudTh>Email</MudTh>
+
+        <MudTh>Role</MudTh>
+
+    </HeaderContent>
+
+    <RowTemplate Context="userDetails">
+
+        @if (userDetails.Role == "Admin")
+
+        {
+
+            <MudTd DataLabel="Image">
+                <MudAvatar>
+                    <MudImage Src="@userDetails.Avatar"></MudImage>
+                </MudAvatar>
+            </MudTd>
+        }
+        else if (userDetails.Role == "Student" && userDetails.Students != null)
+
+        {
+            <MudTd DataLabel="Image">
+                <MudAvatar>
+                    <MudImage Src="@userDetails.Students.Image"></MudImage>
+                </MudAvatar>
+            </MudTd>
+
+        }
+
+        else if (userDetails.Role == "Professor" && userDetails.Professor != null)
+
+        {
+
+            <MudTd DataLabel="Image"><MudAvatar Image="@userDetails.Professor.Image"></MudAvatar></MudTd>
+
+        }
+
+        <MudTd DataLabel="Email">
+
+            @userDetails.Email
+
+        </MudTd>
+
+        <MudTd DataLabel="Role">
+
+            @userDetails.Role
+
+        </MudTd>
+
+        <MudTd DataLabel="Delete">
+            <MudIconButton OnClick="(() => DeleteStudent(userDetails.Id))"
+                           Icon="@Icons.Material.Filled.Delete"
+                           Color="Color.Error"
+                           Variant="Variant.Filled"></MudIconButton>
+        </MudTd>
+    </RowTemplate>
+
+</MudTable>
+
+<MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" Variant="Variant.Filled" OnClick="RegisterUser">Add User</MudButton>
+
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+
+    {
+        await ClientAuthService.GetAllUser();
+    }
+
+    void RegisterUser()
+
+    {
+        NavigationManager.NavigateTo("/register");
+    }
+    async Task DeleteStudent(int id)
+    {
+        await ClientAuthService.DeleteUser(id);
+        StateHasChanged();
+        Snackbar.Add(
+        "User Deleted",
+        Severity.Success,
+        config =>
+        {
+            config.ShowTransitionDuration = 200;
+            config.HideTransitionDuration = 400;
+            config.VisibleStateDuration = 2500;
+        });
+    }
+
+}

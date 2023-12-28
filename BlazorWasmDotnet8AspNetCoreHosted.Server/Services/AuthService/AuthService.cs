@@ -30,6 +30,22 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AuthService
             return users;
         }
 
+        public async Task<List<User>?> DeleteUser(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user is null)
+                return null;
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+
+            return await _context.Users
+                .Include(user => user.Students)
+                .Include(professor => professor.Professor)
+                .ToListAsync();
+        }
+
         public async Task<string> Login(userLoginDTO request)
         {
             var user = await _context.Users.FirstOrDefaultAsync(e => e.Email == request.Email.Trim());
@@ -61,7 +77,11 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AuthService
                 Role = request.Role
             };
 
-            if (request.Role == "Student") 
+            if (request.Role == "Admin")
+            {
+                new_user.Avatar = request.Avatar;
+            }
+            else if (request.Role == "Student") 
             {
                 Student student_details = new Student
                 {
@@ -74,7 +94,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AuthService
                     User = new_user,
                     UserId = new_user.Id
                 };
-
+                new_user.Avatar = student_details.Image;
                 _context.Students.Add(student_details);
             }
             else if (request.Role == "Professor")
@@ -90,7 +110,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AuthService
                     User = new_user,
                     UserId = new_user.Id
                 };
-
+                new_user.Avatar = professor_details.Image;
                 _context.Professors.Add(professor_details);
             }
 

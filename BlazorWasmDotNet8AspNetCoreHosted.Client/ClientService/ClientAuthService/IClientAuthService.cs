@@ -9,6 +9,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientAuthServi
         Token token { get; set; }
         Task Register(userDTO request);
         Task<string> Login(userLoginDTO request);
-        Task<List<User>> GetAllUser();
+        Task GetAllUser();
+        Task DeleteUser(int id);
     }
 }
