@@ -20,6 +20,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsServ
         {
             var enrolled = await _context.EnrolledSubjects
                 .Include(u => u.Subject)
+                    .ThenInclude(u => u.Professors)
                 .Include(u => u.Enrollment)
                 .ToListAsync();
 
@@ -47,7 +48,8 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsServ
                 {
                     var enrolled = new EnrolledSubjects
                     {
-                        SubjectId = enrolledSub.SubjectId
+                        SubjectId = enrolledSub.SubjectId,
+                        ProfessorId = enrolledSub.ProfessorId
                     };
                     enrollment.EnrolledSubjects.Add(enrolled);
                     _context.EnrolledSubjects.Add(enrolled);
@@ -69,9 +71,13 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsServ
                .Include(u => u.Enrollment)
                     .ThenInclude(u => u.Student)
                .Include(u => u.Subject)
+                    .ThenInclude(p => p.Professors)
+               .Include(u => u.Enrollment)
                .Where(u => u.Enrollment.StudentId == id)
                .ToListAsync();
 
+            if(subjects == null)
+                return null;
             return subjects;
         
         }

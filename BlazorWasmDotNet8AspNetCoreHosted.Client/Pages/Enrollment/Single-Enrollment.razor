@@ -4,6 +4,7 @@
 @inject IClientSubjectService ClientSubjectService
 @inject IClientEnrolledSubjectsService ClientEnrolledSubjectsService
 @inject IClientStudentService ClientStudentService
+@inject IClientProfessorService ClientProfessorService
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 
@@ -87,6 +88,7 @@ else
                 <MudTd Class="text-center pt-sm-3 pb-sm-3" 
                     DataLabel="Subject">@ClientSubjectService.ClientSubject.First(s => s.Id == subject.SubjectId).Name
                 </MudTd>
+
            <MudTd>
                 <MudButton OnClick="@(() => RemoveSubject(subject.SubjectId))"
                            Icon="@Icons.Material.Filled.Remove"
@@ -98,6 +100,14 @@ else
                     Remove
                 </MudButton>
            </MudTd>
+
+            <MudSelect Label="Profs" @bind-Value="EnrolledSubjectsList.First(s => s.SubjectId == subject.SubjectId).ProfessorId">
+                <MudSelectItem Value="0">Select Professor</MudSelectItem>
+                @foreach (Professor prof in GetProf(subject.SubjectId))
+                {
+                    <MudSelectItem Value="prof.Id">@prof.LastName</MudSelectItem>
+                }
+            </MudSelect>
         </RowTemplate>
 
     </MudTable>
@@ -127,6 +137,13 @@ else
 
     Professor professor = new Professor();
 
+    private List<Professor> GetProf(int subjectId)
+    {
+        // Assuming clientSubjectService.subjects is a collection of subjects
+        List<Professor> data = ClientSubjectService.ClientSubject.First(s => s.Id == subjectId).Professors;
+        return data;
+    }
+
     // private Dictionary<int, string> subjectNames = new Dictionary<int, string>();
 
     List<EnrolledSubjectsDTO> EnrolledSubjectsList = new List<EnrolledSubjectsDTO>();
@@ -155,9 +172,10 @@ else
 
     private void AddSubject()
     {
-        if (!EnrolledSubjectsList.Any(s => s.SubjectId == subject.Id))
+        if (!EnrolledSubjectsList.Any(s => s.SubjectId == subject.Id) && !EnrolledSubjectsList.Any(s => s.ProfessorId == professor.Id))
         {
             enrolledSubjectsDTO.SubjectId = subject.Id;
+            enrolledSubjectsDTO.ProfessorId = 0;
             EnrolledSubjectsList.Add(enrolledSubjectsDTO);
             enrolledSubjectsDTO = new EnrolledSubjectsDTO();
         }
@@ -196,6 +214,7 @@ else
        
         enrollmentDTO.EnrolledSubjects = EnrolledSubjectsList;
         await ClientEnrolledSubjectsService.AddEnrolledSubject(enrollmentDTO);
+
         StateHasChanged();
         NavigationManager.NavigateTo("/all-enrollment");
 

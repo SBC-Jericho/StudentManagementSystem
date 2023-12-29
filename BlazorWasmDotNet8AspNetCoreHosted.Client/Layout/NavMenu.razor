@@ -1,59 +1,158 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@* <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">BlazorWasmDotNet8AspNetCoreHosted.Client</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
     </div>
+</div> *@
+@inject IClientAuthService ClientAuthService
+
+@* <div class="d-flex justify-content-center mt-5">
+    <MudImage Src="@avatar" Style="width: 120px; height:120px;"></MudImage>
 </div>
+<div class="d-flex justify-content-center mt-2 mb-5">
+    <span style="color:white; font-size:17px; margin-top: 6px; font-weight: 500; text-align: center">@avatar</span>
+</div> *@
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
+<MudPaper Width="250px" Class="d-inline-flex py-3" Elevation="0">
+ <MudNavMenu Class="mud-width-full" @onclick="ToggleNavMenu">
+     <MudText Typo="Typo.h6" Class="px-4">SMS</MudText>
+        <MudDivider Class="my-2" />
+            <MudNavLink Href="" 
+                Match="NavLinkMatch.All" 
+                Icon="@Icons.Material.Filled.Dashboard" 
+                IconColor="Color.Tertiary">Dashboard
+            </MudNavLink>
 
-        <div class="nav-item px-3">
-            <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Dashboard" IconColor="Color.Tertiary">Dashboard</MudNavLink>
-        </div>
+           <AuthorizeView Roles="Admin">
+               <Authorized>
+                    <MudNavLink Href="all-student" 
+                        Icon="@Icons.Material.Filled.Person" 
+                        IconColor="Color.Tertiary">Students
+                    </MudNavLink>
+                </Authorized>
+            </AuthorizeView>
+            
+            <AuthorizeView Roles="Admin">
+               <Authorized>
+                    <MudNavLink Href="all-professor" 
+                        Icon="@Icons.Material.Filled.Person" 
+                        IconColor="Color.Tertiary">Professors
+                    </MudNavLink>
+            </Authorized>
+        </AuthorizeView>
+       
+            <AuthorizeView Roles="Student">
+               <Authorized>
+        <MudNavGroup Title="Subjects" 
+            @bind-Expanded=_subjectIsExpanded
+            Icon="@Icons.Material.Filled.Subject" 
+            IconColor="Color.Tertiary">
 
-        <div class="nav-item px-3">
-            <MudNavLink Href="all-student" Icon="@Icons.Material.Filled.Person" IconColor="Color.Tertiary">Students</MudNavLink>
-        </div>
+                <MudNavLink>
+                    Enroll
+                </MudNavLink>
+                </MudNavGroup>
+            </Authorized>
+        </AuthorizeView>
 
-        <div class="nav-item px-3">
-            <MudNavLink Href="all-professor" Icon="@Icons.Material.Filled.Person" IconColor="Color.Tertiary">Professors</MudNavLink>
-        </div>
+        
+        <AuthorizeView Roles="Student">
+               <Authorized>
+                    <MudNavGroup 
+                        Title="Books"
+                        @bind-Expanded=_bookIsExpanded
+                        Icon="@Icons.Material.Filled.LibraryBooks"
+                        IconColor="Color.Tertiary">
 
-        <div class="nav-item px-3">
-            <MudNavLink Href="all-subject" Icon="@Icons.Material.Filled.Subject" IconColor="Color.Tertiary">Subjects</MudNavLink>
-        </div>
+                        <MudNavLink 
+                            Icon="@Icons.Material.Filled.Settings">
+                            Manage
+                        </MudNavLink>
+                    </MudNavGroup>
+            </Authorized>
+        </AuthorizeView>
 
-        <div class="nav-item px-3">
-            <MudNavLink Href="all-book" Icon="@Icons.Material.Filled.LibraryBooks" IconColor="Color.Tertiary">Books</MudNavLink>
-        </div
 
-        <div class="nav-item px-3">
-            <MudNavLink Href="all-user" Icon="@Icons.Material.Filled.People" IconColor="Color.Tertiary">Users</MudNavLink>
-        </div
+         <AuthorizeView Roles="Admin">
+            <Authorized>
+                <MudNavLink Href="all-subject"
+                    Icon="@Icons.Material.Filled.Subject" 
+                    IconColor="Color.Tertiary">Subjects
+                </MudNavLink>
+            </Authorized>
+        </AuthorizeView>
 
-        <div class="nav-item px-3">
-            <MudNavLink Href="all-enrollment" Icon="@Icons.Material.Filled.AddCard" IconColor="Color.Tertiary">Enrollment</MudNavLink>
-        </div>
+          <AuthorizeView Roles="Admin">
+              <Authorized>
+                <MudNavLink Href="all-book" 
+                    Icon="@Icons.Material.Filled.LibraryBooks"
+                    IconColor="Color.Tertiary">Books
+                </MudNavLink>
+            </Authorized>
+        </AuthorizeView>
 
-        <div class="nav-item px-3">
-             <MudNavLink Href="all-library" Icon="@Icons.Material.Filled.LibraryAdd" IconColor="Color.Tertiary">Library</MudNavLink>
-        </div>
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+                <MudNavLink 
+                    Href="all-user" 
+                    Icon="@Icons.Material.Filled.People" 
+                    IconColor="Color.Tertiary">Users
+                </MudNavLink>
+            </Authorized>
+        </AuthorizeView>
 
-        <div class="nav-item px-3">
-            <MudNavLink Href="register-user" Icon="@Icons.Material.Filled.PersonAdd" IconColor="Color.Tertiary">Register</MudNavLink>
-        </div>
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+                <MudNavLink 
+                    Href="all-enrollment" 
+                    Icon="@Icons.Material.Filled.AddCard" 
+                    IconColor="Color.Tertiary">Enrollment
+                </MudNavLink>
+            </Authorized>
+        </AuthorizeView>
 
-        <div class="nav-item px-3">
-            <MudNavLink Href="login" Icon="@Icons.Material.Filled.Login" IconColor="Color.Tertiary">Login</MudNavLink>
-        </div>
-    </nav>
-</div>
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+                 <MudNavLink 
+                    Href="all-library" 
+                    Icon="@Icons.Material.Filled.LibraryAdd" 
+                    IconColor="Color.Tertiary">Library
+                </MudNavLink>
+            </Authorized>
+         </AuthorizeView>
 
-@code {
+         <AuthorizeView Roles="Admin">
+            <Authorized>
+            <MudNavLink 
+                Href="register-user" 
+                Icon="@Icons.Material.Filled.PersonAdd" 
+                IconColor="Color.Tertiary">Register
+            </MudNavLink>
+            </Authorized>
+        </AuthorizeView>
+
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+            <MudNavLink 
+                Href="login" 
+                Icon="@Icons.Material.Filled.Login" 
+                IconColor="Color.Tertiary">Login
+            </MudNavLink>
+            </Authorized>
+        </AuthorizeView>
+
+  </MudNavMenu>
+
+</MudPaper>
+
+@code 
+{
+    public string avatar;
     private bool collapseNavMenu = true;
+    bool _subjectIsExpanded = false;
+    bool _bookIsExpanded = false;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
@@ -61,4 +160,9 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //    avatar =  await ClientAuthService.GetSingleUserAvatar();
+    // }
 }

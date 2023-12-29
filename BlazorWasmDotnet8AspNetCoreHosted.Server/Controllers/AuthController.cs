@@ -18,7 +18,6 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
     {
         public static User user = new User();
         private readonly IConfiguration _configuration;
-        private readonly DataContext _context;
         private readonly IAuthService _authService;
 
         public AuthController(IConfiguration configuration, IAuthService authService)
@@ -26,6 +25,15 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
             _configuration = configuration;
             _authService = authService;
         }
+
+        //[HttpGet("single-user")]
+        //public async Task<ActionResult<string>> GetSingleUserAvater()
+        //{
+        //    var result = await _authService.GetSingleUser();
+
+        //    return Ok(result);
+        //}
+
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(userDTO request)
         {
@@ -33,6 +41,8 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
             var result = await _authService.Register(request);
             return Ok(result);
         }
+
+
 
         [HttpPost("login")]
 

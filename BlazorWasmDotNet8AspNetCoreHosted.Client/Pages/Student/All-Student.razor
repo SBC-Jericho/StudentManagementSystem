@@ -16,7 +16,12 @@
     </Authorized>
 </AuthorizeView>
 
-<MudTable Items="ClientStudentService.ClientStudent" Hover="true" Striped="true" Dense="true" Class="mb-2">
+<MudTable Items="ClientStudentService.ClientStudent" Hover="true" Striped="true" Dense="true" Class="mb-2" Filter="new Func<Student,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">List of Students</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
     <HeaderContent>
         <MudTh></MudTh>
         <MudTh>First Name</MudTh>
@@ -25,29 +30,29 @@
         <MudTh>Contact</MudTh>
         <MudTh>Address</MudTh>
     </HeaderContent>
-    <RowTemplate Context="Student">
-        <MudTd DataLabel="Image"><MudAvatar Image="@Student.Image" /></MudTd>
-        <MudTd DataLabel="First Name">@Student.FirstName</MudTd>
-            <MudTd DataLabel="Last Name">@Student.LastName</MudTd>
-            <MudTd DataLabel="BirthDate">@Student.BirthDate</MudTd>
-            <MudTd DataLabel="Contact">@Student.Contact</MudTd>
-            <MudTd DataLabel="Address">@Student.Address</MudTd>
+    <RowTemplate Context="std">
+        <MudTd DataLabel="Image"><MudAvatar Image="@std.Image" /></MudTd>
+        <MudTd DataLabel="First Name">@std.FirstName</MudTd>
+            <MudTd DataLabel="Last Name">@std.LastName</MudTd>
+            <MudTd DataLabel="BirthDate">@std.BirthDate</MudTd>
+            <MudTd DataLabel="Contact">@std.Contact</MudTd>
+            <MudTd DataLabel="Address">@std.Address</MudTd>
             <AuthorizeView Roles="Admin">
                 <Authorized>
                     <MudTd DataLabel="Edit">
-                        <MudIconButton OnClick="(() => EditStudent(Student.Id))"
+                        <MudIconButton OnClick="(() => EditStudent(std.Id))"
                                        Icon="@Icons.Material.Filled.Edit"
                                        Color="Color.Primary"
                                        Variant="Variant.Filled"></MudIconButton>
                     </MudTd>
                     <MudTd DataLabel="Delete">
-                        <MudIconButton OnClick="(() => DeleteStudent(Student.Id))"
+                        <MudIconButton OnClick="(() => DeleteStudent(std.Id))"
                                        Icon="@Icons.Material.Filled.Delete"
                                        Color="Color.Error"
                                        Variant="Variant.Filled"></MudIconButton>
                     </MudTd>
                     <MudTd DataLabel="View">
-                        <MudIconButton OnClick="(() => ViewStudent(Student.Id))"
+                        <MudIconButton OnClick="(() => ViewStudent(std.Id))"
                                        Color="Color.Tertiary"
                                        Variant="Variant.Filled">View Details</MudIconButton>
                     </MudTd>
@@ -60,10 +65,30 @@
     <p style="height:500px;"></p>
     @code {
 
+    private string searchString1 = "";
+    private Student selectedItem1 = null;
+    private HashSet<Student> selectedItems = new HashSet<Student>();
+ 
+    private IEnumerable<Student> Students = new List<Student>();
     // lifecycle method
     protected override async Task OnInitializedAsync()
     {
-        await ClientStudentService.GetAllStudent();
+        Students = await ClientStudentService.GetAllStudent();
+    }
+
+    private bool FilterFunc1(Student student) => FilterFunc(student, searchString1);
+
+    private bool FilterFunc(Student student, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (student.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (student.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if ($"{student.BirthDate} {student.Contact} {student.Address}".Contains(searchString))
+            return true;
+        return false;
     }
 
     void EditStudent(int id)

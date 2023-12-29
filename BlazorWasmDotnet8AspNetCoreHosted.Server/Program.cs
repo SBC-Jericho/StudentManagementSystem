@@ -51,6 +51,7 @@ builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<IEnrolledSubjectsService, EnrolledSubjectsService>();
 builder.Services.AddScoped<IBorrowedBookService, BorrowedBookService>();
 builder.Services.AddDbContext<DataContext>();
+builder.Services.AddHttpContextAccessor();
 
 
 var app = builder.Build();

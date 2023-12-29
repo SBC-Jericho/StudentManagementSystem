@@ -4,12 +4,14 @@
 @inject IClientAuthService ClientAuthService
 @inject ISnackbar Snackbar
 @layout AuthLayout
-
+@inject HttpClient Http
+@inject AuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 
 <h3>Register user</h3>
 
-<EditForm Model="user" OnSubmit="HandleSubmit">
+<EditForm Model="user" OnValidSubmit="HandleSubmit">
+
     <DataAnnotationsValidator />
     <MudCard>
         <MudCardContent>

@@ -13,14 +13,30 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AuthService
     public class AuthService : IAuthService
     {
         private readonly DataContext _context;
+        private readonly HttpContextAccessor _contextAccessor;
+
         //constructor to inject the DataContext again
         public static User user = new User();
         private readonly IConfiguration _configuration;
-        public AuthService(IConfiguration configuration, DataContext context)
+        public AuthService(IConfiguration configuration, DataContext context) 
         {
             _configuration = configuration;
             _context = context;
+
         }
+
+        public async Task<string> GetSingleUser()
+        {
+            var userId = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var users = await _context.Users
+                     .Where(p => p.Id.ToString() == GetUserId())
+                      .Select(p => p.Id.ToString())
+                     .FirstOrDefaultAsync();
+            return users;
+        }
+        private string? GetUserId() => _contextAccessor.HttpContext!.User
+       .FindFirstValue(ClaimTypes.NameIdentifier);
         public async Task<List<User>> GetAllUser()
         {
             var users = await _context.Users
@@ -124,10 +140,11 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AuthService
         private string CreateToken(User user)
         {
             List<Claim> claims = new List<Claim>()
-    {
-        new Claim(ClaimTypes.Name, user.Email),
-        new Claim(ClaimTypes.Role, user.Role)
-    };
+            {
+                new Claim(ClaimTypes.Name, user.Email),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
 
             // 403 Don't have the Correct Role 
             // 401 No Autherization Header Set

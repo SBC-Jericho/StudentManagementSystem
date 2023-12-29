@@ -7,7 +7,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AuthService
         Task<User> Register(userDTO request);
         Task<string> Login(userLoginDTO request);
         Task<List<User>> GetAllUser();
-
+        //Task<string> GetSingleUser();
         Task<List<User>?> DeleteUser(int id);
     }
 }

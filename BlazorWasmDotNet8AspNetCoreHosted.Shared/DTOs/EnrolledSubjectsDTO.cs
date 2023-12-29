@@ -10,6 +10,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.DTOs
     public class EnrolledSubjectsDTO
     { 
         public int SubjectId { get; set; }
+        public int ProfessorId { get; set; }
 
     }
 }

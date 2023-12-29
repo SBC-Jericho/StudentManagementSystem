@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,7 +9,9 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.DTOs
 {
     public class ProfessorDTO
     {
+        [Required]
         public string FirstName { get; set; } = string.Empty;
+        [Required]
         public string LastName { get; set; } = string.Empty;
         public DateTime? BirthDate { get; set; } = DateTime.Now;
         public string Image { get; set; } = string.Empty;

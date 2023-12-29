@@ -16,7 +16,7 @@
     <p class="text-danger">@errorMessage</p>
 }
 
-<EditForm Model="user" OnSubmit="HandleLogin">
+<EditForm Model="user" OnValidSubmit="HandleLogin">
     <DataAnnotationsValidator />
     <MudCard>
         <MudCardContent>
@@ -44,7 +44,6 @@
                        Variant="Variant.Filled">Login</MudButton>
             <MudButton OnClick="NavigateRegister" ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary"
                        Variant="Variant.Filled">Register</MudButton>
-
         </MudCardContent>
     </MudCard>
 </EditForm>
