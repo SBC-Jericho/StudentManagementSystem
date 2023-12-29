@@ -22,9 +22,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AuthService
         {
             _configuration = configuration;
             _context = context;
-
         }
-
         public async Task<string> GetSingleUser()
         {
             var userId = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

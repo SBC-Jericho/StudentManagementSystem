@@ -1,11 +1,13 @@
-﻿@* <div class="top-row ps-3 navbar navbar-dark">
+﻿@*
+    <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">BlazorWasmDotNet8AspNetCoreHosted.Client</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
     </div>
-</div> *@
+    </div>
+*@
 @inject IClientAuthService ClientAuthService
 
 @* <div class="d-flex justify-content-center mt-5">
@@ -73,7 +75,6 @@
                     </MudNavGroup>
             </Authorized>
         </AuthorizeView>
-
 
          <AuthorizeView Roles="Admin">
             <Authorized>
