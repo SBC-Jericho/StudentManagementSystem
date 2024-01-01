@@ -90,15 +90,18 @@ else
                 </MudTd>
 
            <MudTd>
-                <MudButton OnClick="@(() => RemoveSubject(subject.SubjectId))"
-                           Icon="@Icons.Material.Filled.Remove"
-                           Size="Size.Small" 
-                           ButtonType="ButtonType.Button" 
-                           Class="mt-4" 
-                           Color="Color.Error" 
-                           Variant="Variant.Filled">
+
+                <MudButton 
+                    OnClick="@(() => RemoveSubject(subject.SubjectId))"
+                     Icon="@Icons.Material.Filled.Remove"
+                     Size="Size.Small" 
+                     ButtonType="ButtonType.Button" 
+                     Class="mt-4" 
+                     Color="Color.Error" 
+                     Variant="Variant.Filled">
                     Remove
                 </MudButton>
+
            </MudTd>
 
             <MudSelect Label="Profs" @bind-Value="EnrolledSubjectsList.First(s => s.SubjectId == subject.SubjectId).ProfessorId">

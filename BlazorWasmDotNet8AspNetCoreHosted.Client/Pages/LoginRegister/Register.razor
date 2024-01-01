@@ -20,6 +20,7 @@
                 Variant="Variant.Outlined"
                 @bind-Value="user.Email"
                 For="@(() => user.Email)"
+                OnlyValidateIfDirty="true" 
             />
 
             <MudTextField 
@@ -66,8 +67,8 @@
                     Label="First Name"
                     Variant="Variant.Outlined"
                     @bind-Value="user.userDetailsDTO.FirstName"
-                    For="@(() => user.userDetailsDTO.FirstName)" 
-                 />
+                    For="@(() => user.userDetailsDTO.FirstName)"
+                />
 
                 <MudTextField 
                      Label="Last Name"
@@ -87,7 +88,7 @@
                     Label="Address"
                     Variant="Variant.Outlined"
                     @bind-Value="user.userDetailsDTO.Address"
-                    For="@(() => user.userDetailsDTO.Address)" 
+                    For="@(() => user.userDetailsDTO.Address)"
                 />
 
                 <MudDatePicker 
@@ -141,22 +142,34 @@
                                @bind-Date="user.userDetailsDTO.BirthDate" />
 
                 <br />
+
                 <InputFile id="fileInput" OnChange="OnFileChange" hidden />
-                <MudButton HtmlTag="label"
-                           Variant="Variant.Filled"
-                           Color="Color.Primary"
-                           StartIcon="@Icons.Filled.CloudUpload"
-                           for="fileInput">
+
+                <MudButton 
+                    HtmlTag="label"
+                    Variant="Variant.Filled"
+                    Color="Color.Primary"
+                    StartIcon="@Icons.Filled.CloudUpload"
+                    for="fileInput">
                     Upload Image
                 </MudButton>
+
                 <br />
-                <MudImage Src="@user.userDetailsDTO.Image" Elevation="25" Class="rounded my-2"></MudImage>
+
+                <MudImage 
+                    Src="@user.userDetailsDTO.Image" 
+                    Elevation="25" 
+                    Class="rounded my-2"/>
+
                 <br />
             }
-            <MudButton ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary"
-                       Variant="Variant.Filled">Register</MudButton>
-            <MudButton OnClick="NavigateLogin" ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary"
-                       Variant="Variant.Filled">Login</MudButton>
+            <MudButton 
+                ButtonType="ButtonType.Submit" 
+                Class="mt-4" Color="Color.Primary"
+                Variant="Variant.Filled">
+                Register
+            </MudButton>
+
         </MudCardContent>
     </MudCard>
 
@@ -204,7 +217,7 @@
         if (Id is null)
         {
             await ClientAuthService.Register(user);
-            NavigationManager.NavigateTo("login");
+            NavigationManager.NavigateTo("all-user");
 
             Snackbar.Add(
             "Registration Successful",

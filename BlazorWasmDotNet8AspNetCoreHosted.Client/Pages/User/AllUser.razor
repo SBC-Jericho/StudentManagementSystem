@@ -7,17 +7,27 @@
 <PageTitle>Users</PageTitle>
 
 <h1>Users</h1>
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <div style="position: absolute; right: 50px;">
+            <MudButton @onclick="CreateNewUser" StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary" Variant="Variant.Filled">Add User</MudButton>
+        </div>
+        <br />  
+        <br />
+    </Authorized>
+</AuthorizeView>
 
-<MudTable Items="ClientAuthService.ClientUser" Hover="true" Striped="true" Dense="true" Class="mb-2">
+<MudTable Items="ClientAuthService.ClientUser" Hover="true" Striped="true" Dense="true" Class="mb-2" Filter="new Func<User,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+
+    <ToolBarContent>
+        <MudSpacer/>
+        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
 
     <HeaderContent>
-
         <MudTh>Image</MudTh>
-
         <MudTh>Email</MudTh>
-
         <MudTh>Role</MudTh>
-
     </HeaderContent>
 
     <RowTemplate Context="userDetails">
@@ -73,22 +83,38 @@
 
 </MudTable>
 
-<MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" Variant="Variant.Filled" OnClick="RegisterUser">Add User</MudButton>
+<p style="height:500px;"></p>
+@* <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" Variant="Variant.Filled" OnClick="RegisterUser">Add User</MudButton>*@
 
+@code 
+{
+    private string searchString1 = "";
+    private User selectedItem1 = null;
+    private HashSet<User> selectedItems = new HashSet<User>();
 
-@code {
+    private IEnumerable<User> Users = new List<User>();
 
     protected override async Task OnInitializedAsync()
-
     {
         await ClientAuthService.GetAllUser();
     }
 
-    void RegisterUser()
+    private bool FilterFunc1(User user) => FilterFunc(user, searchString1);
 
+    private bool FilterFunc(User user, string searchString)
     {
-        NavigationManager.NavigateTo("/register");
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (user.Email.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
     }
+
+    void CreateNewUser()
+    {
+        NavigationManager.NavigateTo("/register-user");
+    }
+
     async Task DeleteStudent(int id)
     {
         await ClientAuthService.DeleteUser(id);

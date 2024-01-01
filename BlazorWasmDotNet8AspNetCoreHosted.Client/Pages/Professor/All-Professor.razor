@@ -7,17 +7,13 @@
 
 <h1>Professor</h1>
 
-<AuthorizeView Roles="Admin">
-    <Authorized>
-        <div style="position: absolute; right: 50px;">
-            <MudButton @onclick="CreateNewProfessor" Color="Color.Primary" Variant="Variant.Filled">Register new Professor</MudButton>
-        </div>
-        <br />
-        <br />
-    </Authorized>
-</AuthorizeView>
+<MudTable Items="ClientProfessorService.ClientProfessor" Hover="true" Striped="true" Dense="true" Class="mb-2" Filter="new Func<Professor,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
 
-<MudTable Items="ClientProfessorService.ClientProfessor" Hover="true" Striped="true" Dense="true" Class="mb-2">
+    <ToolBarContent>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+
     <HeaderContent>
         <MudTh></MudTh>
         <MudTh>First Name</MudTh>
@@ -36,16 +32,11 @@
             <AuthorizeView Roles="Admin">
                 <Authorized>
                     <MudTd DataLabel="Edit">
-                        <MudIconButton OnClick="(() => EditProfessor(professor.Id))"
-                                       Icon="@Icons.Material.Filled.Edit"
-                                       Color="Color.Primary"
-                                       Variant="Variant.Filled"></MudIconButton>
-                    </MudTd>
-                    <MudTd DataLabel="Delete">
-                        <MudIconButton OnClick="(() => DeleteProfessor(professor.Id))"
-                                       Icon="@Icons.Material.Filled.Delete"
-                                       Color="Color.Error"
-                                       Variant="Variant.Filled"></MudIconButton>
+                        <MudIconButton 
+                            OnClick="(() => EditProfessor(professor.Id))"
+                            Icon="@Icons.Material.Filled.Edit"
+                            Color="Color.Primary"
+                            Variant="Variant.Filled"/>
                     </MudTd>
                 </Authorized>
             </AuthorizeView>
@@ -55,12 +46,31 @@
     <p style="height:500px;"></p>
     @code {
 
+    private string searchString1 = "";
+    private Professor selectedItem1 = null;
+    private HashSet<Professor> selectedItems = new HashSet<Professor>();
+    private IEnumerable<Professor> Users = new List<Professor>();
+
     // lifecycle method
     protected override async Task OnInitializedAsync()
     {
         await ClientProfessorService.GetAllProfessor();
     }
 
+    private bool FilterFunc1(Professor professor) => FilterFunc(professor, searchString1);
+
+    private bool FilterFunc(Professor professor, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (professor.FirstName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (professor.LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if ($"{professor.BirthDate} {professor.Contact} {professor.Address}".Contains(searchString))
+            return true;
+        return false;
+    }
     void EditProfessor(int id)
     {
         //Navigate the user to another page - inject  NavigationManager NavigationManager
@@ -70,20 +80,5 @@
     void CreateNewProfessor()
     {
         NavigationManager.NavigateTo("/register-user");
-    }
-
-    async Task DeleteProfessor(int id)
-    {
-        await ClientProfessorService.DeleteProfessor(id);
-        StateHasChanged();
-        Snackbar.Add(
-        "Professor Deleted",
-        Severity.Success,
-        config =>
-        {
-            config.ShowTransitionDuration = 200;
-            config.HideTransitionDuration = 400;
-            config.VisibleStateDuration = 2500;
-        });
     }
 }
