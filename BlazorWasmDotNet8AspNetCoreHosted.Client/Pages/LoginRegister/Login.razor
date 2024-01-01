@@ -26,6 +26,7 @@
                 Variant="Variant.Outlined"  
                 @bind-Value="user.Email"
                 For="@(() => user.Email)"
+                OnlyValidateIfDirty="true" 
             />
 
             <MudTextField 
@@ -38,12 +39,24 @@
                 AdornmentAriaLabel="Show Password"
                 @bind-Value="user.Password"
                 For="@(() => user.Password)"
+                OnlyValidateIfDirty="true" 
             />
 
-            <MudButton ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary"
-                       Variant="Variant.Filled">Login</MudButton>
-            <MudButton OnClick="NavigateRegister" ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary"
-                       Variant="Variant.Filled">Register</MudButton>
+            <MudButton 
+                ButtonType="ButtonType.Submit"
+                Class="mt-4" Color="Color.Primary"
+                Variant="Variant.Filled">
+                Login
+            </MudButton>
+
+            <MudButton 
+                OnClick="NavigateRegister" 
+                ButtonType="ButtonType.Submit"
+                Class="mt-4" Color="Color.Success"
+                Variant="Variant.Filled">
+                Register
+            </MudButton>
+
         </MudCardContent>
     </MudCard>
 </EditForm>

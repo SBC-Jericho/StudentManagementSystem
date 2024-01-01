@@ -20,7 +20,8 @@ else
     <DataAnnotationsValidator />
     <MudCard>
         <MudCardContent>
-            <MudTextField Label="First Name" @bind-Value="student.FirstName"
+            <MudTextField 
+                Label="First Name" @bind-Value="student.FirstName"
                           For="@(() => student.FirstName)"></MudTextField>
             <MudTextField Label="Last Name" @bind-Value="student.LastName"
                           For="@(() => student.LastName)"></MudTextField>
@@ -47,11 +48,7 @@ else
     <MudButton ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary" Variant="Variant.Filled">
         @btnText
     </MudButton>
-    <MudButton @onclick="DeleteStudent" Class="mt-4" Color="Color.Error" Variant="Variant.Filled">
-        Delete Student
-    </MudButton>
-
-
+   
     <p style="height:500px;"></p>
     <ValidationSummary />
 </EditForm>
@@ -125,21 +122,5 @@ else
         var imageData = $"data:{format};base64,{Convert.ToBase64String(buffer)}";
         student.Image = imageData;
 
-    }
-
-    async Task DeleteStudent()
-    {
-        await ClientStudentService.DeleteStudent(student.Id);
-        NavigationManager.NavigateTo("/all-Students");
-        StateHasChanged();
-        Snackbar.Add(
-       "Student Deleted",
-       Severity.Success,
-       config =>
-       {
-           config.ShowTransitionDuration = 200;
-           config.HideTransitionDuration = 400;
-           config.VisibleStateDuration = 2500;
-       });
     }
 }

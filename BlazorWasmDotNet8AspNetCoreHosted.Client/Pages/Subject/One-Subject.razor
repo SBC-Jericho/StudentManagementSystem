@@ -106,22 +106,32 @@ else
             {
                 subject = result;
                 subjects.Name = result.Name;
-
             }
             else
             {
             NavigationManager.NavigateTo("/single-subject");
                 
             }
-
         }
         else
         {
             List<Professor> result = await ClientProfessorService.GetAllProfessor();
-            Professors = result;
-            
+            Professors = result;   
         }
 
+    }
+
+    
+    // Code to Populate Multi Select
+
+    private int value { get; set; } = 0;
+    private IEnumerable<int> options { get; set; } = new HashSet<int>();
+
+    private List<Professor> GetProf(int subjectId)
+    {
+        // Assuming clientSubjectService.subjects is a collection of subjects
+        List<Professor> professors = subject.Professors ?? new List<Professor>();
+        return professors;
     }
 
     async Task HandleSubmit()
@@ -190,17 +200,5 @@ else
                 config.HideTransitionDuration = 400;
                 config.VisibleStateDuration = 2500;
             });
-    }
-
-    // Code to Populate Multi Select
-
-    private int value { get; set; } = 0;
-    private IEnumerable<int> options { get; set; } = new HashSet<int>();
-
-    private List<Professor> GetProf(int subjectId)
-    {
-        // Assuming clientSubjectService.subjects is a collection of subjects
-        List<Professor> professors = subject.Professors ?? new List<Professor>();
-        return professors;
     }
 }
