@@ -1,0 +1,72 @@
+﻿@page "/single-student-library-view"
+@inject IClientStudentService ClientStudentService
+@inject IClientUserService ClientUserService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+<PageTitle>Library</PageTitle>
+
+<h3>Manage Library</h3>
+
+<MudTable Items="new List<Student> { student }" Hover="true" Striped="true" Dense="true" Class="mb-2">
+
+    <HeaderContent>
+        <MudTh>Image</MudTh>
+        <MudTh>Name</MudTh>
+        <MudTh>BirthDate</MudTh>
+        <MudTh>Contact</MudTh>
+        <MudTh>Address</MudTh>
+        <AuthorizeView Roles="Admin">
+            <MudTh>Actions</MudTh>
+        </AuthorizeView>
+
+    </HeaderContent>
+    <RowTemplate Context="Student">
+        <MudTd DataLabel="Image"><MudAvatar Image="@Student.Image" /></MudTd>
+        <MudTd DataLabel="Name">@Student.FirstName @Student.LastName</MudTd>
+            <MudTd DataLabel="BirthDate">@Student.BirthDate</MudTd>
+            <MudTd DataLabel="Contact">@Student.Contact</MudTd>
+            <MudTd DataLabel="Address">@Student.Address</MudTd>
+            <AuthorizeView Roles="Student">
+                <Authorized>
+                    <MudTd>
+                        <MudButton OnClick="(() => AddBorrowedBook(Student.Id))"
+                                   Variant="Variant.Filled"
+                                   Size="Size.Small"
+                                   Color="Color.Primary">
+                            Borrow Book
+                        </MudButton>
+                        <MudButton OnClick="(() => ViewDetails(Student.Id))"
+                                   Variant="Variant.Filled"
+                                   Size="Size.Small"
+                                   Color="Color.Success">
+                            View Details
+                        </MudButton>
+                    </MudTd>
+                </Authorized>
+            </AuthorizeView>
+        </RowTemplate>
+    </MudTable>
+
+    <p style="height:500px;"></p>
+
+    @code
+    {
+
+    Student? student = new Student();
+
+    protected override async Task OnInitializedAsync()
+    {
+        student = await ClientUserService.GetSingleStudent();
+    }
+        
+    void AddBorrowedBook(int id)
+    {
+        NavigationManager.NavigateTo($"single-library/{id}");
+    }
+
+    void ViewDetails(int id)
+    {
+        NavigationManager.NavigateTo($"/bookborrowed-details/{id}");
+    }
+
+}

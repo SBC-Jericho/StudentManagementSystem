@@ -96,7 +96,7 @@ else
 
         <ValidationSummary />
     </EditForm>
-    @code {
+@code {
 
     [Parameter]
     public int Id { get; set; }
@@ -176,7 +176,7 @@ else
         libraryDTO.BorrowedBooks = BorrowedBooksList;
         await ClientBorrowedBookService.AddBorrowedBooks(libraryDTO);
         StateHasChanged();
-        NavigationManager.NavigateTo("/all-library");
+        NavigationManager.NavigateTo("/single-student-library-view");
 
     }
 
