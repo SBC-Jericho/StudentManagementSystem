@@ -29,6 +29,14 @@
                                    Size = "Size.Small"
                                    Color="Color.Primary">Add Subject</MudButton>
                     </MudTd>
+
+                    <MudTd DataLabel="View">
+                        <MudIconButton OnClick="(() => ViewStudent(Student.Id))"
+                                       Color="Color.Tertiary"
+                                       Variant="Variant.Filled">
+                            View Details
+                        </MudIconButton>
+                    </MudTd>
                 </Authorized>
             </AuthorizeView>
         </RowTemplate>
@@ -48,6 +56,12 @@
     {
         //Navigate the user to another page - inject  NavigationManager NavigationManager
         NavigationManager.NavigateTo($"single-enrollment/{id}");
+    }
+
+
+    void ViewStudent(int id)
+    {
+        NavigationManager.NavigateTo($"/enrollment-details/{id}");
     }
    
 }

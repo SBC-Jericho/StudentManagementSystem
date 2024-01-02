@@ -38,14 +38,6 @@
                             Color="Color.Primary"
                             Variant="Variant.Filled"/>
                     </MudTd>
-                    
-                    <MudTd DataLabel="View">
-                        <MudIconButton 
-                            OnClick="(() => ViewStudent(std.Id))"
-                            Color="Color.Tertiary"
-                            Variant="Variant.Filled">View Details
-                        </MudIconButton>
-                    </MudTd>
 
                 </Authorized>
             </AuthorizeView>
@@ -91,10 +83,5 @@
     void CreateNewStudent()
     {
         NavigationManager.NavigateTo("/register-user");
-    }
-
-    void ViewStudent(int id)
-    {
-        NavigationManager.NavigateTo($"/enrollment-details/{id}");
     }
 }

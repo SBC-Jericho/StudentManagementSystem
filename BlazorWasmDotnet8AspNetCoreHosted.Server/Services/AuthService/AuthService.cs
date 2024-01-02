@@ -13,23 +13,32 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AuthService
     public class AuthService : IAuthService
     {
         private readonly DataContext _context;
-        private readonly HttpContextAccessor _contextAccessor;
+        private readonly IHttpContextAccessor _contextAccessor;
 
         //constructor to inject the DataContext again
         public static User user = new User();
         private readonly IConfiguration _configuration;
-        public AuthService(IConfiguration configuration, DataContext context) 
+        public AuthService(IConfiguration configuration, DataContext context, IHttpContextAccessor contextAccessor) 
         {
             _configuration = configuration;
             _context = context;
+            _contextAccessor = contextAccessor; 
         }
-        public async Task<string> GetSingleUser()
+
+        public async Task<User?> GetSingleUser(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user is null)
+                return null;
+            return user;
+        }
+        public async Task<string> GetSingleUserAvatar()
         {
             var userId = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             var users = await _context.Users
                      .Where(p => p.Id.ToString() == GetUserId())
-                      .Select(p => p.Id.ToString())
+                      .Select(p => p.Avatar)
                      .FirstOrDefaultAsync();
             return users;
         }

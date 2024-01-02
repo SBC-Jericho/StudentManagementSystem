@@ -26,13 +26,13 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
             _authService = authService;
         }
 
-        //[HttpGet("single-user")]
-        //public async Task<ActionResult<string>> GetSingleUserAvater()
-        //{
-        //    var result = await _authService.GetSingleUser();
+        [HttpGet("single-user-avatar")]
+        public async Task<ActionResult<string>> GetSingleUserAvater()
+        {
+            var result = await _authService.GetSingleUserAvatar();
 
-        //    return Ok(result);
-        //}
+            return Ok(result);
+        }
 
         [HttpPost("register")]
         public async Task<ActionResult<User>> Register(userDTO request)

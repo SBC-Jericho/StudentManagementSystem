@@ -8,7 +8,10 @@
     </div>
     </div>
 *@
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IClientAuthService ClientAuthService
+
 
 @* <div class="d-flex justify-content-center mt-5">
     <MudImage Src="@avatar" Style="width: 120px; height:120px;"></MudImage>
@@ -19,7 +22,8 @@
 
 <MudPaper Width="250px" Class="d-inline-flex py-3" Elevation="0">
  <MudNavMenu Class="mud-width-full" @onclick="ToggleNavMenu">
-     <MudText Typo="Typo.h6" Class="px-4">SMS</MudText>
+        <MudTd><MudAvatar Image="@avatar" Style="width: 120px; height:120px;" /></MudTd>
+        <MudText Typo="Typo.h6" Class="px-4" text-align: center>@userName</MudText>
         <MudDivider Class="my-2" />
             <MudNavLink Href="" 
                 Match="NavLinkMatch.All" 
@@ -154,6 +158,9 @@
     private bool collapseNavMenu = true;
     bool _subjectIsExpanded = false;
     bool _bookIsExpanded = false;
+    private ClaimsPrincipal user;
+    private string userName;
+    private string userId;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
@@ -162,8 +169,19 @@
         collapseNavMenu = !collapseNavMenu;
     }
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //    avatar =  await ClientAuthService.GetSingleUserAvatar();
-    // }
+    protected override async Task OnInitializedAsync()
+    {
+        avatar = await ClientAuthService.GetSingleUserAvatar();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        user = authState.User;
+
+        userName = user.Identity.Name;
+        // If the Name claim is not present, try fetching the NameIdentifier claim
+        if (string.IsNullOrEmpty(userName))
+        {
+            userName = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        }
+
+        userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    }
 }

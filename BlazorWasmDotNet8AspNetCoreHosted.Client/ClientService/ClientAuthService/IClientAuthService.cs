@@ -11,6 +11,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientAuthServi
         Task<string> Login(userLoginDTO request);
         Task GetAllUser();
         Task DeleteUser(int id);
-        //Task<string> GetSingleUserAvatar();
+        Task<string> GetSingleUserAvatar();
+        Task<User?> GetSingleUser(int id);
     }
 }

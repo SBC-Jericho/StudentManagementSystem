@@ -1,6 +1,7 @@
 ﻿using BlazorWasmDotNet8AspNetCoreHosted.Shared.DTOs;
 using BlazorWasmDotNet8AspNetCoreHosted.Shared.Models;
 using Microsoft.AspNetCore.Components;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 
@@ -27,12 +28,21 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientAuthServi
                 ClientUser = result;
             }
         }
-
-        //public async Task<string> GetSingleUserAvatar()
-        //{
-        //    var result = await _http.GetStringAsync("api/Auth/single-avatar");
-        //    return result;
-        //}
+        public async Task<User?> GetSingleUser(int id)
+        {
+            // if provided an Id that does not exist GetAsync returns null
+            var result = await _http.GetAsync($"api/auth/{id}");
+            if (result.StatusCode == HttpStatusCode.OK)
+            {
+                return await result.Content.ReadFromJsonAsync<User>();
+            }
+            return null;
+        }
+        public async Task<string> GetSingleUserAvatar()
+        {
+            var result = await _http.GetStringAsync("api/Auth/single-avatar");
+            return result;
+        }
 
         public async Task DeleteUser(int id)
         {

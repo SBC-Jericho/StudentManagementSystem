@@ -1,7 +1,33 @@
 ﻿@page "/"
-
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h3>Authenticated Page</h3>
+
+<p>Welcome, @userName! Your user ID is: @userId</p>
 
 Welcome to your new app.
+
+@code {
+    private ClaimsPrincipal user;
+    private string userName;
+    private string userId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        user = authState.User;
+
+        // Extract user name from claims
+        userName = user.Identity.Name;
+        // If the Name claim is not present, try fetching the NameIdentifier claim
+        if (string.IsNullOrEmpty(userName))
+        {
+            userName = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        }
+
+        // Extract user ID from claims
+        userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    }
+}
