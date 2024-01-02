@@ -32,18 +32,20 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AuthService
                 return null;
             return user;
         }
+
         public async Task<string> GetSingleUserAvatar()
         {
             var userId = _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+            if (userId.IsNullOrEmpty()) return null;
+
             var users = await _context.Users
-                     .Where(p => p.Id.ToString() == GetUserId())
+                     .Where(p => p.Id.ToString() == userId)
                       .Select(p => p.Avatar)
                      .FirstOrDefaultAsync();
+            
             return users;
         }
-        private string? GetUserId() => _contextAccessor.HttpContext!.User
-       .FindFirstValue(ClaimTypes.NameIdentifier);
         public async Task<List<User>> GetAllUser()
         {
             var users = await _context.Users

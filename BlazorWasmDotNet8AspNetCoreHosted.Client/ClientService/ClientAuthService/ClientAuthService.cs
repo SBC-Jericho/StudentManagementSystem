@@ -28,6 +28,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientAuthServi
                 ClientUser = result;
             }
         }
+
         public async Task<User?> GetSingleUser(int id)
         {
             // if provided an Id that does not exist GetAsync returns null
@@ -38,9 +39,10 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientAuthServi
             }
             return null;
         }
+
         public async Task<string> GetSingleUserAvatar()
         {
-            var result = await _http.GetStringAsync("api/Auth/single-avatar");
+            var result = await _http.GetStringAsync("api/Auth/single-user-avatar");
             return result;
         }
 

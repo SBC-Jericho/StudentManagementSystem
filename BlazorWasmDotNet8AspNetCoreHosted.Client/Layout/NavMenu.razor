@@ -1,30 +1,29 @@
-﻿@*
-    <div class="top-row ps-3 navbar navbar-dark">
+﻿
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IClientAuthService ClientAuthService
+
+@* <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">BlazorWasmDotNet8AspNetCoreHosted.Client</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
             <span class="navbar-toggler-icon"></span>
         </button>
     </div>
-    </div>
-*@
-@using System.Security.Claims
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject IClientAuthService ClientAuthService
-
-
-@* <div class="d-flex justify-content-center mt-5">
-    <MudImage Src="@avatar" Style="width: 120px; height:120px;"></MudImage>
-</div>
-<div class="d-flex justify-content-center mt-2 mb-5">
-    <span style="color:white; font-size:17px; margin-top: 6px; font-weight: 500; text-align: center">@avatar</span>
 </div> *@
 
-<MudPaper Width="250px" Class="d-inline-flex py-3" Elevation="0">
- <MudNavMenu Class="mud-width-full" @onclick="ToggleNavMenu">
-        <MudTd><MudAvatar Image="@avatar" Style="width: 120px; height:120px;" /></MudTd>
-        <MudText Typo="Typo.h6" Class="px-4" text-align: center>@userName</MudText>
-        <MudDivider Class="my-2" />
+<MudPaper Class="pa-16 ma-2" Elevation="3">
+      <MudNavMenu>
+        <AuthorizeView>
+            <Authorized>
+                <div class="d-flex justify-content-center mt-5">
+                    <MudTd><MudAvatar Image="@avatar" Style="width: 120px; height:120px;" /></MudTd>
+                </div>
+                <div class="d-flex justify-content-center mt-2 mb-5">
+                    <MudText Typo="Typo.h6" Class="px-4" text-align: center>@context.User.Identity.Name</MudText>
+                </div>
+            </Authorized>
+        </AuthorizeView>
             <MudNavLink Href="" 
                 Match="NavLinkMatch.All" 
                 Icon="@Icons.Material.Filled.Dashboard" 
@@ -172,16 +171,21 @@
     protected override async Task OnInitializedAsync()
     {
         avatar = await ClientAuthService.GetSingleUserAvatar();
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        user = authState.User;
 
-        userName = user.Identity.Name;
-        // If the Name claim is not present, try fetching the NameIdentifier claim
-        if (string.IsNullOrEmpty(userName))
-        {
-            userName = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        }
-
-        userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
     }
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     avatar = await ClientAuthService.GetSingleUserAvatar();
+    //     var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+    //     user = authState.User;
+
+    //     userName = user.Identity.Name;
+    //     // If the Name claim is not present, try fetching the NameIdentifier claim
+    //     if (string.IsNullOrEmpty(userName))
+    //     {
+    //         userName = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    //     }
+
+    //     userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    // }
 }

@@ -1,5 +1,6 @@
 ﻿using BlazorWasmDotNet8AspNetCoreHosted.Shared.DTOs;
 using BlazorWasmDotNet8AspNetCoreHosted.Shared.Models;
+using System.Runtime.InteropServices;
 
 namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientAuthService
 {
@@ -12,6 +13,8 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientAuthServi
         Task GetAllUser();
         Task DeleteUser(int id);
         Task<string> GetSingleUserAvatar();
-        Task<User?> GetSingleUser(int id);
+        //Task<User?> GetSingleUser(int id);
+        //Task<string> GetSingleUser();
+
     }
 }
