@@ -8,17 +8,30 @@
 <h1>Student</h1>
 
 <MudTable Items="ClientStudentService.ClientStudent" Hover="true" Striped="true" Dense="true" Class="mb-2" Filter="new Func<Student,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+   
     <ToolBarContent>
         <MudSpacer />
-        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+
+        <MudTextField 
+            @bind-Value="searchString1" 
+            Placeholder="Search" 
+            Adornment="Adornment.Start"
+            AdornmentIcon="@Icons.Material.Filled.Search" 
+            IconSize="Size.Medium" 
+            Class="mt-0"
+         />
+
     </ToolBarContent>
+
     <HeaderContent>
+
         <MudTh></MudTh>
         <MudTh>First Name</MudTh>
         <MudTh>Last Name</MudTh>
         <MudTh>Birthday</MudTh>
         <MudTh>Contact</MudTh>
         <MudTh>Address</MudTh>
+
     </HeaderContent>
     <RowTemplate Context="std">
         <MudTd DataLabel="Image"><MudAvatar Image="@std.Image" /></MudTd>

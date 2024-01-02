@@ -17,37 +17,77 @@ else
 
 
 <EditForm Model="student" OnValidSubmit="HandleSubmit">
+
     <DataAnnotationsValidator />
+
     <MudCard>
+
         <MudCardContent>
+
             <MudTextField 
-                Label="First Name" @bind-Value="student.FirstName"
-                          For="@(() => student.FirstName)"></MudTextField>
-            <MudTextField Label="Last Name" @bind-Value="student.LastName"
-                          For="@(() => student.LastName)"></MudTextField>
-            <MudDatePicker Label="Birthday" @bind-Date="student.BirthDate"></MudDatePicker>
-            <MudTextField Label="Address" @bind-Value="student.Address"
-                          For="@(() => student.LastName)"></MudTextField>
-            <MudTextField Label="Contact" @bind-Value="student.Contact"
-                          For="@(() => student. Contact)"></MudTextField>
+                Label="First Name" 
+                @bind-Value="student.FirstName"
+                For="@(() => student.FirstName)"
+            />
+
+            <MudTextField 
+                Label="Last Name" 
+                @bind-Value="student.LastName"
+                For="@(() => student.LastName)"
+            />
+
+            <MudDatePicker 
+                Label="Birthday" 
+                @bind-Date="student.BirthDate"
+            />
+           
+            <MudTextField 
+                Label="Address" 
+                @bind-Value="student.Address"
+                For="@(() => student.LastName)"
+            />
+
+            <MudTextField 
+                Label="Contact" 
+                @bind-Value="student.Contact"
+                For="@(() => student. Contact)"
+            />
            
             <br />
+
             <InputFile id="fileInput" OnChange="OnFileChange" hidden />
-            <MudButton HtmlTag="label"
-                       Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       StartIcon="@Icons.Filled.CloudUpload"
-                       for="fileInput">
+
+            <MudButton 
+                HtmlTag="label"
+                Variant="Variant.Filled"
+                Color="Color.Primary"
+                StartIcon="@Icons.Filled.CloudUpload"
+                for="fileInput">
                 Upload Image
             </MudButton>
+
             <ValidationMessage For="@(() => student.Image)" />
+
             <br />
-            <MudImage Src="@student.Image" Elevation="25" Class="rounded my-2"></MudImage>
+
+            <MudImage 
+                Src="@student.Image" 
+                Elevation="25" 
+                Class="rounded my-2"
+            />
+
         </MudCardContent>
+
     </MudCard>
-    <MudButton ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary" Variant="Variant.Filled">
+
+    <MudButton 
+        ButtonType="ButtonType.Submit" 
+        Class="mt-4" 
+        Color="Color.Primary" 
+        Variant="Variant.Filled">
         @btnText
     </MudButton>
+
    
     <p style="height:500px;"></p>
     <ValidationSummary />
@@ -75,7 +115,7 @@ else
             if (result is not null)
                 student = result;
             else
-                NavigationManager.NavigateTo("/single-student");
+                NavigationManager.NavigateTo("/single-Student");
 
         }
     }

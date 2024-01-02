@@ -43,7 +43,6 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AuthService
                      .Where(p => p.Id.ToString() == userId)
                       .Select(p => p.Avatar)
                      .FirstOrDefaultAsync();
-            
             return users;
         }
         public async Task<List<User>> GetAllUser()
@@ -52,7 +51,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AuthService
               .Include(c => c.Students)
               .Include(c => c.Professor)
               .ToListAsync();
-            return users;
+            return users;   
         }
 
         public async Task<List<User>?> DeleteUser(int id)

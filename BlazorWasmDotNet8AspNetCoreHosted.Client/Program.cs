@@ -8,6 +8,7 @@ using BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientEnrolledSubje
 using BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientProfessorService;
 using BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientStudentService;
 using BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientSubjectService;
+using BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientUserService;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
@@ -26,6 +27,7 @@ builder.Services.AddScoped<IClientAuthService, ClientAuthService>();
 builder.Services.AddScoped<IClientEnrolledSubjectsService, ClientEnrolledSubjectsService>();
 builder.Services.AddScoped<IClientBorrowedBookService, ClientBorrowedBookService>();
 builder.Services.AddAuthorizationCore();
+builder.Services.AddScoped<IClientUserService, ClientUserService>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddMudServices();

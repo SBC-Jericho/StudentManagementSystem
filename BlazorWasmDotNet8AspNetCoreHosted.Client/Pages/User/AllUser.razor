@@ -1,6 +1,7 @@
 ﻿@page "/all-user"
 
 @inject IClientAuthService ClientAuthService
+@inject IClientUserService ClientUserService
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 
@@ -17,7 +18,7 @@
     </Authorized>
 </AuthorizeView>
 
-<MudTable Items="ClientAuthService.ClientUser" Hover="true" Striped="true" Dense="true" Class="mb-2" Filter="new Func<User,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+<MudTable Items="ClientUserService.Users" Hover="true" Striped="true" Dense="true" Class="mb-2" Filter="new Func<User,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
 
     <ToolBarContent>
         <MudSpacer/>
@@ -74,7 +75,7 @@
         </MudTd>
 
         <MudTd DataLabel="Delete">
-            <MudIconButton OnClick="(() => DeleteStudent(userDetails.Id))"
+            <MudIconButton OnClick="(() => DeleteUser(userDetails.Id))"
                            Icon="@Icons.Material.Filled.Delete"
                            Color="Color.Error"
                            Variant="Variant.Filled"></MudIconButton>
@@ -96,7 +97,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await ClientAuthService.GetAllUser();
+        await ClientUserService.GetAllUser();
     }
 
     private bool FilterFunc1(User user) => FilterFunc(user, searchString1);
@@ -115,9 +116,9 @@
         NavigationManager.NavigateTo("/register-user");
     }
 
-    async Task DeleteStudent(int id)
+    async Task DeleteUser(int id)
     {
-        await ClientAuthService.DeleteUser(id);
+        await ClientUserService.DeleteUser(id);
         StateHasChanged();
         Snackbar.Add(
         "User Deleted",

@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsService;
 using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.BorrowedBookService;
+using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +51,7 @@ builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<IEnrolledSubjectsService, EnrolledSubjectsService>();
 builder.Services.AddScoped<IBorrowedBookService, BorrowedBookService>();
+builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddDbContext<DataContext>();
 builder.Services.AddHttpContextAccessor();
 

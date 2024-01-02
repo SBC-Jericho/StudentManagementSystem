@@ -175,7 +175,8 @@ else
 
     private void AddSubject()
     {
-        if (!EnrolledSubjectsList.Any(s => s.SubjectId == subject.Id) && !EnrolledSubjectsList.Any(s => s.ProfessorId == professor.Id))
+        if (!EnrolledSubjectsList.Any(s => s.SubjectId == subject.Id) 
+        && !EnrolledSubjectsList.Any(s => s.ProfessorId == professor.Id))
         {
             enrolledSubjectsDTO.SubjectId = subject.Id;
             enrolledSubjectsDTO.ProfessorId = 0;
