@@ -10,5 +10,6 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsServ
         Task<List<EnrolledSubjects>> GetAllEnrolledSubject();
 
         Task<List<EnrolledSubjects>> GetSingleEnrolledSubjects(int id);
+        Task<List<EnrolledSubjects>> GetSingleEnrolledStudent(int id);
     }
 }

@@ -21,3 +21,4 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.Models
      
     }
 }
+    

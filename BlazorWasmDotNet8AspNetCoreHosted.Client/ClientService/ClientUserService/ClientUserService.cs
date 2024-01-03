@@ -53,6 +53,15 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientUserServi
             return null;
         }
 
+        public async Task<Professor?> GetSingleProfessor()
+        {
+            var result = await _httpClient.GetAsync($"api/User/single-professor");
+            if (result.IsSuccessStatusCode)
+            {
+                return await result.Content.ReadFromJsonAsync<Professor>();
+            }
+            return null;
+        }
         public async Task<int> GetSingleProfessor(int id)
         {
             var result = await _httpClient.GetAsync($"api/User/professor-id/{id}");

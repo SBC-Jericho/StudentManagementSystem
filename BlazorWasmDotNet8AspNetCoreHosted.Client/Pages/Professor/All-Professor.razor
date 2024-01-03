@@ -38,6 +38,15 @@
                             Color="Color.Primary"
                             Variant="Variant.Filled"/>
                     </MudTd>
+
+                    <MudTd DataLabel="View Details">
+                        <MudIconButton 
+                            OnClick="(() => ViewProfessor(professor.Id))"
+                            Color="Color.Primary"
+                            Variant="Variant.Filled">
+                            View Details
+                        </MudIconButton>
+                    </MudTd>
                 </Authorized>
             </AuthorizeView>
         </RowTemplate>
@@ -75,6 +84,12 @@
     {
         //Navigate the user to another page - inject  NavigationManager NavigationManager
         NavigationManager.NavigateTo($"single-professor/{id}");
+    }
+
+    void ViewProfessor(int id)
+    {
+        //Navigate the user to another page - inject  NavigationManager NavigationManager
+        NavigationManager.NavigateTo($"student-enrolled-subject/{id}");
     }
 
     void CreateNewProfessor()

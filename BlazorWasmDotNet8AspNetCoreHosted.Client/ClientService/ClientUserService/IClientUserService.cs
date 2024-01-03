@@ -9,6 +9,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientUserServi
         Task GetAllUser();
         Task<string> GetSingleUserAvatar();
         Task<Student?> GetSingleStudent();
+        Task<Professor?> GetSingleProfessor();
         Task<int> GetSingleProfessor(int id);
         Task<string> GetUserRole();
     }

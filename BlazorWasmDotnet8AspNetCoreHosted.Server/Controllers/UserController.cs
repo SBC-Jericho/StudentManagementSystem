@@ -51,6 +51,14 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
             if (result is null)
                 return NotFound();
             return Ok(result);
+        } 
+        [HttpGet("single-professor")]
+        public async Task<ActionResult<Professor>?> GetSingleProfessor()
+        {
+            var result = await _userService.GetSingleProfessor();
+            if (result is null)
+                return NotFound();
+            return Ok(result);
         }
 
         [HttpGet("professor-id/{id}")]

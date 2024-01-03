@@ -79,5 +79,6 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.ProfessorService
 
             return await _context.Professors.ToListAsync();
         }
+
     }
 }

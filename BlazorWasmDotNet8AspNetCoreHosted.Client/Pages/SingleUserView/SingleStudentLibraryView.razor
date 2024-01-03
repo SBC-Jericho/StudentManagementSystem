@@ -52,21 +52,21 @@
     @code
     {
 
-    Student? student = new Student();
+        Student? student = new Student();
 
-    protected override async Task OnInitializedAsync()
-    {
-        student = await ClientUserService.GetSingleStudent();
-    }
+        protected override async Task OnInitializedAsync()
+        {
+            student = await ClientUserService.GetSingleStudent();
+        }
         
-    void AddBorrowedBook(int id)
-    {
-        NavigationManager.NavigateTo($"single-library/{id}");
-    }
+        void AddBorrowedBook(int id)
+        {
+            NavigationManager.NavigateTo($"single-library/{id}");
+        }
 
-    void ViewDetails(int id)
-    {
-        NavigationManager.NavigateTo($"/bookborrowed-details/{id}");
-    }
+        void ViewDetails(int id)
+        {
+            NavigationManager.NavigateTo($"/bookborrowed-details/{id}");
+        }
 
-}
+    }

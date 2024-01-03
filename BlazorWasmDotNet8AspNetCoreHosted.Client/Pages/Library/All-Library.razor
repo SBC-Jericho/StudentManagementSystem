@@ -20,21 +20,22 @@
             <MudTd DataLabel="BirthDate">@Student.BirthDate</MudTd>
             <MudTd DataLabel="Contact">@Student.Contact</MudTd>
             <MudTd DataLabel="Address">@Student.Address</MudTd>
+
             <AuthorizeView Roles="Admin">
                 <Authorized>
-                    <MudTd DataLabel="Add Book">
-                        <MudButton OnClick="(() => AddBook(Student.Id))"
-                                   Variant="Variant.Filled"
-                                   Size="Size.Small"
-                                   Color="Color.Primary">Add Book</MudButton>
-                    </MudTd>
+                    
                     <MudTd DataLabel="View">
-                        <MudIconButton OnClick="(() => ViewBorrowedBooks(Student.Id))"
-                                       Color="Color.Tertiary"
-                                       Variant="Variant.Filled">View Details</MudIconButton>
+                        <MudIconButton 
+                            OnClick="(() => ViewBorrowedBooks(Student.Id))"
+                            Color="Color.Tertiary"
+                            Variant="Variant.Filled">
+                            View Details
+                        </MudIconButton>
                     </MudTd>
+
                 </Authorized>
             </AuthorizeView>
+
         </RowTemplate>
 
     </MudTable>

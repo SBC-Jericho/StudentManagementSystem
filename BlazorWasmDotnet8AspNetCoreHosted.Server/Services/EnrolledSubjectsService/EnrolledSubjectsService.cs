@@ -1,6 +1,7 @@
 ﻿using BlazorWasmDotNet8AspNetCoreHosted.Shared.DTOs;
 using BlazorWasmDotNet8AspNetCoreHosted.Shared.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using static MudBlazor.CategoryTypes;
 
 namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsService
@@ -9,11 +10,13 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsServ
     {
         // Dependency injection
         private readonly DataContext _context;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         // constructor to inject the DataContext again
-        public EnrolledSubjectsService(DataContext context)
+        public EnrolledSubjectsService(DataContext context, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<List<EnrolledSubjects>> GetAllEnrolledSubject()
@@ -67,20 +70,50 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsServ
 
         public async Task<List<EnrolledSubjects>> GetSingleEnrolledSubjects(int id)
         {
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var studentId = await _context.Students
+                .Where(s => s.UserId.ToString() == userId)
+                .Select (s => s.Id)
+                .FirstOrDefaultAsync();
+
             List <EnrolledSubjects> subjects = await _context.EnrolledSubjects
                .Include(u => u.Enrollment)
                     .ThenInclude(u => u.Student)
                .Include(u => u.Subject)
                     .ThenInclude(p => p.Professors)
-               .Include(u => u.Enrollment)
-               .Where(u => u.Enrollment.StudentId == id)
+               .Where(u => u.Enrollment.StudentId == id && u.Enrollment.StudentId == studentId)
                .ToListAsync();
 
             if(subjects == null)
-                return null;
+                return null;    
             return subjects;
         
         }
+
+        public async Task<List<EnrolledSubjects>> GetSingleEnrolledStudent(int id)
+        {
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var professorId = await _context.Professors
+                .Where(s => s.UserId.ToString() == userId)
+                .Select(s => s.Id)
+                .FirstOrDefaultAsync();
+
+            List<EnrolledSubjects> subjects = await _context.EnrolledSubjects
+               .Include(u => u.Enrollment)
+                    .ThenInclude(u => u.Student)
+               .Include(u => u.Subject)
+                    .ThenInclude(p => p.Professors)
+               .Where(u => u.ProfessorId == id && u.ProfessorId == professorId)
+               .ToListAsync();
+
+            if (subjects == null)
+                return null;
+            return subjects;
+
+        }
+
     }
 
 }

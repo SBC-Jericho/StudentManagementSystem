@@ -60,6 +60,20 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService
                       .FirstOrDefaultAsync();
 
             return student;
+        } 
+        public async Task<Professor?> GetSingleProfessor()
+        {
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (userId.IsNullOrEmpty()) return null;
+
+            var professor = await _context.Users
+                      .Where(p => p.Id.ToString() == userId)
+                      .Include(p => p.Professor)
+                      .Select(p => p.Professor)
+                      .FirstOrDefaultAsync();
+
+            return professor;
         }
 
         public async Task<int> GetSingleProfessor(int id)

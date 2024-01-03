@@ -28,6 +28,16 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
             return result;
         
         }
+        
+        [HttpGet("student-enrolled/{id}")]
+        public async Task<List<EnrolledSubjects>> GetSingleEnrolledStudent(int id) 
+        {
+            var result = await _enrolledSubjectsService.GetSingleEnrolledStudent(id);
+            return result;
+        
+        }
+
+
         [HttpPost("add-enrolled-sub")]
         public async Task<ActionResult<int>> AddEnrolledSubjects(EnrollmentDTO request)
         {

@@ -1,4 +1,4 @@
-﻿@page "/single-student-view"
+﻿@page "/single-professor-view"
 
 @inject IClientStudentService ClientStudentService
 @inject IClientAuthService ClientAuthService
@@ -9,7 +9,7 @@
 
 <h3>Manage Enrollment</h3>
 
-@if (student == null)
+@if (professor == null)
 {
     <MudText Typo="Typo.h1">No Valid User</MudText>
 
@@ -18,7 +18,7 @@ else
 {
 
 
-    <MudTable Items="new List<Student> { student }" Hover="true" Striped="true" Dense="true" Class="mb-2">
+    <MudTable Items="new List<Professor> { professor }" Hover="true" Striped="true" Dense="true" Class="mb-2">
 
         <HeaderContent>
             <MudTh>Image</MudTh>
@@ -37,15 +37,9 @@ else
                 <MudTd DataLabel="BirthDate">@Student.BirthDate</MudTd>
                 <MudTd DataLabel="Contact">@Student.Contact</MudTd>
                 <MudTd DataLabel="Address">@Student.Address</MudTd>
-                <AuthorizeView Roles="Student">
+                <AuthorizeView Roles="Professor">
                     <Authorized>
                         <MudTd>
-                            <MudButton OnClick="(() => AddSubject(Student.Id))"
-                                       Variant="Variant.Filled"
-                                       Size="Size.Small"
-                                       Color="Color.Primary">
-                                Add Subject
-                            </MudButton>
                             <MudButton OnClick="(() => ViewDetails(Student.Id))"
                                        Variant="Variant.Filled"
                                        Size="Size.Small"
@@ -63,23 +57,18 @@ else
 @code
 {
 
-    public Student? student = new Student();
+    public Professor? professor = new Professor();
 
 
 
     protected override async Task OnInitializedAsync()
     {
-        student = await ClientUserService.GetSingleStudent();
-    }
-
-    void AddSubject(int id)
-    {
-        NavigationManager.NavigateTo($"single-enrollment/{id}");
+        professor = await ClientUserService.GetSingleProfessor();
     }
 
     void ViewDetails(int id)
     {
-        NavigationManager.NavigateTo($"/Enrollment-details/{id}");
+        NavigationManager.NavigateTo($"/student-enrolled-subject/{id}");
     }
 
 }

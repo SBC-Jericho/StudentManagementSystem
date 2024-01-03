@@ -105,7 +105,12 @@
                     Upload Image
                 </MudButton>
                 <br />
-                <MudImage Src="@user.userDetailsDTO.Image" Elevation="25" Class="rounded my-2"></MudImage>
+                <MudImage 
+                    Src="@user.userDetailsDTO.Image" 
+                    Elevation="25" 
+                    Class="rounded my-2"
+                 />
+
                 <br />
             }
             else if (user.Role == "Professor")
@@ -159,7 +164,8 @@
                 <MudImage 
                     Src="@user.userDetailsDTO.Image" 
                     Elevation="25" 
-                    Class="rounded my-2"/>
+                    Class="rounded my-2"
+                />
 
                 <br />
             }
@@ -168,6 +174,13 @@
                 Class="mt-4" Color="Color.Primary"
                 Variant="Variant.Filled">
                 Register
+            </MudButton>
+
+            <MudButton 
+                OnClick="Home"
+                Class="mt-4" Color="Color.Primary"
+                Variant="Variant.Filled">
+                Home
             </MudButton>
 
         </MudCardContent>
@@ -248,6 +261,11 @@
     {
         NavigationManager.NavigateTo("login");
 
+    }
+
+    private void Home() 
+    {
+        NavigationManager.NavigateTo("all-user");
     }
 
 }

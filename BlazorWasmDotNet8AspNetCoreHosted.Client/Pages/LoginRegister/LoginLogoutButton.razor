@@ -11,7 +11,24 @@
     Variant="Variant.Filled"
     Size="Size.Small">Logout
 </MudButton>
+
+<MudMessageBox @ref="mbox" Title="Warning" CancelText="Cancel">
+    <MessageContent>
+        Are you sure you want to logout?
+    </MessageContent>
+    <YesButton>
+        <MudButton 
+            Variant="Variant.Filled" 
+            Color="Color.Error"
+            Size="Size.Small">
+            Logout
+        </MudButton>
+    </YesButton>
+</MudMessageBox>
+
 @code {
+    MudMessageBox mbox { get; set; }
+    string state = "Message box hasn't been opened yet";
     void Login()
     {
         NavigationManager.NavigateTo("login");
@@ -19,19 +36,24 @@
 
     async Task Logout()
     {
-        await LocalStorage.RemoveItemAsync("token");
-        await AuthStateProvider.GetAuthenticationStateAsync();
+        bool? result = await mbox.Show();
+        state = result == null ? "No" : "Yes";
+        if (state == "Yes")
+        {
+            await LocalStorage.RemoveItemAsync("token");
+            await AuthStateProvider.GetAuthenticationStateAsync();
 
-        NavigationManager.NavigateTo("login");
+            NavigationManager.NavigateTo("login");
 
-        Snackbar.Add(
-             "Logout Successfully!",
-             Severity.Success,
-             config =>
-             {
-                 config.ShowTransitionDuration = 200;
-                 config.HideTransitionDuration = 400;
-                 config.VisibleStateDuration = 2500;
-             });
+            Snackbar.Add(
+                 "Logout Successfully!",
+                 Severity.Success,
+                 config =>
+                 {
+                     config.ShowTransitionDuration = 200;
+                     config.HideTransitionDuration = 400;
+                     config.VisibleStateDuration = 2500;
+                 });
+        }
     }
 }

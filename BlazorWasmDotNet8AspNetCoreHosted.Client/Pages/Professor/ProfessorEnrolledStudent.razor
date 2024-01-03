@@ -1,12 +1,12 @@
-﻿@page "/Enrollment-details"
-@page "/Enrollment-details/{id:int}"
+﻿@page "/student-enrolled-subject"
+@page "/student-enrolled-subject/{id:int}"
 
 @inject IClientSubjectService ClientSubjectService
 @inject IClientEnrolledSubjectsService ClientEnrolledSubjectsService
 @inject IClientStudentService ClientStudentService
+@inject IClientProfessorService ClientProfessorService
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
-@attribute [Authorize]
 
 
 <MudTable Items="enrolledSubjects"
@@ -15,37 +15,34 @@
           Dense="true"
           Class="mb-2">
 
-
     <HeaderContent>
-        <MudTh>Subjects Enrolled</MudTh>
+        <MudTh>Students</MudTh>
+        <MudTh>Subjects</MudTh>
         <MudTh>Semester</MudTh>
         <MudTh>School Year</MudTh>
-        <MudTh>Professor</MudTh>
     </HeaderContent>
 
     <RowTemplate>
-        <MudTd DataLabel="Subject">@context.Subject.Name</MudTd> 
-        <MudTd DataLabel="Semester">@context.Enrollment.Semester</MudTd>
-        <MudTd DataLabel="SchoolYear">@context.Enrollment.SchoolYear</MudTd>
-        <MudTd DataLabel="SchoolYear">@context.Professor.FirstName @context.Professor.LastName</MudTd>
-
+            <MudTd DataLabel="Semester">@context.Enrollment.Student.LastName</MudTd>
+            <MudTd DataLabel="Subject">@context.Subject.Name</MudTd>
+            <MudTd DataLabel="Semester">@context.Enrollment.Semester</MudTd>
+            <MudTd DataLabel="SchoolYear">@context.Enrollment.SchoolYear</MudTd>
         </RowTemplate>
     </MudTable>
 
 
-@code 
-{
+    @code {
 
     [Parameter]
     public int? Id { get; set; }
 
     public List<EnrolledSubjects> enrolledSubjects = new List<EnrolledSubjects>();
-
+    
     protected override async Task OnParametersSetAsync()
     {
         if (Id is not null)
         {
-            var result = await ClientEnrolledSubjectsService.GetSingleEnrolledSubjects((int)Id);
+            var result = await ClientEnrolledSubjectsService.GetSingleEnrolledStudent((int)Id);
             if (result is not null)
                 enrolledSubjects = result;
             else
