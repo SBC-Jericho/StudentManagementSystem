@@ -1,12 +1,11 @@
-﻿@page "/Enrollment-details"
-@page "/Enrollment-details/{id:int}"
+﻿@page "/enrollment-details"
+@page "/enrollment-details/{id:int}"
 
 @inject IClientSubjectService ClientSubjectService
 @inject IClientEnrolledSubjectsService ClientEnrolledSubjectsService
 @inject IClientStudentService ClientStudentService
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
-@attribute [Authorize]
 
 
 <MudTable Items="enrolledSubjects"

@@ -23,7 +23,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientEnrolledS
 
         public async Task<List<EnrolledSubjects>> GetSingleEnrolledSubjects(int id) 
         {
-            var result = await _http.GetFromJsonAsync<List<EnrolledSubjects>>($"api/Enrolledsubject/enrollment-details/{id}");
+            var result = await _http.GetFromJsonAsync<List<EnrolledSubjects>>($"api/Enrolledsubject/enrollment-details-student/{id}");
             if(result == null) 
             {   
                 ClientEnrolledSubjects = result;

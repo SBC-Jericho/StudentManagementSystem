@@ -21,7 +21,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
             return await _enrolledSubjectsService.GetAllEnrolledSubject();
         }
 
-        [HttpGet("enrollment-details/{id}")]
+        [HttpGet("enrollment-details-student/{id}")]
         public async Task<List<EnrolledSubjects>> GetSingleEnrolledSubjects(int id) 
         {
             var result = await _enrolledSubjectsService.GetSingleEnrolledSubjects(id);
