@@ -41,7 +41,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientBorrowedB
             else
             {
                 _snackbar.Add(
-                   "Already Borrowed Book",
+                   "You Already Borrow this Book!",
                    Severity.Warning,
                    config =>
                    {

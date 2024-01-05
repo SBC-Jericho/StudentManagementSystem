@@ -8,7 +8,7 @@
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 
-@if (Id == null)
+@if (Id == 0)
 {
     <PageTitle>Add Enrollment Subject</PageTitle>
     <h3>Add Enrollment Subject</h3>
@@ -22,20 +22,27 @@ else
 <EditForm Model="enrollmentDTO" OnSubmit="HandleSubmit">
     <DataAnnotationsValidator />
  
-    <MudTextField Label="Semester" 
-                  @bind-Value="enrollmentDTO.Semester"
-                  For="@(() => enrollmentDTO.Semester)"/>
+    <MudTextField 
+        Label="Semester" 
+        @bind-Value="enrollmentDTO.Semester"
+        For="@(() => enrollmentDTO.Semester)"
+    />
 
-    <MudTextField Label="School Year" 
-                  @bind-Value="enrollmentDTO.SchoolYear"
-                  For="@(() => enrollmentDTO.SchoolYear)"/>
+    <MudTextField 
+        Label="School Year" 
+        @bind-Value="enrollmentDTO.SchoolYear"
+        For="@(() => enrollmentDTO.SchoolYear)"
+    />
 
-    <MudDatePicker Label="Date Created" 
+    <MudDatePicker 
+        Label="Date Created" 
+        ReadOnly="true"
                    @bind-Date="enrollmentDTO.DateCreated"/>
 
     <div class="d-flex">
         <div class="flex-grow-1">
-            <MudSelect Label="Subjects" @bind-Value="subject.Id">
+            <MudSelect 
+                Label="Subjects" @bind-Value="subject.Id">
                 <MudSelectItem Value="0">Select Subject</MudSelectItem>
                 @foreach (var subjects in ClientSubjectService.ClientSubject)
                 {
@@ -104,7 +111,8 @@ else
 
            </MudTd>
 
-            <MudSelect Label="Profs" @bind-Value="EnrolledSubjectsList.First(s => s.SubjectId == subject.SubjectId).ProfessorId">
+            <MudSelect Label="Professor" 
+                @bind-Value="EnrolledSubjectsList.First(s => s.SubjectId == subject.SubjectId).ProfessorId">
                 <MudSelectItem Value="0">Select Professor</MudSelectItem>
                 @foreach (Professor prof in GetProf(subject.SubjectId))
                 {

@@ -8,6 +8,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsServ
         Task<int> AddEnrolledSubject(EnrollmentDTO request);
 
         Task<List<EnrolledSubjects>> GetAllEnrolledSubject();
+        //Task<List<EnrolledSubjects>> DeleteEnrolledSubject(int id);
 
         Task<List<EnrolledSubjects>> GetSingleEnrolledSubjects(int id);
         Task<List<EnrolledSubjects>> GetSingleEnrolledStudent(int id);

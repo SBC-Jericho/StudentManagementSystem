@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +16,5 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.Models
         public int EnrollmentId { get; set;}
         public Professor Professor { get; set; }
         public int? ProfessorId { get; set; }
-
-
     }
 }

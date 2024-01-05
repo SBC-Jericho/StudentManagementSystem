@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;
 using System.Net;
+using BlazorWasmDotNet8AspNetCoreHosted.Shared.DTOs;
 
 namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientBookService
 {
@@ -16,7 +17,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientBookServi
         }
         public List<Book> ClientBook { get; set; } = new List<Book>();
 
-        public async Task AddBook(Book Book)
+        public async Task AddBook(BookDTO Book)
         {
             // Controller end point
             await _http.PostAsJsonAsync("api/Book/", Book);

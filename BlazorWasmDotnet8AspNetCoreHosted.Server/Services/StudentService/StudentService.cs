@@ -16,7 +16,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.StudentService
         }
         public async Task<List<Student>> AddStudent(UserDetailsDTO stud)
         {
-            var newStudent = new Student
+            Student newStudent = new Student
             {
                 FirstName = stud.FirstName,
                 LastName = stud.LastName,
@@ -63,7 +63,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.StudentService
         public async Task<List<Student>?> UpdateStudent(int id, UserDetailsDTO request)
         {
             var student = await _context.Students
-                .Include(u => u.User)
+                .Include(u => u.User)   
                 .Where(u => u.Id == id)
                 .FirstOrDefaultAsync();
             if (student is null)

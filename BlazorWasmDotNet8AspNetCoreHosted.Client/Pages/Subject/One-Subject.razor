@@ -3,7 +3,8 @@
 @inject IClientSubjectService ClientSubjectService
 @inject NavigationManager NavigationManager
 @inject IClientProfessorService ClientProfessorService
-@inject ISnackbar Snackbar
+@inject IClientEnrolledSubjectsService ClientEnrolledSubjectsService
+@inject ISnackbar Snackbar 
 
 @if (Id == 0)
 {
@@ -26,52 +27,52 @@ else
             <MudTextField 
                 Label="Name" @bind-Value="subjects.Name"
                 For="@(() => subjects.Name)"/>
-            @* MudMultiSelect *@
 
             @if (Id == 0)
             {
-                <MudSelect T="int"
-                           Label="Professors"
-                           MultiSelection="true"
-                           @bind-SelectedValues="options">
+                <MudSelect 
+                    T="Professor"
+                    ToStringFunc="@((Professor professor) => professor.LastName)"
+                    Label="Professors"
+                    MultiSelection="true"
+                    @bind-SelectedValues="selectedProfessorIds">
 
                     @foreach (Professor professor in Professors)
                     {
-                        <MudSelectItem T="int" Value="@professor.Id">@professor.LastName</MudSelectItem>
+                        <MudSelectItem T="Professor" Value="@professor">@professor.LastName</MudSelectItem>
                     }
-                </MudSelect>
+                     </MudSelect>
             }
             else
             {
-                <MudSelect T="int"
+                <MudSelect T="Professor"
                            Label="Professors"
+                           ToStringFunc="@((Professor professor) => professor.LastName)"
                            MultiSelection="true"
-                           @bind-SelectedValues="options">
+                           @bind-SelectedValues="selectedProfessorIds">
 
                     @foreach (Professor professor in subject.Professors ?? new List<Professor>())
                     {
-                        <MudSelectItem T="int" Value="@professor.Id">@professor.LastName</MudSelectItem>
+                        <MudSelectItem T="Professor" Value="@professor">@professor.LastName</MudSelectItem>
                     }
-
+            
                 </MudSelect>
             }
-           @*  <div class="flex-grow-1">
-                <MudSelect Label="Subjects" @bind-Value="subject.Id">
-                    <MudSelectItem Value="0">Select Subject</MudSelectItem>
-                    @foreach (var subjects in ClientSubjectService.ClientSubject)
-                    {
-                        <MudSelectItem Value="subjects.Id">@subjects.Name</MudSelectItem>
-                    }
-                </MudSelect>
-
-            </div> *@
-            
+      
         </MudCardContent>
+
     </MudCard>
-    <MudButton ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary" Variant="Variant.Filled">
+
+    <MudButton
+        ButtonType="ButtonType.Submit" 
+        Class="mt-4" 
+        Color="Color.Primary" 
+        Variant="Variant.Filled">
         @btnText
     </MudButton>
+
     <ValidationSummary />
+
 </EditForm>
 
 @code {
@@ -80,11 +81,12 @@ else
     [Parameter]
     public int Id { get; set; }
 
+    private IEnumerable<Professor> selectedProfessorIds { get; set; } = new HashSet<Professor>();
     string btnText = string.Empty;
     bool isNew = true;
     public SubjectDTO subjects = new SubjectDTO();
     public Subject subject = new Subject();
-
+    public List<Subject> subjectList = new List<Subject>();
     public List<Professor> Professors = new List<Professor>();
 
     List<EnrolledSubjectsDTO> EnrolledSubjectsList = new List<EnrolledSubjectsDTO>();
@@ -94,7 +96,6 @@ else
     {
         btnText = Id == 0 ? "Save new Subject" : "Update Subject";
         await ClientSubjectService.GetAllSubject();
-
     }
 
     protected override async Task OnParametersSetAsync()
@@ -109,8 +110,8 @@ else
             }
             else
             {
-            NavigationManager.NavigateTo("/single-subject");
-                
+                NavigationManager.NavigateTo("/single-subject");
+
             }
         }
         else
@@ -121,11 +122,11 @@ else
 
     }
 
-    
+
     // Code to Populate Multi Select
 
     private int value { get; set; } = 0;
-    private IEnumerable<int> options { get; set; } = new HashSet<int>();
+    // private IEnumerable<int> options { get; set; } = new HashSet<int>();
 
     private List<Professor> GetProf(int subjectId)
     {
@@ -138,36 +139,21 @@ else
     {
         if (Id==0)
         {
-            if (!string.IsNullOrEmpty(subjects.Name))
+            if (!string.IsNullOrEmpty(subjects.Name) && !subjectList.Any(s => s.Name == subjects.Name))
             {
-                subjects.ProfessorIds = new List<int>();
-                foreach (int id in options)
-                {
-                    subjects.ProfessorIds.Add(id);
-                }
+                subjects.ProfessorIds = selectedProfessorIds.Select(professor =>
+                professor.Id).ToList();
                 await ClientSubjectService.AddSubject(subjects);
+
                 Snackbar.Add(
                 "Added Subject Successfully!",
                 Severity.Success,
                 config =>
                     {
-                    config.ShowTransitionDuration = 200;
-                    config.HideTransitionDuration = 400;
-                    config.VisibleStateDuration = 2500;
+                        config.ShowTransitionDuration = 200;
+                        config.HideTransitionDuration = 400;
+                        config.VisibleStateDuration = 2500;
                     });
-            }
-            else
-            {
-                Snackbar.Add(
-                   "No Subject Added",
-                   Severity.Warning, // Change Severity to Error for no subject added
-                   config =>
-                   {
-                       config.ShowTransitionDuration = 200;
-                       config.HideTransitionDuration = 400;
-                       config.VisibleStateDuration = 2500;
-                   });
-                NavigationManager.NavigateTo("/all-subjects");
             }
         }
         else

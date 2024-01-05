@@ -25,7 +25,6 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.SubjectService
             {
                 // TODO: Query Professor with selectectedProf.Id
                 Professor professor = _context.Professors.First(p => p.Id == id);
-
                 newSubject.Professors.Add(professor);
             }
 

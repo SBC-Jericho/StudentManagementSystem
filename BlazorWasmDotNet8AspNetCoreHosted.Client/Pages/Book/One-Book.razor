@@ -4,7 +4,7 @@
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 
-@if (Id is null)
+@if (Id == 0)
 {
     <PageTitle>Create new Book</PageTitle>
     <h3>Create new Book</h3>
@@ -15,14 +15,26 @@ else
     <h3>Edit @book.Title</h3>
 }
 
-<EditForm Model="book" OnSubmit="HandleSubmit">
-    <DataAnnotationsValidator />
+<EditForm Model="bookDTO" OnValidSubmit="HandleSubmit">
+    @if (Id == 0)
+    {
+        <DataAnnotationsValidator />
+    }
     <MudCard>
         <MudCardContent>
-            <MudTextField Label="Title" @bind-Value="book.Title"
-                          For="@(() => book.Title)"></MudTextField>
-            <MudTextField Label="Description" @bind-Value="book.Description"
-                          For="@(() => book.Description)"></MudTextField>
+
+            <MudTextField
+                Label="Title" 
+                @bind-Value="bookDTO.Title"
+                For="@(() => bookDTO.Title)"
+            />
+
+            <MudTextField 
+                Label="Description" 
+                @bind-Value="bookDTO.Description"
+                For="@(() => bookDTO.Description)" 
+            />
+
         </MudCardContent>
     </MudCard>
     <MudButton ButtonType="ButtonType.Submit" Class="mt-4" Color="Color.Primary" Variant="Variant.Filled">
@@ -34,56 +46,76 @@ else
 @code {
 
     [Parameter]
-    public int? Id { get; set; }
+    public int Id { get; set; }
 
     string btnText = string.Empty;
 
-    Book book = new Book();
+    public Book book = new Book();
+    public BookDTO bookDTO = new BookDTO();
+    public List<Book> bookList = new List<Book>();
+
 
     protected override async Task OnInitializedAsync()
     {
-        btnText = Id == null ? "Save new Book" : "Update Book";
+        btnText = Id == 0 ? "Save new Book" : "Update Book";
         await ClientBookService.GetAllBook();
 
     }
 
     protected override async Task OnParametersSetAsync()
     {
-        if (Id is not null)
+        if (Id != 0)
         {
-            var result = await ClientBookService.GetSingleBook((int)Id);
+            Book? result = await ClientBookService.GetSingleBook(Id);
             if (result is not null)
+            {
                 book = result;
+            }
             else
+            {
                 NavigationManager.NavigateTo("/single-book");
+            }
 
         }
     }
 
     async Task HandleSubmit()
     {
-        if (Id is null)
+        if (Id == 0)
         {
-            if (string.IsNullOrEmpty(book.Title))
+            if (!string.IsNullOrEmpty(bookDTO.Title) && !bookList.Any(s => s.Title == bookDTO.Title))
+            {
+                await ClientBookService.AddBook(bookDTO);
+                StateHasChanged();
+                Snackbar.Add(
+                "Added Book Successfully!",
+                Severity.Success,
+                config =>
+                    {
+                        config.ShowTransitionDuration = 200;
+                        config.HideTransitionDuration = 400;
+                        config.VisibleStateDuration = 2500;
+                    });
+
+            }
+            else if (bookList.Any(s => s.Title == bookDTO.Title))
             {
                 Snackbar.Add(
-                "Book name is required!",
-                Severity.Warning,
-                config =>
-            {
-                config.ShowTransitionDuration = 200;
-                config.HideTransitionDuration = 400;
-                config.VisibleStateDuration = 2500;
-            });
-                return;
-            }
-            await ClientBookService.AddBook(book);
-            StateHasChanged();
+                   "Book Already Exist",
+                   Severity.Warning, // Change Severity to Error for no subject added
+                   config =>
+                   {
+                       config.ShowTransitionDuration = 200;
+                       config.HideTransitionDuration = 400;
+                       config.VisibleStateDuration = 2500;
+                   });
 
-        }
-        else
-        {
-            await ClientBookService.UpdateBook((int)Id, book);
+                NavigationManager.NavigateTo("/single-book");
+            }
+            else
+            {
+                await ClientBookService.UpdateBook((int)Id, book);
+            }
         }
     }
 

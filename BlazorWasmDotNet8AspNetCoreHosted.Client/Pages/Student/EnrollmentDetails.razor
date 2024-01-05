@@ -16,24 +16,27 @@
 
 
     <HeaderContent>
-        <MudTh>Subjects Enrolled</MudTh>
+        <MudTh>Subject Name</MudTh>
+        <MudTh>Professor</MudTh>
         <MudTh>Semester</MudTh>
         <MudTh>School Year</MudTh>
-        <MudTh>Professor</MudTh>
+        <MudTh>Date Enrolled</MudTh>
     </HeaderContent>
 
     <RowTemplate>
         <MudTd DataLabel="Subject">@context.Subject.Name</MudTd> 
+        <MudTd DataLabel="SchoolYear">@context.Professor.FirstName @context.Professor.LastName</MudTd>
         <MudTd DataLabel="Semester">@context.Enrollment.Semester</MudTd>
         <MudTd DataLabel="SchoolYear">@context.Enrollment.SchoolYear</MudTd>
-        <MudTd DataLabel="SchoolYear">@context.Professor.FirstName @context.Professor.LastName</MudTd>
+        <MudTd DataLabel="SchoolYear">@context.Enrollment.DateCreated</MudTd>
+        
 
         </RowTemplate>
     </MudTable>
 
 
 @code 
-{
+    {
 
     [Parameter]
     public int? Id { get; set; }

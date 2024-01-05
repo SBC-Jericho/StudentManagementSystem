@@ -29,6 +29,8 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsServ
 
             return enrolled;
         }
+
+
         public async Task<int> AddEnrolledSubject(EnrollmentDTO request)
         {
             var enrollment = new Enrollment
@@ -71,9 +73,16 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsServ
 
         public async Task<List<EnrolledSubjects>> GetSingleEnrolledSubjects(int id)
         {
+            //get the current User UserId 
             var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            //get the current User Role
             var userRole = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
+
+            //Initialized list of Enrolled Subjects
             List<EnrolledSubjects> subjects = new List<EnrolledSubjects>();
+
+            // returns the Id of the student that is equal to the current logged in User
             var studentId = await _context.Students
                 .Where(s => s.UserId.ToString() == userId)
                 .Select (s => s.Id)
@@ -145,6 +154,14 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsServ
 
         }
 
+        //public async Task<List<EnrolledSubjects>> DeleteEnrolledSubject(int id)
+        //{
+        //    EnrolledSubjects enrolled = await _context.EnrolledSubjects.FindAsync(id);
+        //    if (enrolled == null)
+        //        return null;
+
+        //    _context.EnrolledSubjects.
+        //}
     }
 
 }
