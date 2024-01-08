@@ -1,4 +1,5 @@
-﻿@page "/single-enrollment"
+﻿
+@page "/single-enrollment"
 @page "/single-enrollment/{id:int}"
 
 @inject IClientSubjectService ClientSubjectService
@@ -19,7 +20,7 @@ else
     <h3>Edit Enrollment Subject</h3>
 }
 
-<EditForm Model="enrollmentDTO" OnSubmit="HandleSubmit">
+<EditForm Model="enrollmentDTO" OnValidSubmit="HandleSubmit">
     <DataAnnotationsValidator />
  
     <MudTextField 
