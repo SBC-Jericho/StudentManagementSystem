@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.Models
@@ -20,5 +21,8 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.Models
         public string Role { get; set; }
         public Student? Students { get; set; }
         public Professor? Professor { get; set;}
+
+        [JsonIgnore]
+        public List<ChatMessage> chatMessages { get; set; }
     }
 }

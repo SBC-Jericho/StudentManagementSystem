@@ -1,34 +1,66 @@
 ﻿@page "/"
 @using System.Security.Claims
+@using BlazorWasmDotNet8AspNetCoreHosted.Client.Pages.Admin
 @inject AuthenticationStateProvider AuthenticationStateProvider
-<PageTitle>Home</PageTitle>
+@inject NavigationManager NavigationManager
+@rendermode InteractiveWebAssembly
+@inject IClientAnnouncementService ClientAnnouncementService
+<PageTitle>Dashboard</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+
+        <MudText Typo="Typo.h2">Welcome, @context.User?.Identity?.Name</MudText>
+        </Authorized>
+    </AuthorizeView>
 
 
-<h3>Welcome, @userName! Your user ID is: @userId</h3>
+    @if (isConnected)
+{
+    @foreach (var message in messages)
+    {
+        <MudCard Class="mt-2">
+            <MudCardContent>
+                <MudText>Announcement</MudText>
+                <MudText Typo="Typo.body2">@message</MudText>
+                </MudCardContent>
+            </MudCard>
+    }
+}
 
-Welcome to your new app.
 
-<p style="height:500px;"></p>
+@code
+{
+    private HubConnection hubConnection;
+    private List<string> messages = new List<string>();
+    private string title;
+    private string messageInput;
 
-@code {
-    private ClaimsPrincipal user;
-    private string userName;
-    private string userId;
+    public List<Announcement> announcement = new List<Announcement>();
 
     protected override async Task OnInitializedAsync()
     {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        user = authState.User;
+        hubConnection = new HubConnectionBuilder()
+        .WithUrl(NavigationManager.ToAbsoluteUri("/announcementhub"))
+        .Build();
 
-        // Extract user name from claims
-        userName = user.Identity.Name;
-        // If the Name claim is not present, try fetching the NameIdentifier claim
-        if (string.IsNullOrEmpty(userName))
+        announcement = await ClientAnnouncementService.GetAllAnnouncement();
+
+        foreach (var result in announcement)
         {
-            userName = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            messages.Add(result.Message);
         }
 
-        // Extract user ID from claims
-        userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        hubConnection.On<string>("ReceivedAnnouncement", (message) =>
+        {
+            var encodeMessage = $"{message}";
+            messages.Add(encodeMessage);
+            InvokeAsync(StateHasChanged);
+
+        });
+
+        await hubConnection.StartAsync();
     }
+
+    public bool isConnected => hubConnection.State == HubConnectionState.Connected;
 }

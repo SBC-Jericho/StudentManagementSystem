@@ -89,6 +89,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService
         public async Task<string> GetUserRole()
         {
             var userRole = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
+
             var users = await _context.Users
                     .Where(p => p.Role == userRole)
                      .Select(p => p.Role)
@@ -96,7 +97,6 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService
 
             return users;
         }
-
-
+   
     }
 }

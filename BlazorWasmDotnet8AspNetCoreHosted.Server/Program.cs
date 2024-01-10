@@ -13,6 +13,8 @@ using System.Text;
 using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsService;
 using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.BorrowedBookService;
 using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService;
+using BlazorWasmDotnet8AspNetCoreHosted.Server.Hubs;
+using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AnnouncementService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,8 +54,13 @@ builder.Services.AddScoped<ISubjectService, SubjectService>();
 builder.Services.AddScoped<IEnrolledSubjectsService, EnrolledSubjectsService>();
 builder.Services.AddScoped<IBorrowedBookService, BorrowedBookService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
 builder.Services.AddDbContext<DataContext>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSignalR();
+
+builder.Services.AddRazorComponents()
+    .AddInteractiveWebAssemblyComponents();
 
 
 var app = builder.Build();
@@ -71,6 +78,9 @@ app.UseHttpsRedirection();
 
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
+
+app.MapHub<AnnouncementHub>("/announcementhub");
+app.MapHub<ChatHub>("/chathub");
 
 app.UseAuthentication();
 app.UseAuthorization();

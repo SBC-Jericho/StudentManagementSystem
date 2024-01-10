@@ -1,0 +1,108 @@
+﻿@page "/announcement"
+@inject NavigationManager NavigationManager
+@rendermode InteractiveWebAssembly
+@inject IClientAnnouncementService ClientAnnouncementService
+<h3>Announcements</h3>
+
+    <MudCard Style="block-size: min-content">
+    <MudCardContent>
+        @if (isConnected)
+        {
+            <AuthorizeView Roles="Admin">
+                <Authorized>
+
+                   <MudTextField 
+                        T="string" 
+                        AutoGrow="true"
+                        Label="Announcement" 
+                        Variant="Variant.Text"
+                        @bind-Value="messageInput"
+                    />
+                    <br />
+                       
+                    <MudButton 
+                         @onclick="Send"
+                         Color="Color.Primary" 
+                         Variant="Variant.Filled">
+                         Post
+                    </MudButton>
+                   
+                </Authorized>
+            </AuthorizeView>
+
+          
+                @foreach (var announce in announcement)
+                {
+                    <MudCard Class="mt-2">
+                        <MudCardContent>
+                            <MudText Typo="Typo.h4">
+                                @announce.Message
+                            </MudText>
+                        </MudCardContent>
+                    </MudCard>
+                }
+        }
+        else
+        {
+            <span>Connecting....</span>
+
+        }
+        </MudCardContent>
+    </MudCard>
+
+@code 
+{
+    private HubConnection? hubConnection;
+    private List<string> messages = new List<string>();
+    private string title;   
+    private string messageInput;
+
+    public List<Announcement> announcement = new List<Announcement>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder()
+        .WithUrl(NavigationManager.ToAbsoluteUri("/announcementhub"))
+        .Build();
+
+        announcement = await ClientAnnouncementService.GetAllAnnouncement();
+
+        // Add the fetched announcements to the messages list
+        foreach (var announce in announcement)
+        {
+            messages.Add(announce.Message);
+        }
+
+        hubConnection.On<string>("ReceivedAnnouncement", (message) =>
+        {
+            var encodeMessage = $"{message}";
+            messages.Add(encodeMessage);
+            InvokeAsync(StateHasChanged);
+
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    async Task Send()
+    {
+        await hubConnection.SendAsync("SendAnnouncement", messageInput);
+
+        AnnouncementDTO announce = new AnnouncementDTO
+            {
+               Message = messageInput
+            };
+        await ClientAnnouncementService.AddAnnouncement(announce);
+        announcement = await ClientAnnouncementService.GetAllAnnouncement();
+    } 
+
+    public bool isConnected => hubConnection.State == HubConnectionState.Connected;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}

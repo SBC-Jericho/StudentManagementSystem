@@ -4,6 +4,7 @@ using BlazorWasmDotnet8AspNetCoreHosted.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20240109113100_ChatMessageAddField")]
+    partial class ChatMessageAddField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,7 +42,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Announcements", (string)null);
+                    b.ToTable("Announcements");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.Book", b =>
@@ -60,7 +63,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Books", (string)null);
+                    b.ToTable("Books");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.BorrowedBooks", b =>
@@ -83,7 +86,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasIndex("LibraryId");
 
-                    b.ToTable("BorrowedBooks", (string)null);
+                    b.ToTable("BorrowedBooks");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.ChatMessage", b =>
@@ -116,7 +119,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ChatMessages", (string)null);
+                    b.ToTable("ChatMessages");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.EnrolledSubjects", b =>
@@ -144,7 +147,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("EnrolledSubjects", (string)null);
+                    b.ToTable("EnrolledSubjects");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.Enrollment", b =>
@@ -172,7 +175,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Enrollments", (string)null);
+                    b.ToTable("Enrollments");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.Library", b =>
@@ -200,7 +203,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Libraries", (string)null);
+                    b.ToTable("Libraries");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.Professor", b =>
@@ -242,7 +245,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Professors", (string)null);
+                    b.ToTable("Professors");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.Student", b =>
@@ -284,7 +287,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Students", (string)null);
+                    b.ToTable("Students");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.Subject", b =>
@@ -301,7 +304,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Subjects", (string)null);
+                    b.ToTable("Subjects");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.User", b =>
@@ -333,7 +336,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("ProfessorSubject", b =>
@@ -348,7 +351,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasIndex("SubjectsId");
 
-                    b.ToTable("ProfessorSubject", (string)null);
+                    b.ToTable("ProfessorSubject");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.BorrowedBooks", b =>
