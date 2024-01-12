@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240109113100_ChatMessageAddField")]
-    partial class ChatMessageAddField
+    [Migration("20240110103451_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -100,17 +100,15 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("FromUserId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ReceiverId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SenderId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("ToUserId")
+                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -376,7 +374,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.ChatMessage", b =>
                 {
                     b.HasOne("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.User", "User")
-                        .WithMany()
+                        .WithMany("ChatMessages")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -490,6 +488,8 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.User", b =>
                 {
+                    b.Navigation("ChatMessages");
+
                     b.Navigation("Professor");
 
                     b.Navigation("Students");

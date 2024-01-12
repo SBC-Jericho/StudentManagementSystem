@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.Models
 {
-    public class ChatMessage
+    public class ChatMessage 
     {
         public int Id { get; set; }
         public string Message { get; set; } = string.Empty;
+        public  int FromUserId { get; set; } 
+        public int ToUserId { get; set; } 
         public DateTime? CreatedDate { get; set; } = DateTime.Now;
-        public string SenderId { get; set; } = string.Empty;
-        public string ReceiverId { get; set; } = string.Empty;
         [JsonIgnore]
-        public User User { get; set; }  
+        public User? Users {  get; set; } 
         public int UserId { get; set; }
     }
 }

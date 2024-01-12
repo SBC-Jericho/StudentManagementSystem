@@ -77,13 +77,13 @@
         {
             var encodeMessage = $"{message}";
             messages.Add(encodeMessage);
-            InvokeAsync(StateHasChanged);
+            StateHasChanged();
 
         });
 
         await hubConnection.StartAsync();
     }
-
+        
     async Task Send()
     {
         await hubConnection.SendAsync("SendAnnouncement", messageInput);

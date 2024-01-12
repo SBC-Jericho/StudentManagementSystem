@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.DTOs
 {
     public class ChatMessageDTO
-    { 
+    {
+        public int Id { get; set; }
         public string Message { get; set; } = string.Empty;
+        public string FromUserId { get; set; } = string.Empty;
+        public int ToUserId { get; set; }
         public DateTime? CreatedDate { get; set; } = DateTime.Now;
-        public string SenderId { get; set; } = string.Empty;
-        public string ReceiverId { get; set; } = string.Empty;
+        public int UserId { get; set; }
     }
 }

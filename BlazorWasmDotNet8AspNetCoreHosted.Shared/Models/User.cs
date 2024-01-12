@@ -11,9 +11,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.Models
 {
     public class User
     {
-        public int Id { get; set; }
-        
-        
+        public int Id { get; set; }  
         public string Email { get; set; } = string.Empty;
         public string? Avatar { get; set; } = string.Empty;
         public byte[] PasswordHash { get; set; }
@@ -23,6 +21,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.Models
         public Professor? Professor { get; set;}
 
         [JsonIgnore]
-        public List<ChatMessage> chatMessages { get; set; }
+        public List<ChatMessage> ChatMessages{ get; set; } = new List<ChatMessage>();
+
     }
 }

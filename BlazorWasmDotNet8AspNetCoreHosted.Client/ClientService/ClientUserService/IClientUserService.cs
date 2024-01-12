@@ -7,7 +7,8 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientUserServi
         List<User> Users { get; set; }
         Task DeleteUser(int id);
         Task GetAllUser();
-        Task<string> GetSingleUserAvatar();
+        Task<string> GetSingleUserId();
+        Task<string> GetSingleUserName();
         Task<Student?> GetSingleStudent();
         Task<Professor?> GetSingleProfessor();
         Task<int> GetSingleProfessor(int id);

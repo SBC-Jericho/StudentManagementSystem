@@ -39,7 +39,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Announcements", (string)null);
+                    b.ToTable("Announcements");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.Book", b =>
@@ -60,7 +60,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Books", (string)null);
+                    b.ToTable("Books");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.BorrowedBooks", b =>
@@ -83,7 +83,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasIndex("LibraryId");
 
-                    b.ToTable("BorrowedBooks", (string)null);
+                    b.ToTable("BorrowedBooks");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.ChatMessage", b =>
@@ -97,17 +97,15 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("FromUserId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ReceiverId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SenderId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("ToUserId")
+                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -116,7 +114,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ChatMessages", (string)null);
+                    b.ToTable("ChatMessages");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.EnrolledSubjects", b =>
@@ -144,7 +142,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasIndex("SubjectId");
 
-                    b.ToTable("EnrolledSubjects", (string)null);
+                    b.ToTable("EnrolledSubjects");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.Enrollment", b =>
@@ -172,7 +170,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Enrollments", (string)null);
+                    b.ToTable("Enrollments");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.Library", b =>
@@ -200,7 +198,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Libraries", (string)null);
+                    b.ToTable("Libraries");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.Professor", b =>
@@ -242,7 +240,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Professors", (string)null);
+                    b.ToTable("Professors");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.Student", b =>
@@ -284,7 +282,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Students", (string)null);
+                    b.ToTable("Students");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.Subject", b =>
@@ -301,7 +299,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Subjects", (string)null);
+                    b.ToTable("Subjects");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.User", b =>
@@ -333,7 +331,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("ProfessorSubject", b =>
@@ -348,7 +346,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
                     b.HasIndex("SubjectsId");
 
-                    b.ToTable("ProfessorSubject", (string)null);
+                    b.ToTable("ProfessorSubject");
                 });
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.BorrowedBooks", b =>
@@ -373,7 +371,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.ChatMessage", b =>
                 {
                     b.HasOne("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.User", "User")
-                        .WithMany()
+                        .WithMany("ChatMessages")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -487,6 +485,8 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Migrations
 
             modelBuilder.Entity("BlazorWasmDotNet8AspNetCoreHosted.Shared.Models.User", b =>
                 {
+                    b.Navigation("ChatMessages");
+
                     b.Navigation("Professor");
 
                     b.Navigation("Students");

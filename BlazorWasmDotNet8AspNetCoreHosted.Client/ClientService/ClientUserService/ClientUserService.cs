@@ -36,10 +36,15 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientUserServi
             }
         }
 
-
-        public async Task<string> GetSingleUserAvatar()
+        public async Task<string> GetSingleUserId()
         {
-            var result = await _httpClient.GetStringAsync("api/User/single-avatar");
+            var result = await _httpClient.GetStringAsync("api/User/single-user-id");
+            return result;
+        }
+
+        public async Task<string> GetSingleUserName()
+        {
+            var result = await _httpClient.GetStringAsync("api/User/single-user-name");
             return result;
         }
 

@@ -26,11 +26,11 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService
             return await _context.Users.ToListAsync();
         }
 
-        public async Task<string> GetSingleUser()
+        public async Task<string> GetSingleUserId()
         {
             var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var users = await _context.Users
+            var users = await _context.Users    
                      .Where(p => p.Id.ToString() == userId)
                       .Select(p => p.Id.ToString())
                      .FirstOrDefaultAsync();
@@ -38,6 +38,17 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService
             return users;
         }
 
+        public async Task<string> GetSingleUserName()
+        {
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var users = await _context.Users
+                     .Where(p => p.Id.ToString() == userId)
+                      .Select(p => p.Email)
+                     .FirstOrDefaultAsync();
+
+            return users;
+        }
         public async Task<List<User>> GetAllUsers()
         {
             var users = await _context.Users

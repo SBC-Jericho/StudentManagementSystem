@@ -5,6 +5,7 @@ using BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientAnnouncementS
 using BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientAuthService;
 using BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientBookService;
 using BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientBorrowedBookService;
+using BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientChatMessageService;
 using BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientEnrolledSubjectsService;
 using BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientProfessorService;
 using BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientStudentService;
@@ -32,6 +33,7 @@ builder.Services.AddScoped<IClientBorrowedBookService, ClientBorrowedBookService
 builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<IClientUserService, ClientUserService>();
 builder.Services.AddScoped<IClientAnnouncementService, ClientAnnouncementService>();
+builder.Services.AddScoped<IClientChatMessageService, ClientChatMessageService>();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddMudServices();

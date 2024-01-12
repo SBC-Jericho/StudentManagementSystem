@@ -16,15 +16,21 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
             _userService = userService;
             _configuration = configuration;
         }
-
-        [HttpGet("single-avatar")]
-        public async Task<ActionResult<string>> GetSingleUserAvater()
+        [HttpGet("single-user-id")]
+        public async Task<ActionResult<string>> GetSingleUserId()
         {
-            var result = await _userService.GetSingleUser();
+            var result = await _userService.GetSingleUserId();
 
             return Ok(result);
         }
 
+        [HttpGet("single-user-name")]
+        public async Task<ActionResult<string>> GetSingleUserName()
+        {
+            var result = await _userService.GetSingleUserName();
+
+            return Ok(result);
+        }
         [HttpDelete("{id}")]
         public async Task<ActionResult<User>> DeleteUser(int id)
         {
