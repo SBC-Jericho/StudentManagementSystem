@@ -49,13 +49,13 @@
                     <MudAvatar 
                          Color="Color.Secondary" 
                          Style="height:50px; width:50px;">
-                         <MudImage>@message?.Users?.Avatar</MudImage>
+                         <MudImage>@message.Users.Avatar</MudImage>
                     </MudAvatar>
 
                     </div>
 
                     <div>
-                        <MudText Typo="Typo.body1">@message?.Users?.Email</MudText>
+                        <MudText Typo="Typo.body1">@message.Users.Email</MudText>
 
                         <MudText 
                             Typo="Typo.caption" 
@@ -149,30 +149,25 @@
     public int ContactId { get; set; }
 
     [CascadingParameter]
-    private HubConnection? hubConnection { get; set; }
+    private HubConnection hubConnection { get; set; }
 
     public string CurrentMessage { get; set; }
     public string CurrentUserId { get; set; }
     public string CurrentUserEmail { get; set; }
-    private List<ChatMessage> messages = new List<ChatMessage>();
-    public List<User> ChatUsers = new List<User>();
-    public string ContactEmail { get; set; }    
 
+    private List<ChatMessage> messages = new List<ChatMessage>();
+
+    public List<User> ChatUsers = new List<User>();
+
+    public string ContactEmail { get; set; }    
 
     protected override async Task OnInitializedAsync()
     {
         ChatUsers = await ClientChatMessageService.GetAllUsers();
-  
-        if (hubConnection == null)
-        {
-            hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chathub")).Build();
-        }
-        if (hubConnection.State == HubConnectionState.Disconnected)
-        {
-            await hubConnection.StartAsync();
-        }
+        
+        hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chathub")).Build();
 
-        hubConnection.On<ChatMessage, string>("ReceiveMessage", async (message, userName) =>
+        hubConnection.On<ChatMessage, string>("ReceivedMessage", async (message, userName) =>
         {
             if ((ContactId == message.ToUserId && CurrentUserId == message.FromUserId.ToString()) || (ContactId == message.FromUserId && CurrentUserId == message.ToUserId.ToString()))
             {
@@ -186,10 +181,11 @@
                 {
                     messages.Add(new ChatMessage { Message = message.Message, CreatedDate = message.CreatedDate, Users = new User() { Email = ContactEmail } });
                 }
-                // await _jSRuntime.InvokeAsync<string>("ScrollToBottom", "chatContainer");
             }
             StateHasChanged();
         });
+
+        await hubConnection.StartAsync();
 
         CurrentUserId = await ClientUserService.GetSingleUserId();
         CurrentUserEmail = await ClientUserService.GetSingleUserName();
@@ -198,6 +194,7 @@
         {
             await LoadUserChat(ContactId);
         }
+      
     }
 
     public async Task SubmitAsync()
@@ -212,21 +209,19 @@
                     CreatedDate = DateTime.Now,
                     FromUserId = int.Parse(CurrentUserId)
 
-
                 };
-            await ClientChatMessageService.SaveMessage(chatHistory);
+            await ClientChatMessageService.SaveMessage(chatHistory);    
             await hubConnection.SendAsync("SendMessage", chatHistory, CurrentUserEmail);
-            await LoadUserChat(ContactId);
             CurrentMessage = string.Empty;
         }
     }
 
-      public async Task LoadUserChat(int userId)
+       async Task LoadUserChat(int userId)
         {
             var contact = await ClientChatMessageService.GetSingleUser(userId);
             if(contact != null)
                 {
-                    ContactId = userId;
+                    ContactId = contact.Id;
                     ContactEmail = contact.Email;
                     NavigationManager.NavigateTo($"chat/{ContactId}");
                     messages = new List<ChatMessage>();
@@ -238,4 +233,6 @@
                     Console.WriteLine("Contact is null.");
                 }
         }
+    public bool isConnected => hubConnection.State == HubConnectionState.Connected;
+
 }

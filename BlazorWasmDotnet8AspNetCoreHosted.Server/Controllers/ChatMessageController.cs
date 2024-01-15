@@ -41,7 +41,13 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
         [HttpGet("users")]
         public async Task<ActionResult<List<User>>> GetAllUser() 
         {
-            return await _chatMessageService.GetAllUsers();
+            List<User> result =  await _chatMessageService.GetAllUsers();
+            if (result is null)
+            {
+                return BadRequest("No User Found");
+            }
+            return Ok(result);
+         
         }
 
         [HttpGet("single-user/{id}")]

@@ -11,9 +11,6 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientChatMessa
         private readonly HttpClient _http;
         private readonly NavigationManager _navigationManager;
 
-        public List<User> Users { get; set; } = new List<User>();
-        public List<ChatMessage> ChatMessages { get; set ; } = new List<ChatMessage>();
-
         public ClientChatMessageService(HttpClient http, NavigationManager navigationManager)
         {
             _http = http;
@@ -22,12 +19,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientChatMessa
         public async Task<List<User>> GetAllUsers()
         {
                 var result = await _http.GetFromJsonAsync<List<User>>($"api/chatmessage/users");
-                if (result != null)
-                {
-                    Users = result;
-                }
-
-            return Users;
+            return result;
         }
 
         //public async Task<List<ChatMessage>> GetConversationAsync(int contactId)
@@ -37,12 +29,8 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientChatMessa
         public async Task<List<ChatMessage>> GetConversation(int receiverId)
         {
           
-            var result =  await _http.GetFromJsonAsync<List<ChatMessage>>($"api/chatmessage/get-conversation/{receiverId}");
-            if (result == null) 
-            {
-                return null;
-            }
-            return result;
+            return await _http.GetFromJsonAsync<List<ChatMessage>>($"api/chatmessage/get-conversation/{receiverId}");
+           
         }
 
         public async Task<User?> GetSingleUser(int userId)

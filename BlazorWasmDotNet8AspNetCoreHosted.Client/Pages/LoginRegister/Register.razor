@@ -1,4 +1,4 @@
-﻿@page "/register-single-user/{id:int}"
+﻿
 @page "/register-user"
 @inject IClientStudentService ClientCharacterService
 @inject IClientAuthService ClientAuthService
@@ -220,11 +220,6 @@
         }
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        btnText = Id == null ? "Save new user" : "Update User";
-
-    }
 
     async Task HandleSubmit()
     {

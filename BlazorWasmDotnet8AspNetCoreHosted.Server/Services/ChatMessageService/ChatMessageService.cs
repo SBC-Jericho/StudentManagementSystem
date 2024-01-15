@@ -48,8 +48,6 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.ChatMessageService
             //this is for contact list
 
             var users = await _context.Users
-               .Include(p => p.Students)
-               .Include(p => p.Professor)
                .Where(user => user.Id.ToString() != userId)
                .ToListAsync();
 
@@ -105,7 +103,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.ChatMessageService
 
             message.FromUserId = int.Parse(userId);
             message.CreatedDate = DateTime.Now;
-            message.Users = await _context.Users.Where(user => user.Id == message.FromUserId).FirstOrDefaultAsync();
+            message.Users = await _context.Users.FindAsync(message.FromUserId);
 
             await _context.ChatMessages.AddAsync(message);
             await _context.SaveChangesAsync();
