@@ -1,17 +1,98 @@
 ﻿@inherits LayoutComponentBase
-<div class="page">
+@inject NavigationManager NavigationManager
+@inject ISnackbar _snackBar
+@inject IJSRuntime _jsRuntime
+@inject AuthenticationStateProvider _stateProvider;
+@inject IClientUserService ClientUserService
+<audio id="notification" src="/media/tone-message-deep-voice.mp3" />
+
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+        <MudSpacer />
+        <LoginLogoutButton />
+    </MudAppBar>
+
+    <MudDrawer 
+        @bind-Open="@open" 
+        Breakpoint="@breakpoint" 
+        Elevation="1" 
+        Variant="@DrawerVariant.Responsive" 
+        PreserveOpenState="@preserveOpenState">
+
+        <MudDrawerHeader>
+            <NavMenu />
+        </MudDrawerHeader>
+    </MudDrawer>
+
+    <MudMainContent Class="pt-16 px-16">
+       
+            <CascadingValue Value="hubConnection">
+                @Body
+            </CascadingValue>
+
+    </MudMainContent>
+</MudLayout>
+
+@* <div class="page">
     
         <NavMenu />
     <main>
         <div class="top-row px-4">
          <LoginLogoutButton/>
         </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
+        <CascadingValue Value="hubConnection">
+            <article class="content px-4">
+                @Body
+            </article>
+        </CascadingValue>
     </main>
-</div>
+</div> *@
+
+@code 
+{
+    private HubConnection hubConnection;
+    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+    public string CurrentUserId { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chathub")).Build();
+      
+        hubConnection.On<string, int, string>("ReceiveChatNotification", (message, receiverUserId, senderUserId) =>
+        {
+            if (CurrentUserId == receiverUserId.ToString())
+            {
+                _jsRuntime.InvokeAsync<string>("PlayAudio", "notification");
+                _snackBar.Add(message, Severity.Info, config =>
+                {
+                    config.VisibleStateDuration = 10000;
+                    config.HideTransitionDuration = 500;
+                    config.ShowTransitionDuration = 500;
+                    config.Action = "Chat?";
+                    config.ActionColor = Color.Info;
+                    config.Onclick = snackbar =>
+                    {
+                        NavigationManager.NavigateTo($"chat/{int.Parse(senderUserId)}");
+                        return Task.CompletedTask;
+                    };
+                });
+            }
+        });
+ 
+        CurrentUserId = await ClientUserService.GetSingleUserId();
+    }
+
+    bool preserveOpenState = false;
+    Breakpoint breakpoint = Breakpoint.Lg;
+    bool open = false;
+ 
+    void ToggleDrawer()
+    {
+        open = !open;
+    }
+}
+
 
 <MudThemeProvider />
 <MudDialogProvider />

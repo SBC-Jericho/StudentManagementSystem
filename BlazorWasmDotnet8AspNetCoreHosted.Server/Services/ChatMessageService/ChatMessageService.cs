@@ -57,6 +57,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.ChatMessageService
 
         public async Task<List<ChatMessage>> GetConversation(int receiverId)
         {
+            // get the current logged in user Id
             var senderId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             List<ChatMessage> messages = await _context.ChatMessages

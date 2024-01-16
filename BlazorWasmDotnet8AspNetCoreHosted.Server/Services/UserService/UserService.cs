@@ -40,10 +40,10 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService
 
         public async Task<string> GetSingleUserName()
         {
-            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Name)?.Value;
+            var userEmail = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Name)?.Value;
 
             var users = await _context.Users
-                     .Where(p => p.Id.ToString() == userId)
+                     .Where(p => p.Email == userEmail)
                       .Select(p => p.Email)
                      .FirstOrDefaultAsync();
 
