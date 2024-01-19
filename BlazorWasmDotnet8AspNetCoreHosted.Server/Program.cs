@@ -16,6 +16,7 @@ using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService;
 using BlazorWasmDotnet8AspNetCoreHosted.Server.Hubs;
 using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AnnouncementService;
 using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.ChatMessageService;
+using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,6 +58,7 @@ builder.Services.AddScoped<IBorrowedBookService, BorrowedBookService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IChatMessageService, ChatMessageService>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
+builder.Services.AddScoped<IGroupChatService, GroupChatService>();
 builder.Services.AddDbContext<DataContext>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();

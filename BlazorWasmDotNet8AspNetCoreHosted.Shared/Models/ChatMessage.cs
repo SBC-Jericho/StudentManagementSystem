@@ -17,5 +17,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.Models
         public DateTime? CreatedDate { get; set; }
         public User? Users {  get; set; } 
         public int UserId { get; set; }
+
+       
     }
 }

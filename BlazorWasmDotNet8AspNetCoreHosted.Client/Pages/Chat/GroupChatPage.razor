@@ -1,0 +1,352 @@
+﻿@page "/groupchat"
+@page "/groupchat/{GroupchatId:int}"
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject IClientChatMessageService ClientChatMessageService
+@inject IClientUserService ClientUserService
+@inject IClientGroupChatService ClientGroupChatService
+@inject ISnackbar _snackBar
+@inject IJSRuntime _jsRuntime
+@inject IDialogService DialogService
+@rendermode InteractiveWebAssembly
+
+<h3>Group Chat</h3>
+
+<div class="d-flex flex-grow-1 flex-row">
+
+    <MudPaper Elevation="25" Class="pa-3 ml-6" MinWidth="350px" Style="color: ">
+
+        <MudToolBar Dense="true">
+            @* <MudText Typo="Typo.h6" Inline="true" Class="mr-2">#</MudText> *@
+            <MudText Typo="Typo.h6">CHAT ROOMS</MudText>
+             <div style="position: absolute; right: 50px; width: 30px; height: 30px; border-radius: 50%;"
+
+             <MudIconButton 
+                    OnClick="@OpenDialog"
+                    Icon="@Icons.Material.Filled.Add"
+                    Color="Color.Inherit"
+                    Variant="Variant.Filled"
+                    Size="Size.Small"
+                />
+            </div>
+        </MudToolBar>
+
+        <div class="d-flex flex-column px-4" style="max-height:70vh;min-height:70vh; overflow:scroll;">
+            <MudList Clickable="true">
+                @foreach (var groupChat in GroupChatList)
+                {
+                        <MudListItem Class="pa-0 px-2" OnClick="@(() => LoadGroupChat(groupChat.Id))">
+                            <MudDivider />
+                            @groupChat.Name
+                            <MudDivider/>
+
+                    </MudListItem> 
+                }
+            </MudList>
+        </div>
+    </MudPaper>
+
+    <MudPaper Elevation="25" Class="py-4 flex-grow-1">
+
+        <MudToolBar Dense="true">
+
+           @*<MudText Typo="Typo.h6">@ToolBarText</MudText> *@
+
+        </MudToolBar>
+
+        <div class="d-flex flex-column px-4" style="max-height:65vh;min-height:65vh; overflow:scroll;" id="chatContainer">
+
+            @foreach (var message in groupChatMessage)
+            {
+                <div class="d-flex flex-row my-4">
+                
+                        <!-- Other user's message, display on the left -->
+                        <div class="mr-4">
+                            <MudAvatar Color="Color.Secondary" Style="height:50px; width:50px;">
+                                <MudImage Src="@message.User.Avatar"></MudImage>
+                            </MudAvatar>
+                        </div>
+
+                        <div>
+                            <MudText Typo="Typo.body1">@message.User.Email</MudText>
+                                <MudText Typo="Typo.caption" Style="font-size: xx-small!important;">@message.Timestamp</MudText>
+                                <MudText Typo="Typo.body2" Style="padding: 15px;background-color: var(--mud-palette-background-grey);border-radius: 5px;margin-top:5px">
+                                    @message.Content
+                            </MudText>
+                        </div>
+ 
+                </div>
+            }
+        </div>
+            <MudPaper Elevation="25" Class="d-flex flex-row px-2 mx-4" Style="">
+
+                <MudTextField T="string"
+                              Placeholder="Enter your message..."
+                              DisableUnderLine="true"
+                              Class="mt-n2 mx-4"
+                              @bind-Value="CurrentMessage"
+                              For="@(()=> CurrentMessage)" />
+
+                @if (GroupchatId == 0)
+                {
+                    <MudButton OnClick="SubmitAsync"
+                               Disabled="true"
+                               StartIcon="@Icons.Material.Outlined.Send"
+                               Color="Color.Secondary"
+                               ButtonType="ButtonType.Button">
+                        Send
+                    </MudButton>
+                }
+                else
+                {
+                    <MudButton OnClick="SubmitAsync"
+                               StartIcon="@Icons.Material.Outlined.Send"
+                               Color="Color.Secondary"
+                               ButtonType="ButtonType.Button">
+                        Send
+                    </MudButton>
+                }
+
+
+            </MudPaper>
+   </MudPaper>
+
+    <MudPaper Elevation="25" Class="pa-3 ml-6" MinWidth="350px">
+
+        <MudToolBar Dense="true">
+            <MudText Typo="Typo.h6" Inline="true" Class="mr-2"></MudText>
+            <MudText Typo="Typo.h6">Group Members</MudText>
+        </MudToolBar>
+
+        <div class="d-flex flex-column px-4" style="max-height:70vh;min-height:70vh; overflow:scroll;">
+            <MudList Clickable="true">
+                @foreach (var groupMember in getGroupMembers)
+                {
+                    <MudListItem Class="pa-0 px-2">
+                        <div class="d-flex flex-row mt-n1 mb-n1">
+
+                                <MudAvatar 
+                                    Class="mb-4"
+                                    Color="Color.Secondary"  
+                                    Style="height:50px; width:50px;">
+                                    <MudImage Src="@groupMember.Avatar"></MudImage>
+                                </MudAvatar>
+
+                            <div>
+                                <MudText Typo="Typo.body2" Class="mt-3 mb-n2 ml-2">@groupMember.Email</MudText>
+                            </div>
+
+                        </div>
+                    </MudListItem>
+                }
+            </MudList>
+        </div>
+    </MudPaper>
+
+</div>
+
+@code 
+{
+    [Parameter]
+    public int GroupchatId { get; set; } = 0;
+    [Parameter]
+    public string CurrentMessage { get; set; }
+    [Parameter]
+    public string CurrentUserId { get; set; }
+    [Parameter]
+    public string CurrentGroupName{ get; set; }
+
+    [CascadingParameter]
+    private HubConnection hubConnection { get; set; }
+    public List<GroupChat> GroupChatList = new List<GroupChat>();
+
+    public List<GroupChatMessage> groupChatMessage = new List<GroupChatMessage>();
+
+    public List<User> getGroupMembers = new List<User>();
+
+    public string ToolBarText { get; set; } = "Chat Rooms";
+
+    protected override async Task OnInitializedAsync()
+    {
+        GroupChatList = await ClientGroupChatService.GetAllGroupsForUser();
+        CurrentGroupName = await ClientGroupChatService.GetSingleGroupName(GroupchatId);
+        CurrentUserId = await ClientUserService.GetSingleUserId();
+
+        if (hubConnection == null)
+        {
+            hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chathub")).Build();
+        }
+
+        if (hubConnection.State == HubConnectionState.Disconnected)
+        {
+            await hubConnection.StartAsync();
+        }
+
+        hubConnection.On<GroupChat>("ReceiveNewGroupChat", async (newGroupChat) =>
+        {
+            // Handle the new group chat notification
+            GroupChatList.Add(newGroupChat);
+            StateHasChanged();
+        });
+
+        hubConnection.On<GroupChatMessage, string>("ReceivedGroupMessage", async (message, groupName) =>
+        {
+            // Handle the new group chat notification
+            if ((GroupchatId == message.GroupChatId && CurrentUserId == message.UserId.ToString()) || (GroupchatId == message.UserId && CurrentUserId == message.GroupChatId.ToString()))
+            {
+                if ((GroupchatId == message.GroupChatId && CurrentUserId == message.UserId.ToString()))
+                {
+                    groupChatMessage.Add(new GroupChatMessage
+                            {
+                                Content = message.Content,
+                                Timestamp = message.Timestamp,
+                                GroupChat = new GroupChat()
+                                {
+                                    Name = CurrentGroupName
+                                }
+                            });
+
+                }
+                else if ((GroupchatId == message.UserId && CurrentUserId == message.GroupChatId.ToString()))
+                {
+                    groupChatMessage.Add(new GroupChatMessage
+                            {
+                                Content = message.Content,
+                                Timestamp = message.Timestamp,
+                                GroupChat = new GroupChat()
+                                {
+                                    Name = CurrentGroupName
+                                }
+                            });
+                }
+                await _jsRuntime.InvokeAsync<string>("ScrollToBottom", "chatContainer");
+                StateHasChanged();
+            }
+        });
+
+
+        if (!string.IsNullOrEmpty(GroupchatId.ToString()))
+        {
+            await LoadGroupChat(GroupchatId);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await _jsRuntime.InvokeAsync<string>("ScrollToBottom", "chatContainer");
+    }
+
+    public async Task SubmitAsync()
+    {
+        if (!string.IsNullOrEmpty(CurrentMessage) && !string.IsNullOrEmpty(GroupchatId.ToString()))
+        {
+            //Save Message to DB
+            var chatHistory = new GroupChatMessage()
+                {
+                    Content = CurrentMessage,
+                    GroupChatId = GroupchatId,
+                    Timestamp = DateTime.Now,
+                };
+            chatHistory.UserId = int.Parse(CurrentUserId);
+            await ClientGroupChatService.SaveMessage(chatHistory);
+            await hubConnection.SendAsync("SendMessageToGroup", chatHistory, CurrentGroupName);
+            CurrentMessage = string.Empty;
+        }
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private string groupInput;
+
+    async Task OpenDialog()
+    {
+        DialogOptions closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true };
+        var result = await DialogService.Show<Dialog>("Create Group", closeOnEscapeKey).Result;
+        if (result != null && !result.Cancelled)
+        {
+            // Dialog was submitted
+            groupInput = result.Data?.ToString();
+            Console.WriteLine(groupInput);
+            // Handle the groupInput as needed
+            await HandleSubmit(groupInput);
+        }
+
+        else
+        {
+            // Dialog was closed or canceled
+            Console.WriteLine("Dialog was closed or canceled.");
+            // Handle the case where the dialog was canceled or closed without submitting
+        }
+    }
+    // Method to Create a Group Chat
+    private async Task HandleSubmit(string groupName)
+    {
+        GroupChatDTO input = new GroupChatDTO()
+            {
+                Name = groupName
+            };
+
+        // Assuming ClientGroupChatService.CreateGroupChat is responsible for saving to the database
+        Console.WriteLine(hubConnection.State);
+        await ClientGroupChatService.AddGroupChat(input);
+        await hubConnection.SendAsync("CreateGroup", input);
+        StateHasChanged();
+        _snackBar.Add(
+        "Group Chat Created",
+        Severity.Success,
+        config =>
+        {
+            config.ShowTransitionDuration = 200;
+            config.HideTransitionDuration = 400;
+            config.VisibleStateDuration = 2500;
+        });
+    }
+
+    async Task LoadUserChat(int groupChatId)
+    {
+        string groupName = await ClientGroupChatService.GetGroupName(GroupChatId);
+
+        Console.WriteLine(groupName);
+
+        if (GroupChatId != 0)
+        {
+            await hubConnection.SendAsync("RemoveGroup", groupName);
+        }
+
+        GroupChatId = groupChatId;
+
+        string passGroupName = await ClientGroupChatService.GetGroupName(GroupChatId);
+
+        await hubConnection.SendAsync("JoinGroup", passGroupName);
+        NavigationManager.NavigateTo($"group-chat/{GroupChatId}");
+
+        messages = new List<GroupChatMessage>();
+        messages = await ClientGroupChatService.GetConversationAsync(groupChatId);
+        Members = await ClientGroupChatService.GetGroupChatMembers(groupChatId);
+    }
+
+    async Task LoadGroupChat(int groupId)
+    {
+        var groupName = await ClientGroupChatService.GetSingleGroupName(GroupchatId);
+
+        if (GroupchatId != 0)
+        {
+
+            await hubConnection.SendAsync("Leave", groupName);
+        }
+        GroupchatId = groupId;
+        await hubConnection.SendAsync("Join", groupName);
+        groupChatMessage = new List<GroupChatMessage>();
+            groupChatMessage = await ClientGroupChatService.GetGroupChatConversation(GroupchatId);
+            getGroupMembers = await ClientGroupChatService.GetGroupMembers(GroupchatId);
+            Console.WriteLine(hubConnection.ConnectionId);
+            await hubConnection.SendAsync("Join", group.Name);
+
+            NavigationManager.NavigateTo($"groupchat/{GroupchatId}");
+            ToolBarText = group.Name;
+        }
+        
+    }
+
+   
+
+}

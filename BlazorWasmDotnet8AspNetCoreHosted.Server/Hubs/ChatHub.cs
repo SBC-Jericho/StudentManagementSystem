@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 
 namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Hubs
 {
 
     public class ChatHub : Hub
     {
-          public async Task SendMessage(ChatMessage message, string userName)
+      
+
+        public async Task SendMessage(ChatMessage message, string userName)
           {
             
                 await Clients.All.SendAsync("ReceivedMessage", message, userName);
@@ -16,19 +19,26 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Hubs
                 await Clients.All.SendAsync("ReceiveChatNotification", message, receiverUserId, senderUserId);
          }
 
-        public  Task AddGroup(string group) 
+        public async Task CreateGroup(GroupChat groupChat) 
         {
-             return Groups.AddToGroupAsync(Context.ConnectionId, group);
+            await Clients.All.SendAsync("ReceiveNewGroupChat", groupChat);
+        }
+        public async Task Join(string groupName) 
+        {
+           await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
         }
 
-        public Task RemoveGroup(string groupName) 
+        public async Task Leave(string groupName) 
         {
-            return Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
         }
 
-        public async Task SendMessageToGroup(string groupName, string message) 
+        public async Task SendMessageToGroup(GroupChatMessage message, string groupName) 
         {
-            await Clients.Group(groupName).SendAsync("ReceivedMessage", message);
+            await Clients.Group(groupName).SendAsync("ReceivedMessage", message, groupName);
         }
+
+  
+
     }
 }

@@ -18,6 +18,8 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Data
         public DbSet<Library> Libraries { get; set; }
         public DbSet<Announcement> Announcements { get; set; }
         public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<GroupChat> GroupChats { get; set; }
+        public DbSet<GroupChatMessage> GroupChatMessages { get; set; }
 
     }
 }
