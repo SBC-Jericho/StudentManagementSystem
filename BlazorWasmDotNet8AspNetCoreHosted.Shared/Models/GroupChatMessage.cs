@@ -9,7 +9,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.Models
     public class GroupChatMessage
     {
         public int Id { get; set; }
-        public DateTime? Timestamp { get; set; } = DateTime.Now;
+        public DateTime? Timestamp { get; set; }
         public string Content { get; set; } = string.Empty;
         public User? User { get; set; }
         public int UserId { get; set; }

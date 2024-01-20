@@ -23,7 +23,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
         public async Task AddGroupChat(GroupChatDTO request)
         {
             // Controller end point
-            var result = await _http.PostAsJsonAsync("api/groupchat/", request);
+            var result = await _http.PostAsJsonAsync("api/GroupChat/", request);
 
             if (result.IsSuccessStatusCode)
             {
@@ -51,14 +51,14 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
 
         public async Task<List<GroupChat>> GetAllGroupsForUser()
         {
-                var result = await _http.GetFromJsonAsync<List<GroupChat>>("api/groupchat/get-group-single-user/");
+                var result = await _http.GetFromJsonAsync<List<GroupChat>>("api/GroupChat/get-group-single-user/");
                 return result;
             
         }
 
         public async Task<List<GroupChatMessage>> GetGroupChatConversation(int receiverId)
         {
-            return await _http.GetFromJsonAsync<List<GroupChatMessage>>($"api/groupchat/get-groupchat-conversation/{receiverId}");
+            return await _http.GetFromJsonAsync<List<GroupChatMessage>>($"api/GroupChat/get-groupchat-conversation/{receiverId}");
         }
 
         public async Task<List<User>> GetGroupMembers(int groupId)
@@ -78,7 +78,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
 
         public async Task<GroupChat?> GetSingleGroup(int Id)
         {
-            var result = await _http.GetAsync($"api/groupchat/single-group/{Id}");
+            var result = await _http.GetAsync($"api/GroupChat/single-group/{Id}");
 
             if (result.StatusCode == HttpStatusCode.OK)
             {
@@ -90,7 +90,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
 
         public async Task<string> GetSingleGroupName(int id)
         {
-            var result = await _http.GetStringAsync($"api/User/single-group-name/{id}");
+            var result = await _http.GetStringAsync($"api/GroupChat/single-group-name/{id}");
             return result;
         }
 
@@ -102,7 +102,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
 
         public async Task SaveMessage(GroupChatMessage message)
         {
-            await _http.PostAsJsonAsync("api/groupchat/save-group-message", message);
+            await _http.PostAsJsonAsync("api/GroupChat/save-group-message", message);
         }
     }
 }

@@ -33,9 +33,9 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Hubs
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
         }
 
-        public async Task SendMessageToGroup(GroupChatMessage message, string groupName) 
+        public async Task SendMessageToGroup(string groupName, GroupChatMessage message) 
         {
-            await Clients.Group(groupName).SendAsync("ReceivedMessage", message, groupName);
+            await Clients.Group(groupName).SendAsync("ReceivedGroupMessage", message);
         }
 
   

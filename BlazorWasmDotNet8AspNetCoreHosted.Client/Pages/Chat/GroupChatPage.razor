@@ -59,22 +59,62 @@
             @foreach (var message in groupChatMessage)
             {
                 <div class="d-flex flex-row my-4">
-                
-                        <!-- Other user's message, display on the left -->
-                        <div class="mr-4">
-                            <MudAvatar Color="Color.Secondary" Style="height:50px; width:50px;">
-                                <MudImage Src="@message.User.Avatar"></MudImage>
-                            </MudAvatar>
-                        </div>
 
-                        <div>
-                            <MudText Typo="Typo.body1">@message.User.Email</MudText>
-                                <MudText Typo="Typo.caption" Style="font-size: xx-small!important;">@message.Timestamp</MudText>
+
+                    @if (message.User.Id.ToString() == CurrentUserId)
+                        {
+                            <!-- Other user's message, display on the left -->
+                            <div class="ml-auto mr-4">
+                                <MudAvatar Color="Color.Secondary" Style="height:50px; width:50px;">
+                                    <MudImage Src="@message.User.Avatar"></MudImage>
+                                </MudAvatar>
+                            </div>
+
+                            <div class="text-right">
+
+                                <MudText 
+                                Typo="Typo.body1">
+                                    @message.User.Email
+                                </MudText>
+
+                                <MudText 
+                                Typo="Typo.caption" 
+                                Style="font-size: xx-small!important;">
+                                    @message.Timestamp
+                                </MudText>
+
                                 <MudText Typo="Typo.body2" Style="padding: 15px;background-color: var(--mud-palette-background-grey);border-radius: 5px;margin-top:5px">
                                     @message.Content
-                            </MudText>
-                        </div>
- 
+                                </MudText>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Other user's message, display on the right -->
+                            <div class="mr-4">
+                                <MudAvatar Color="Color.Secondary" Style="height:50px; width:50px;">
+                                    <MudImage Src="@message.User.Avatar"></MudImage>
+                                </MudAvatar>
+                            </div>
+
+                            <div>
+
+                                <MudText Typo="Typo.body1">
+                                    @message.User.Email
+                                </MudText>
+
+                                <MudText Typo="Typo.caption"
+                                Style="font-size: xx-small!important;">
+                                    @message.Timestamp
+                                </MudText>
+
+                                <MudText Typo="Typo.body2" Style="padding: 15px;background-color: var(--mud-palette-background-grey);border-radius: 5px;margin-top:5px">
+                                    @message.Content
+                                </MudText>
+                            </div>
+
+                        }
+                   
                 </div>
             }
         </div>
@@ -148,13 +188,15 @@
 @code 
 {
     [Parameter]
-    public int GroupchatId { get; set; } = 0;
+    public int GroupchatId { get; set; }
     [Parameter]
     public string CurrentMessage { get; set; }
     [Parameter]
     public string CurrentUserId { get; set; }
     [Parameter]
     public string CurrentGroupName{ get; set; }
+    [Parameter]
+    public string CurrentUserEmail { get; set; }
 
     [CascadingParameter]
     private HubConnection hubConnection { get; set; }
@@ -169,8 +211,12 @@
     protected override async Task OnInitializedAsync()
     {
         GroupChatList = await ClientGroupChatService.GetAllGroupsForUser();
-        CurrentGroupName = await ClientGroupChatService.GetSingleGroupName(GroupchatId);
+
         CurrentUserId = await ClientUserService.GetSingleUserId();
+
+        CurrentUserEmail = await ClientUserService.GetSingleUserName();
+
+        await ClientUserService.GetAllUser();
 
         if (hubConnection == null)
         {
@@ -189,40 +235,21 @@
             StateHasChanged();
         });
 
-        hubConnection.On<GroupChatMessage, string>("ReceivedGroupMessage", async (message, groupName) =>
-        {
-            // Handle the new group chat notification
-            if ((GroupchatId == message.GroupChatId && CurrentUserId == message.UserId.ToString()) || (GroupchatId == message.UserId && CurrentUserId == message.GroupChatId.ToString()))
-            {
-                if ((GroupchatId == message.GroupChatId && CurrentUserId == message.UserId.ToString()))
-                {
-                    groupChatMessage.Add(new GroupChatMessage
-                            {
-                                Content = message.Content,
-                                Timestamp = message.Timestamp,
-                                GroupChat = new GroupChat()
-                                {
-                                    Name = CurrentGroupName
-                                }
-                            });
+        hubConnection.On<GroupChatMessage>("ReceivedGroupMessage", async (message) =>
+         {
+             string senderEmail = await ClientUserService.GetSingleUserName();
 
-                }
-                else if ((GroupchatId == message.UserId && CurrentUserId == message.GroupChatId.ToString()))
-                {
-                    groupChatMessage.Add(new GroupChatMessage
-                            {
-                                Content = message.Content,
-                                Timestamp = message.Timestamp,
-                                GroupChat = new GroupChat()
-                                {
-                                    Name = CurrentGroupName
-                                }
-                            });
-                }
-                await _jsRuntime.InvokeAsync<string>("ScrollToBottom", "chatContainer");
-                StateHasChanged();
-            }
-        });
+             if (GroupchatId == message.GroupChatId)
+             {
+                 groupChatMessage.Add(new GroupChatMessage
+                     {
+                         Content = message.Content,
+                         Timestamp = message.Timestamp,
+                         User = new User() { Email = senderEmail }
+                     });
+                 StateHasChanged();
+             }
+         });
 
 
         if (!string.IsNullOrEmpty(GroupchatId.ToString()))
@@ -238,21 +265,32 @@
 
     public async Task SubmitAsync()
     {
-        if (!string.IsNullOrEmpty(CurrentMessage) && !string.IsNullOrEmpty(GroupchatId.ToString()))
+        string currenGroupSelected = await ClientGroupChatService.GetSingleGroupName(GroupchatId);
+        
+        if (hubConnection.State == HubConnectionState.Connected)
         {
-            //Save Message to DB
-            var chatHistory = new GroupChatMessage()
-                {
-                    Content = CurrentMessage,
-                    GroupChatId = GroupchatId,
-                    Timestamp = DateTime.Now,
-                };
-            chatHistory.UserId = int.Parse(CurrentUserId);
-            await ClientGroupChatService.SaveMessage(chatHistory);
-            await hubConnection.SendAsync("SendMessageToGroup", chatHistory, CurrentGroupName);
-            CurrentMessage = string.Empty;
+            if (!string.IsNullOrEmpty(CurrentMessage) && GroupchatId != 0)
+            {
+                //Save Message to DB
+                var chatHistory = new GroupChatMessage()
+                    {
+                        Content = CurrentMessage,
+                        GroupChatId = GroupchatId,
+                        Timestamp = DateTime.Now,
+                    };
+
+                await ClientGroupChatService.SaveMessage(chatHistory);
+                await hubConnection.SendAsync("SendMessageToGroup", currenGroupSelected, chatHistory);
+                CurrentMessage = string.Empty;
+            }
+            await InvokeAsync(StateHasChanged);
         }
-        await InvokeAsync(StateHasChanged);
+
+        else
+        {
+            // Handle the case when the connection is not active
+            Console.WriteLine("Connection is not active.");
+        }
     }
 
     private string groupInput;
@@ -286,7 +324,6 @@
             };
 
         // Assuming ClientGroupChatService.CreateGroupChat is responsible for saving to the database
-        Console.WriteLine(hubConnection.State);
         await ClientGroupChatService.AddGroupChat(input);
         await hubConnection.SendAsync("CreateGroup", input);
         StateHasChanged();
@@ -301,52 +338,49 @@
         });
     }
 
-    async Task LoadUserChat(int groupChatId)
-    {
-        string groupName = await ClientGroupChatService.GetGroupName(GroupChatId);
+    // async Task LoadUserChat(int groupChatId)
+    // {
+    //     string groupName = await ClientGroupChatService.GetGroupName(GroupChatId);
 
-        Console.WriteLine(groupName);
+    //     Console.WriteLine(groupName);
 
-        if (GroupChatId != 0)
-        {
-            await hubConnection.SendAsync("RemoveGroup", groupName);
-        }
+    //     if (GroupChatId != 0)
+    //     {
+    //         await hubConnection.SendAsync("RemoveGroup", groupName);
+    //     }
 
-        GroupChatId = groupChatId;
+    //     GroupChatId = groupChatId;
 
-        string passGroupName = await ClientGroupChatService.GetGroupName(GroupChatId);
+    //     string passGroupName = await ClientGroupChatService.GetGroupName(GroupChatId);
 
-        await hubConnection.SendAsync("JoinGroup", passGroupName);
-        NavigationManager.NavigateTo($"group-chat/{GroupChatId}");
+    //     await hubConnection.SendAsync("JoinGroup", passGroupName);
+    //     NavigationManager.NavigateTo($"group-chat/{GroupChatId}");
 
-        messages = new List<GroupChatMessage>();
-        messages = await ClientGroupChatService.GetConversationAsync(groupChatId);
-        Members = await ClientGroupChatService.GetGroupChatMembers(groupChatId);
-    }
+    //     messages = new List<GroupChatMessage>();
+    //     messages = await ClientGroupChatService.GetConversationAsync(groupChatId);
+    //     Members = await ClientGroupChatService.GetGroupChatMembers(groupChatId);
+    // }
 
     async Task LoadGroupChat(int groupId)
     {
         var groupName = await ClientGroupChatService.GetSingleGroupName(GroupchatId);
-
         if (GroupchatId != 0)
         {
-
             await hubConnection.SendAsync("Leave", groupName);
         }
         GroupchatId = groupId;
-        await hubConnection.SendAsync("Join", groupName);
-        groupChatMessage = new List<GroupChatMessage>();
-            groupChatMessage = await ClientGroupChatService.GetGroupChatConversation(GroupchatId);
-            getGroupMembers = await ClientGroupChatService.GetGroupMembers(GroupchatId);
-            Console.WriteLine(hubConnection.ConnectionId);
-            await hubConnection.SendAsync("Join", group.Name);
+        string passGroupName = await ClientGroupChatService.GetSingleGroupName(GroupchatId);
+        await hubConnection.SendAsync("Join", passGroupName);
+        NavigationManager.NavigateTo($"groupchat/{GroupchatId}");
 
-            NavigationManager.NavigateTo($"groupchat/{GroupchatId}");
-            ToolBarText = group.Name;
-        }
+        groupChatMessage = new List<GroupChatMessage>();
+        groupChatMessage = await ClientGroupChatService.GetGroupChatConversation(GroupchatId);
+        getGroupMembers = await ClientGroupChatService.GetGroupMembers(GroupchatId);
+        ToolBarText = groupName;
+
+        StateHasChanged();
+    }
+
         
     }
 
-   
-
-}
