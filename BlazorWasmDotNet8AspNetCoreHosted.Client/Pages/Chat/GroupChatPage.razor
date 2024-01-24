@@ -8,13 +8,14 @@
 @inject ISnackbar _snackBar
 @inject IJSRuntime _jsRuntime
 @inject IDialogService DialogService
+
 @rendermode InteractiveWebAssembly
 
 <h3>Group Chat</h3>
 
 <div class="d-flex flex-grow-1 flex-row">
 
-    <MudPaper Elevation="25" Class="pa-3 ml-6" MinWidth="350px" Style="color: ">
+    <MudPaper Elevation="25" Class="pa-3 ml-6 col-md-3" >
 
         <MudToolBar Dense="true">
             @* <MudText Typo="Typo.h6" Inline="true" Class="mr-2">#</MudText> *@
@@ -22,7 +23,7 @@
              <div style="position: absolute; right: 50px; width: 30px; height: 30px; border-radius: 50%;"
 
              <MudIconButton 
-                    OnClick="@OpenDialog"
+                    OnClick="@OpenUsers"
                     Icon="@Icons.Material.Filled.Add"
                     Color="Color.Inherit"
                     Variant="Variant.Filled"
@@ -46,11 +47,11 @@
         </div>
     </MudPaper>
 
-    <MudPaper Elevation="25" Class="py-4 flex-grow-1">
+    <MudPaper Elevation="25" Class="py-4 flex-grow-1 col-md-6">
 
         <MudToolBar Dense="true">
 
-           @*<MudText Typo="Typo.h6">@ToolBarText</MudText> *@
+           <MudText Typo="Typo.h6">@ToolBarText</MudText> 
 
         </MudToolBar>
 
@@ -87,7 +88,9 @@
                                     @message.Content
                                 </MudText>
                             </div>
+
                         }
+
                         else
                         {
                             <!-- Other user's message, display on the right -->
@@ -146,16 +149,48 @@
                         Send
                     </MudButton>
                 }
-
+               
 
             </MudPaper>
    </MudPaper>
 
-    <MudPaper Elevation="25" Class="pa-3 ml-6" MinWidth="350px">
+    <MudPaper Elevation="25" Class="pa-3 ml-6 col-md-3">
 
         <MudToolBar Dense="true">
             <MudText Typo="Typo.h6" Inline="true" Class="mr-2"></MudText>
-            <MudText Typo="Typo.h6">Group Members</MudText>
+            
+
+            <MudSelect T="int" Label="Users" MultiSelection="true" @bind-SelectedValues="selectedUserIdsInt">
+                @foreach (User user in getGroupNotMembers)
+                {
+                    <MudSelectItem T="int" Value="@user.Id">@user.Email</MudSelectItem>
+                }
+            </MudSelect>
+
+            <MudIconButton Icon="@Icons.Material.Filled.AddCircle" Variant="Variant.Filled" Color="Color.Primary" OnClick="@(() => AddUser(selectedUserIdsInt, GroupchatId))"></MudIconButton>
+
+             @* <MudSelect
+                T="User"
+                ToStringFunc="@((User user) => user.Email)"
+                Label="Users"
+                MultiSelection=true
+                @bind-SelectedValues="selectedUserIds">
+
+                    @foreach (User user in getGroupNotMembers)
+                    {
+                    <MudSelectItem T="User" Value="@user">@user.Email</MudSelectItem>
+                    }
+            </MudSelect>    *@
+            
+            @* <div style="right: 50px; width: 30px; height: 30px; border-radius: 50%;"
+
+            <MudIconButton
+                OnClick="AddUser"
+                Icon="@Icons.Material.Filled.Add"
+                Color="Color.Primary"
+                Variant="Variant.Filled"
+                Size="Size.Small" />
+                </div> *@
         </MudToolBar>
 
         <div class="d-flex flex-column px-4" style="max-height:70vh;min-height:70vh; overflow:scroll;">
@@ -174,8 +209,19 @@
 
                             <div>
                                 <MudText Typo="Typo.body2" Class="mt-3 mb-n2 ml-2">@groupMember.Email</MudText>
-                            </div>
+                                <MudText Typo="Typo.body2" Class="mt-3 mb-n2 ml-2">@groupMember.Id</MudText>
 
+                            </div>
+                            <div style="position: absolute; right: 50px; width: 30px; height: 30px; border-radius: 50%;">
+                                <MudTd DataLabel="Delete">
+                                    <MudIconButton 
+                                        OnClick="(() => DeleteUserToGroup(groupMember.Id, GroupchatId))"
+                                        Icon="@Icons.Material.Filled.Delete"
+                                        Color="Color.Error"
+                                        Variant="Variant.Filled">
+                                    </MudIconButton>
+                                </MudTd>
+                                </div> 
                         </div>
                     </MudListItem>
                 }
@@ -202,11 +248,18 @@
     private HubConnection hubConnection { get; set; }
     public List<GroupChat> GroupChatList = new List<GroupChat>();
 
+    private IEnumerable<User> selectedUserIds { get; set; } = new HashSet<User>();
+    private IEnumerable<int> selectedUserIdsInt { get; set; } = new HashSet<int>();
+
     public List<GroupChatMessage> groupChatMessage = new List<GroupChatMessage>();
 
     public List<User> getGroupMembers = new List<User>();
+    public List<User> getGroupNotMembers = new List<User>();
 
     public string ToolBarText { get; set; } = "Chat Rooms";
+
+    private bool IsHubConnected => hubConnection?.State == HubConnectionState.Connected;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -220,7 +273,7 @@
 
         if (hubConnection == null)
         {
-            hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chathub")).Build();
+            hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chathub")).WithAutomaticReconnect().Build();
         }
 
         if (hubConnection.State == HubConnectionState.Disconnected)
@@ -228,16 +281,45 @@
             await hubConnection.StartAsync();
         }
 
+
+
         hubConnection.On<GroupChat>("ReceiveNewGroupChat", async (newGroupChat) =>
         {
             // Handle the new group chat notification
             GroupChatList.Add(newGroupChat);
+            getGroupMembers.AddRange(newGroupChat.Paticipants);
+            Console.WriteLine($"GC add: {newGroupChat.Name}");
             StateHasChanged();
+        });
+
+        hubConnection.On<User>("ReceiveUserToAdd", async (message) =>
+       {
+           Console.WriteLine("Received Message Connected: Connection ID: " + hubConnection.ConnectionId);
+
+           getGroupMembers.Add(new User
+               {
+                   Email = message.Email,
+                   Avatar = message.Avatar,
+                   Id = message.Id
+               });
+
+
+           StateHasChanged();
+           Console.WriteLine($"Added user {message.Email}");
+       });
+
+        hubConnection.On<int>("RemoveUser", async (userId) =>
+        {
+
+            getGroupMembers.RemoveAll(user => user.Id == userId);
+
+            Console.WriteLine($"User removed: {userId}");
+
+            await InvokeAsync(StateHasChanged);
         });
 
         hubConnection.On<GroupChatMessage>("ReceivedGroupMessage", async (message) =>
          {
-             string senderEmail = await ClientUserService.GetSingleUserName();
 
              if (GroupchatId == message.GroupChatId)
              {
@@ -245,10 +327,13 @@
                      {
                          Content = message.Content,
                          Timestamp = message.Timestamp,
-                         User = new User() { Email = senderEmail }
+                         User = new User() { Email = message.User.Email}
+
                      });
-                 StateHasChanged();
-             }
+
+             }   
+             await InvokeAsync(StateHasChanged);
+
          });
 
 
@@ -266,7 +351,7 @@
     public async Task SubmitAsync()
     {
         string currenGroupSelected = await ClientGroupChatService.GetSingleGroupName(GroupchatId);
-        
+
         if (hubConnection.State == HubConnectionState.Connected)
         {
             if (!string.IsNullOrEmpty(CurrentMessage) && GroupchatId != 0)
@@ -277,9 +362,11 @@
                         Content = CurrentMessage,
                         GroupChatId = GroupchatId,
                         Timestamp = DateTime.Now,
-                    };
 
+                    };
                 await ClientGroupChatService.SaveMessage(chatHistory);
+
+                chatHistory.User = new User { Email = CurrentUserEmail };
                 await hubConnection.SendAsync("SendMessageToGroup", currenGroupSelected, chatHistory);
                 CurrentMessage = string.Empty;
             }
@@ -293,19 +380,21 @@
         }
     }
 
-    private string groupInput;
 
-    async Task OpenDialog()
+    async Task OpenUsers()
     {
         DialogOptions closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true };
-        var result = await DialogService.Show<Dialog>("Create Group", closeOnEscapeKey).Result;
-        if (result != null && !result.Cancelled)
+        DialogResult? result = await DialogService.Show<AddUserToGroup>("Add Members", closeOnEscapeKey).Result;
+
+        if (result != null && !result.Canceled)
         {
-            // Dialog was submitted
-            groupInput = result.Data?.ToString();
-            Console.WriteLine(groupInput);
-            // Handle the groupInput as needed
-            await HandleSubmit(groupInput);
+            var data = result.Data as GroupChatDTO;
+            // Dialog was submitted 
+            var groupInput = data?.Name;
+            Console.WriteLine($"{groupInput} hehehe");
+
+            var selectedIds = data?.ParticipantIds;
+            await HandleSubmit(groupInput, selectedIds);
         }
 
         else
@@ -314,52 +403,67 @@
             Console.WriteLine("Dialog was closed or canceled.");
             // Handle the case where the dialog was canceled or closed without submitting
         }
+
     }
+    // async Task OpenDialog()
+    // {
+    //     DialogOptions closeOnEscapeKey = new DialogOptions() { CloseOnEscapeKey = true };
+    //     var result = await DialogService.Show<Dialog>("Create Group", closeOnEscapeKey).Result;
+    //     if (result != null && !result.Cancelled)
+    //     {
+    //         // Dialog was submitted
+    //         groupInput = result.Data?.ToString();
+    //         Console.WriteLine(groupInput);
+    //         // Handle the groupInput as needed
+    //         await HandleSubmit(groupInput);
+    //     }
+
+    //     else
+    //     {
+    //         // Dialog was closed or canceled
+    //         Console.WriteLine("Dialog was closed or canceled.");
+    //         // Handle the case where the dialog was canceled or closed without submitting
+    //     }
+    // }
     // Method to Create a Group Chat
-    private async Task HandleSubmit(string groupName)
+
+
+    private async Task HandleSubmit(string groupName, List<int>? selectedUsers)
     {
         GroupChatDTO input = new GroupChatDTO()
             {
-                Name = groupName
+                Name = groupName,
+                ParticipantIds = selectedUsers ?? new List<int>()
             };
 
         // Assuming ClientGroupChatService.CreateGroupChat is responsible for saving to the database
         await ClientGroupChatService.AddGroupChat(input);
+        //await ClientGroupChatService.AddMembers(input, selectedUsers);
+        if (selectedUsers != null && selectedUsers.Any())
+        {
+            // Do something with the selected users
+            foreach (var userId in selectedUsers)
+            {
+                // Perform actions with each selected user
+                Console.WriteLine($"Selected User ID: {userId}");
+                // You can fetch user details using the userId and perform any necessary actions
+                var userDetails = await ClientUserService.GetUserById(userId);
+                Console.WriteLine($"Selected User: {userDetails.Id}, {userDetails.Email}");
+            }
+        }
         await hubConnection.SendAsync("CreateGroup", input);
+
         StateHasChanged();
         _snackBar.Add(
-        "Group Chat Created",
-        Severity.Success,
-        config =>
-        {
-            config.ShowTransitionDuration = 200;
-            config.HideTransitionDuration = 400;
-            config.VisibleStateDuration = 2500;
-        });
+            "Group Chat Created",
+            Severity.Success,
+            config =>
+            {
+                config.ShowTransitionDuration = 200;
+                config.HideTransitionDuration = 400;
+                config.VisibleStateDuration = 2500;
+            });
     }
-
-    // async Task LoadUserChat(int groupChatId)
-    // {
-    //     string groupName = await ClientGroupChatService.GetGroupName(GroupChatId);
-
-    //     Console.WriteLine(groupName);
-
-    //     if (GroupChatId != 0)
-    //     {
-    //         await hubConnection.SendAsync("RemoveGroup", groupName);
-    //     }
-
-    //     GroupChatId = groupChatId;
-
-    //     string passGroupName = await ClientGroupChatService.GetGroupName(GroupChatId);
-
-    //     await hubConnection.SendAsync("JoinGroup", passGroupName);
-    //     NavigationManager.NavigateTo($"group-chat/{GroupChatId}");
-
-    //     messages = new List<GroupChatMessage>();
-    //     messages = await ClientGroupChatService.GetConversationAsync(groupChatId);
-    //     Members = await ClientGroupChatService.GetGroupChatMembers(groupChatId);
-    // }
 
     async Task LoadGroupChat(int groupId)
     {
@@ -376,11 +480,92 @@
         groupChatMessage = new List<GroupChatMessage>();
         groupChatMessage = await ClientGroupChatService.GetGroupChatConversation(GroupchatId);
         getGroupMembers = await ClientGroupChatService.GetGroupMembers(GroupchatId);
-        ToolBarText = groupName;
+        getGroupNotMembers = await ClientGroupChatService.GetNotMembers(GroupchatId);
+        ToolBarText = passGroupName;
 
         StateHasChanged();
     }
 
-        
+    private async Task DeleteUserToGroup(int userId, int groupId)
+    {
+
+
+        if (hubConnection.State == HubConnectionState.Connected)
+        {
+            await ClientGroupChatService.RemoveUserToGroup(userId, groupId);
+            string currentGroup = await ClientGroupChatService.GetSingleGroupName(GroupchatId);
+            var usertoRemove = await ClientGroupChatService.GetSingleUser(userId);
+            await hubConnection.SendAsync("RemoveUserToGroup", currentGroup, userId);
+            Console.WriteLine(hubConnection.State);
+            Console.WriteLine(hubConnection.ConnectionId);
+            getGroupNotMembers = await ClientGroupChatService.GetNotMembers(groupId);
+            _snackBar.Add(
+                    "Group member deleted",
+                    Severity.Success,
+                config =>
+                {
+                    config.ShowTransitionDuration = 200;
+                    config.HideTransitionDuration = 400;
+                    config.VisibleStateDuration = 2500;
+                });
+            await InvokeAsync(StateHasChanged);
+        }
+        else 
+        {
+            Console.WriteLine("Connection is not active");
+        }
     }
+    private async Task AddUser(IEnumerable<int> userIds, int groupChatId)
+    {
+        foreach (var i in selectedUserIdsInt)
+        {
+
+            Console.WriteLine($"ID: {i}");
+        }
+        try
+        {
+            string currentGroup = await ClientGroupChatService.GetSingleGroupName(GroupchatId);
+            foreach (var userId in userIds)
+            {
+                var newUser = new AddUserToGroupDTO()
+                    {
+                        UserId = userId,
+                        GroupId = groupChatId
+                    };
+
+                var result = await ClientGroupChatService.AddUserToGroup(newUser);
+                StateHasChanged();
+                var userToAdd = await ClientGroupChatService.GetSingleUser(userId);
+
+                Console.WriteLine($"Added Id {userId}");
+
+                await hubConnection.SendAsync("AddToGroup", currentGroup, userToAdd);
+                StateHasChanged();
+
+            }
+            getGroupNotMembers = await ClientGroupChatService.GetNotMembers(groupChatId);
+            StateHasChanged();
+
+        }
+
+        catch (Exception ex)
+        {
+            // Log or handle the exception as needed
+            Console.WriteLine($"An error occurred while adding users to the group: {ex.Message}");
+
+            _snackBar.Add(
+                "An error occurred while adding users to the group.",
+                Severity.Error,
+                config =>
+                {
+                    config.ShowTransitionDuration = 200;
+                    config.HideTransitionDuration = 400;
+                    config.VisibleStateDuration = 2500;
+                });
+        }
+    }
+       
+}
+
+
 

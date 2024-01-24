@@ -38,6 +38,16 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService
             return users;
         }
 
+        public async Task<User> GetUserById(int userId)
+        {
+            
+            var users = await _context.Users
+                     .Where(p => p.Id == userId)
+                     .FirstOrDefaultAsync();
+
+            return users;
+        }
+
         public async Task<string> GetSingleUserName()
         {
             var userEmail = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Name)?.Value;

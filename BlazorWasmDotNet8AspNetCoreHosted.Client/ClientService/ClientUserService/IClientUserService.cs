@@ -3,11 +3,12 @@
 namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientUserService
 {
     public interface IClientUserService
-    {
+    {   
         List<User> Users { get; set; }
         Task DeleteUser(int id);
-        Task GetAllUser();
+        Task<List<User>> GetAllUser();
         Task<string> GetSingleUserId();
+        Task<User> GetUserById(int id);
         Task<string> GetSingleUserName();
         Task<Student?> GetSingleStudent();
         Task<Professor?> GetSingleProfessor();

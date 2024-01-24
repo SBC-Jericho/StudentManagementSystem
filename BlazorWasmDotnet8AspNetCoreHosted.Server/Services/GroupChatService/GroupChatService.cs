@@ -1,8 +1,10 @@
 ﻿using BlazorWasmDotnet8AspNetCoreHosted.Server.Data;
 using BlazorWasmDotNet8AspNetCoreHosted.Shared.DTOs;
+using BlazorWasmDotNet8AspNetCoreHosted.Shared.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 
 namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
 {
@@ -43,6 +45,18 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
             return groupsForUser;
         }
 
+        public async Task<User?> GetSingleUser(int id)
+        {
+            var user = await _context.Users
+                .Include(g => g.GroupChats)
+                .FirstOrDefaultAsync(p => p.Id == id);
+            if (user is null)
+                return null;
+
+            return user;
+
+        }
+
 
 
         public async Task<GroupChat?> GetSingleGroup(int groupId)
@@ -55,25 +69,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
             }
             return result;
         }
-        public async Task<bool> AddUserToGroup(int userId, int groupChatId)
-        {
-            
-                var user = await _context.Users.FindAsync(userId);
-                var groupChat = await _context.GroupChats.FindAsync(groupChatId);
-                if (user == null && groupChat == null && groupChat.Paticipants.Any(m => m.Id == userId))
-                {
-                    // User or group not found
-                    return false;
-                }
-                // Add the user to the group
-                groupChat.Paticipants.Add(user);
-                // Save changes to the database
-                await _context.SaveChangesAsync();
-                return true;
-            
-
-        }
-
+     
         public async Task<bool> RemoveUserToGroup(int userId, int groupChatId)
         {
             try
@@ -105,12 +101,41 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
                 return false;
             }
         }
-     
+        public async Task<GroupChat> AddUserToGroup(int userId, int groupChatId)
+        {
+            try
+            {
+                var groupExisting = await _context.GroupChats
+                    .Where(group => group.Id == groupChatId)
+                    .Include(group => group.Paticipants)
+                    .FirstOrDefaultAsync();
+
+                User user = await _context.Users.FindAsync(userId);
+                if (user != null)
+                {
+                    groupExisting.Paticipants.Add(user);
+                    await _context.SaveChangesAsync();
+                    return groupExisting;
+                }
+                else
+                {
+                    return null; // User not found
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log or handle the exception as needed
+                return null; // Return null in case of an exception
+            }
+            
+        }
+       
         public async Task<List<GroupChat>> AddGroupChat(GroupChatDTO request)
         {
-            var newGroup = new GroupChat() 
+            var newGroup = new GroupChat()
             {
-                Name = request.Name, 
+                Name = request.Name,
+                Paticipants = new List<User>()
             };
 
             _context.Add(newGroup);
@@ -118,17 +143,28 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
 
             var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var user = await _context.Users
-                .Include(u => u.GroupChats)
-                .FirstOrDefaultAsync(u => u.Id.ToString() == userId);
-
-            if (user != null)
+            if (!string.IsNullOrEmpty(userId))
             {
-                // Add the user to the group
-                user.GroupChats.Add(newGroup);
-                await _context.SaveChangesAsync();
+                // Add the creator to the group
+                request.ParticipantIds.Add(int.Parse(userId));
             }
-            return await _context.GroupChats.ToListAsync(); 
+
+            // Add participants to the group
+            foreach (var userIds in request.ParticipantIds)
+            {
+                var user = await _context.Users
+                    .Include(u => u.GroupChats)
+                    .FirstOrDefaultAsync(u => u.Id == userIds);
+
+                if (user != null)
+                {
+                    user.GroupChats.Add(newGroup);
+                }
+            }
+
+            await _context.SaveChangesAsync();
+
+            return await _context.GroupChats.ToListAsync();
         }
         public async Task<List<GroupChatMessage>> GetGroupChatConversation(int groupChatId)
         {
@@ -159,7 +195,6 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
         public async Task SaveMessage(GroupChatMessage message)
         {
             var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
             message.UserId = int.Parse(userId);
             message.Timestamp = DateTime.Now;
             message.User = await _context.Users.FindAsync(message.UserId);
@@ -203,6 +238,24 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
             return await _context.GroupChats.ToListAsync();
         }
 
+        public async Task<List<User>> GetAllUsersExceptCurrent()
+        {
+
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            // Parse the user ID
+            var user = await _context.Users.FindAsync(userId);
+
+           
+                var users = await _context.Users
+                   .Include(p => p.Students)
+                   .Include(p => p.Professor)
+                    .Where(u => u.Id.ToString() != userId)
+                   .ToListAsync();
+
+            return users;
+        }
+
         public async Task<string> GetSingleGroupName(int groupId)
         {
             
@@ -212,6 +265,11 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
                      .FirstOrDefaultAsync();
 
             return groupName;
+        }
+
+        public Task<bool> AddParticipantsToGroup(GroupChat group, List<int> participantIds)
+        {
+            throw new NotImplementedException();
         }
     }
 }

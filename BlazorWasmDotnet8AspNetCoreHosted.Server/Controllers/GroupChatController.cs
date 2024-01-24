@@ -23,6 +23,13 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
             return Ok(result);
         }
 
+        [HttpGet("get-all-user-except")]
+        public async Task<ActionResult<List<User>>> GetAllUsersExceptCurrent()
+        {
+            var result = await _groupChatService.GetAllUsersExceptCurrent();
+            return Ok(result);
+        }
+
         [HttpGet("get-group-members/{groupId}")]
         public async Task<ActionResult<List<User>>> GetGroupMembers(int groupId) 
         {
@@ -88,6 +95,16 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
         }
 
 
+        [HttpGet("single-group-user/{id}")]
+        public async Task<ActionResult<User>> GetSingleUser(int id)
+        {
+            var result = await _groupChatService.GetSingleUser(id);
+            if (result is null)
+                return NotFound("User Not Found");
+
+            return Ok(result);
+        }
+
         [HttpPost]
         public async Task<ActionResult<List<GroupChat>>> AddGroupChat(GroupChatDTO request)
         {
@@ -96,14 +113,29 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
         }
 
 
-        [HttpPost("add-user-to-group/{userId}/{groupId}")]
-        public async Task<ActionResult<bool>> AddUserToGroup(int userId, int groupId)
+        //[HttpPost("add-members-to-group")]
+        //public async Task<ActionResult<bool>> AddParticipantsToGroup(GroupChatDTO groupchat, List<int> participantIds)
+        //{
+        //    var result = await _groupChatService.AddParticipantsToGroup(groupchat, participantIds);
+        //    return Ok(result);
+        //}
+
+        [HttpPost("add-user-to-group")]
+        public async Task<ActionResult<GroupChat>> AddUserToGroup(AddUserToGroupDTO request)
         {
-            var result = await _groupChatService.AddUserToGroup(userId, groupId);
-            return Ok(result);
+            var result = await _groupChatService.AddUserToGroup(request.UserId, request.GroupId);
+
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            else
+            {
+                return BadRequest("Failed to add user to the group.");
+            }
         }
 
-       
+
 
         [HttpDelete("remove-user-to-group/{userId}/{groupId}")]
         public async Task<ActionResult<bool>> RemoveUserToGroup(int userId, int groupId)

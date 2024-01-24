@@ -11,7 +11,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.Models
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public List<User> Paticipants { get; set; } = new List<User>();
+        public List<User>? Paticipants { get; set; } = new List<User>();
         public List<GroupChatMessage> Messages { get; set; } = new List<GroupChatMessage>();
 
     }

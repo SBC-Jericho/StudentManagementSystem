@@ -18,10 +18,23 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Hubs
          {
                 await Clients.All.SendAsync("ReceiveChatNotification", message, receiverUserId, senderUserId);
          }
-
+            
         public async Task CreateGroup(GroupChat groupChat) 
         {
             await Clients.All.SendAsync("ReceiveNewGroupChat", groupChat);
+        }                                                                                                                  
+        public async Task RemoveUserToGroup(string groupName,  int userId) 
+        {
+            await Clients.Group(groupName).SendAsync("RemoveUser", userId);
+        }
+
+        public async Task AddToGroup(string groupName, User request)
+        {
+            await Clients.Group(groupName).SendAsync("ReceiveUserToAdd", request);
+        }
+        public async Task AddUser(string groupName, List<int> user)
+        {
+            await Clients.Group(groupName).SendAsync("AddUserToGroup", user);
         }
         public async Task Join(string groupName) 
         {

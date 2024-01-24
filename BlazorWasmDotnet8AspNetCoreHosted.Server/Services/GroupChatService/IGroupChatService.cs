@@ -5,10 +5,11 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
     public interface IGroupChatService
     {
         Task<List<GroupChat>> AddGroupChat(GroupChatDTO request);
-        Task<bool> AddUserToGroup(int userId, int groupChatId);
+        Task<GroupChat> AddUserToGroup(int userId, int groupChatId);
         Task<bool> RemoveUserToGroup(int userId, int groupChatId);
         Task<List<User>> GetGroupMembers(int groupId);
         Task<List<User>> GetNotMembers(int groupId);
+        Task<User?> GetSingleUser(int id);
         Task<List<GroupChat>> DeleteGroup(int id);
         Task<List<GroupChat>> GetAllGroupsForUser();
         Task<List<GroupChatMessage>> GetGroupChatConversation(int receiverId);
@@ -16,5 +17,6 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
         Task<GroupChat?> GetSingleGroup(int Id);
         Task SaveMessage(GroupChatMessage message);
         Task<string> GetSingleGroupName(int groupId);
+        Task<List<User>> GetAllUsersExceptCurrent();
     }
 }

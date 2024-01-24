@@ -50,6 +50,13 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
             return Ok(result);
         }
 
+        [HttpGet("get-user-byId/{id}")]
+        public async Task<ActionResult<List<User>>> GetUserById(int id)
+        {
+            var result = await _userService.GetUserById(id);
+            return Ok(result);
+        }
+
         [HttpGet("single-student")]
         public async Task<ActionResult<Student>?> GetSingleStudent()
         {

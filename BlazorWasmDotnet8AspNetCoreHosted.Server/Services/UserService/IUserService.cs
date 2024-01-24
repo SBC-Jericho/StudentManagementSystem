@@ -10,5 +10,6 @@
         Task<Professor?> GetSingleProfessor();
         Task<int> GetSingleProfessor(int id);
         Task<string> GetUserRole();
+        Task<User> GetUserById(int userId);
     }
 }
