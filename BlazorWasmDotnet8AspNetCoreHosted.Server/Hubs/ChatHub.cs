@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using BlazorWasmDotNet8AspNetCoreHosted.Shared.DTOs;
+using BlazorWasmDotNet8AspNetCoreHosted.Shared.Models;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Hubs
@@ -18,23 +20,33 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Hubs
          {
                 await Clients.All.SendAsync("ReceiveChatNotification", message, receiverUserId, senderUserId);
          }
-            
+
+        public async Task GroupChatNotificationAsync(string message, int receiverUserId, int groupChatId)
+        {
+            await Clients.All.SendAsync("ReceiveGroupChatNotification", message, receiverUserId, groupChatId);
+        }
+
         public async Task CreateGroup(GroupChat groupChat) 
         {
             await Clients.All.SendAsync("ReceiveNewGroupChat", groupChat);
-        }                                                                                                                  
+        }
+        public async Task DeleteGroup(int groupId) 
+        {
+            await Clients.All.SendAsync("DeleteGroupChatHub", groupId);
+        }
+
+        public async Task GroupNameUpdated(int groupId, GroupChatNameDTO request)
+        {
+            await Clients.All.SendAsync("UpdateGroupName", groupId, request);
+        }
         public async Task RemoveUserToGroup(string groupName,  int userId) 
         {
             await Clients.Group(groupName).SendAsync("RemoveUser", userId);
         }
 
-        public async Task AddToGroup(string groupName, User request)
+        public async Task AddToGroupChat(string groupName, User request)
         {
-            await Clients.Group(groupName).SendAsync("ReceiveUserToAdd", request);
-        }
-        public async Task AddUser(string groupName, List<int> user)
-        {
-            await Clients.Group(groupName).SendAsync("AddUserToGroup", user);
+            await Clients.Group(groupName).SendAsync("AddUserToGroupChat", request);
         }
         public async Task Join(string groupName) 
         {

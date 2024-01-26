@@ -36,14 +36,14 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
                 if (content != null) clientGroupChat = content;
             }
         }
-        public async Task<GroupChat> AddUserToGroup(AddUserToGroupDTO request)
+        public async Task<User> AddUserToGroup(AddUserToGroupDTO request)
         {
             
                 var response = await _http.PostAsJsonAsync("api/GroupChat/add-user-to-group/", request);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var addedGroup = await response.Content.ReadFromJsonAsync<GroupChat>();
+                    var addedUser = await response.Content.ReadFromJsonAsync<User>();
 
                     _snackbar.Add(
                         "Successfully Added User to Group",
@@ -55,7 +55,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
                             config.VisibleStateDuration = 2500;
                         });
 
-                    return addedGroup;
+                    return addedUser;
                 }              
                 else
                 {
@@ -68,16 +68,22 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
                             config.HideTransitionDuration = 400;
                             config.VisibleStateDuration = 2500;
                         });
+                    return null;
                 }
-            return null;
            
         }
 
-        public Task DeleteGroup(int id)
+        public async Task DeleteGroupChat(int id)
         {
-            throw new NotImplementedException();
-        }
+            var result = await _http.DeleteAsync($"api/Groupchat/delete-group/{id}");
 
+
+            if (result.IsSuccessStatusCode)
+            {
+                List<GroupChat>? content = await result.Content.ReadFromJsonAsync<List<GroupChat>>();
+                if (content != null) clientGroupChat = content;
+            }
+        }
         public async Task<List<GroupChat>> GetAllGroup()
         {
             var result = await _http.GetFromJsonAsync<List<GroupChat>>("api/GroupChat/get-all-group/");
@@ -125,6 +131,19 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
 
         }
 
+        public async Task<GetChatMembersDTO> GetGroupChatMembers(int groupChatId)
+        {
+            var result = await _http.GetAsync($"api/GroupChat/users-from-group/{groupChatId}");
+
+            if (result.StatusCode == HttpStatusCode.OK)
+            {
+                var users = await result.Content.ReadFromJsonAsync<GetChatMembersDTO>();
+                return users;
+            }
+
+            return new GetChatMembersDTO();
+        }
+
         public async Task<GroupChat?> GetSingleGroup(int Id)
         {
             var result = await _http.GetAsync($"api/GroupChat/single-group/{Id}");
@@ -162,6 +181,11 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
         public async Task SaveMessage(GroupChatMessage message)
         {
             await _http.PostAsJsonAsync("api/GroupChat/save-group-message", message);
+        }
+
+        public async Task UpdateGroupChat(int id, GroupChatNameDTO request)
+        {
+            await _http.PutAsJsonAsync($"api/Groupchat/update-single-group/{id}", request);
         }
     }
 }

@@ -9,8 +9,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
         List<GroupChat> clientGroupChat { get; set; }
         List<User> clientUser { get; set; }
         Task AddGroupChat(GroupChatDTO request);
-        Task DeleteGroup(int id);
-        Task<GroupChat> AddUserToGroup(AddUserToGroupDTO request);
+        Task<User> AddUserToGroup(AddUserToGroupDTO request);
         Task RemoveUserToGroup(int userId, int groupChatId);
         Task<List<User>>GetGroupMembers(int groupId);
         Task<List<User>>GetNotMembers(int groupId);
@@ -21,7 +20,9 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
         Task<GroupChat?> GetSingleGroup(int Id);
         Task SaveMessage(GroupChatMessage message);
         Task<string> GetSingleGroupName(int id);
-
+        Task UpdateGroupChat(int id, GroupChatNameDTO request);
         Task<User?> GetSingleUser(int id);
+        Task DeleteGroupChat(int id);
+        Task<GetChatMembersDTO> GetGroupChatMembers(int groupChatId);
     }
 }

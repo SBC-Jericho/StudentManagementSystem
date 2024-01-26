@@ -79,6 +79,27 @@
                 });
             }
         });
+
+        hubConnection.On<string, int, int>("ReceiveGroupChatNotification", (message, senderUserId, groupChatId) =>
+        {
+            if (CurrentUserId != senderUserId.ToString())
+            {
+                _jsRuntime.InvokeAsync<string>("PlayAudio", "notification");
+                _snackBar.Add(message, Severity.Info, config =>
+                {
+                    config.VisibleStateDuration = 10000;
+                    config.HideTransitionDuration = 500;
+                    config.ShowTransitionDuration = 500;
+                    config.Action = "Chat?";
+                    config.ActionColor = Color.Info;
+                    config.Onclick = snackbar =>
+                    {
+                        NavigationManager.NavigateTo($"groupchat/{groupChatId}");
+                        return Task.CompletedTask;
+                    };
+                });
+            }
+        });
  
         CurrentUserId = await ClientUserService.GetSingleUserId();
     }

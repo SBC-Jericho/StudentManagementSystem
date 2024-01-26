@@ -113,15 +113,8 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
         }
 
 
-        //[HttpPost("add-members-to-group")]
-        //public async Task<ActionResult<bool>> AddParticipantsToGroup(GroupChatDTO groupchat, List<int> participantIds)
-        //{
-        //    var result = await _groupChatService.AddParticipantsToGroup(groupchat, participantIds);
-        //    return Ok(result);
-        //}
-
         [HttpPost("add-user-to-group")]
-        public async Task<ActionResult<GroupChat>> AddUserToGroup(AddUserToGroupDTO request)
+        public async Task<ActionResult<User>> AddUserToGroup(AddUserToGroupDTO request)
         {
             var result = await _groupChatService.AddUserToGroup(request.UserId, request.GroupId);
 
@@ -144,14 +137,20 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
             return Ok(true);
         }
 
-        [HttpDelete("delete-group{id}")]
-        public async Task<ActionResult<List<GroupChat>>> DeleteGroup(int id) 
+        [HttpPut("update-single-group/{id}")]
+        public async Task<ActionResult<GroupChat>> UpdateGroupChat(int id, GroupChatNameDTO request)
         {
-            var result = await _groupChatService.DeleteGroup(id);
+            var result = await _groupChatService.UpdateGroupchat(id, request);
             if (result is null)
-            {
-                return BadRequest();
-            }
+                return NotFound("Groupchat Not Found");
+
+            return Ok(result);
+        }
+
+        [HttpGet("get-group-byId/{id}")]
+        public async Task<ActionResult<List<User>>> GetGroupById(int id)
+        {
+            var result = await _groupChatService.GetGroupById(id);
             return Ok(result);
         }
 
@@ -160,6 +159,31 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
         {
             await _groupChatService.SaveMessage(request);
 
+        }
+
+        [HttpDelete("delete-group/{id}")]
+        public async Task<ActionResult<GroupChat>> DeleteGroupChat(int id)
+        {
+            var result = await _groupChatService.DeleteGroupChat(id);
+            if (result is null)
+            {
+                return NotFound("Group not found");
+            }
+
+            return Ok(result);
+        }
+
+        [HttpGet("users-from-group/{groupChatId}")]
+        public async Task<ActionResult<GetChatMembersDTO>> GetGroupChatMembers(int groupChatId)
+        {
+            var result = await _groupChatService.GetGroupChatMembers(groupChatId);
+
+            if (result.users.Count == 0)
+            {
+                return NotFound("No Group Chat Members Found");
+            }
+
+            return Ok(result);
         }
     }
 }
