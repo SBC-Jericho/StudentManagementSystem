@@ -185,8 +185,8 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
         }
         public async Task<List<GroupChatMessage>> GetGroupChatConversation(int groupChatId)
         {
-            // Get the current logged-in user Id
-            //var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            //Get the current logged-in user Id
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             List<GroupChatMessage> messages = await _context.GroupChatMessages
                 .Where(m =>
@@ -206,18 +206,32 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
                     GroupChatId = x.GroupChatId
                 }).ToListAsync();
 
-            return messages;
+            return messages; 
         }
 
-        public async Task SaveMessage(GroupChatMessage message)
+        public async Task<GroupChatMessage> SaveMessage(GroupChatMessage message)
         {
             var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            message.UserId = int.Parse(userId);
-            message.Timestamp = DateTime.Now;
-            message.User = await _context.Users.FindAsync(message.UserId);
 
-            await _context.GroupChatMessages.AddAsync(message);
-            await _context.SaveChangesAsync();
+            var isMember = await _context.GroupChats
+            .Where(g => g.Id == message.GroupChatId)
+            .AnyAsync(g => g.Paticipants.Any(p => p.Id.ToString() == userId));
+
+            if (!isMember) 
+            {
+                return null;
+            }
+            else
+            {
+                message.UserId = int.Parse(userId);
+                message.Timestamp = DateTime.Now;
+                message.User = await _context.Users.FindAsync(message.UserId);
+                await _context.GroupChatMessages.AddAsync(message);
+                await _context.SaveChangesAsync();
+
+                return message;
+            }
+            
 
         }
 
@@ -235,7 +249,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
         {
             var groupMembers = await GetGroupMembers(groupId);
 
-            var allUsers = await _context.Users.ToListAsync(); // Replace with your actual user retrieval logic
+            var allUsers = await _context.Users.ToListAsync(); 
 
             var usersNotInGroup = allUsers.Except(groupMembers).ToList();
 
@@ -327,3 +341,4 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
         }
     }
 }
+ 

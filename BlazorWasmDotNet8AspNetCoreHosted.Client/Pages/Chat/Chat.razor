@@ -3,6 +3,7 @@
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IClientChatMessageService ClientChatMessageService
+@inject IClientGroupChatService ClientGroupChatService
 @inject IClientUserService ClientUserService
 @inject ISnackbar _snackBar
 @inject IJSRuntime _jsRuntime
@@ -42,70 +43,30 @@
         </MudToolBar>
 
         <div class="d-flex flex-column px-4" style="max-height:65vh;min-height:65vh; overflow:scroll;" id="chatContainer">
-        
+
+
             @foreach (var message in messages)
             {
-                <div class="d-flex flex-row my-4">
-                    @if (message.Users.Id.ToString() == CurrentUserId)
-                    {
-                        <!-- Current user's message, display on the right -->
-                        <div class="ml-auto mr-4">
-                            <MudAvatar Color="Color.Secondary" Style="height:50px; width:50px;">
-                                <MudImage Src="@message.Users.Avatar"></MudImage>
-                            </MudAvatar>
-                        </div>
 
-                        <div class="text-right">
+                <div class="d-flex flex-row my-4 @((message?.Users?.Id.ToString() == CurrentUserId) ? "justify-content-end" : "")">
 
-                            <MudText 
-                                Typo="Typo.body1">
-                                @message.Users.Email
-                            </MudText>
+                    <div class="mr-4">
+                        <MudAvatar Color="Color.Secondary" Style="height:50px; width:50px;">
+                            <MudImage Src="@message.Users.Avatar"></MudImage>
+                        </MudAvatar>
+                    </div>
 
-                            <MudText 
-                                Typo="Typo.caption" 
-                                Style="font-size: xx-small!important;">
-                                @message.CreatedDate
-                            </MudText>
+                    <div class="@((message?.Users?.Id.ToString() == CurrentUserId) ? "text-right" : "")">
 
-                            <MudText 
-                                    Typo="Typo.body2"  
-                                    Style="padding: 15px;background-color: ;border-radius: 5px;margin-top:5px">
-                                    @message.Message
-                            </MudText>
-
-                        </div>
-
-
-                    }
-                    else
-                    {
-                        <!-- Other user's message, display on the left -->
-                        <div class="mr-4">
-                            <MudAvatar Color="Color.Secondary" Style="height:50px; width:50px;">
-                                <MudImage Src="@message.Users.Avatar"></MudImage>
-                            </MudAvatar>
-                        </div>
-
-                        <div>
-                            <MudText Typo="Typo.body1">@message.Users.Email</MudText>
-
-                                <MudText Typo="Typo.caption" 
-                                    Style="font-size: xx-small!important;">
-                                    @message.CreatedDate
-                                </MudText>
-
-                                <MudText 
-                                    Typo="Typo.body2" 
-                                    Style="padding: 15px;background-color: var(--mud-palette-background-grey);border-radius: 5px;margin-top:5px">
-                                    @message.Message
-                            </MudText>
-
-                        </div>
-
-                    }
+                        <MudText Typo="Typo.body1">@message.Users.Email</MudText>
+                            <MudText Typo="Typo.caption" Style="font-size: xx-small!important;">@message.CreatedDate</MudText>
+                            <MudText Typo="Typo.body2" Style="padding: 15px;background-color: var(--mud-palette-background-grey);border-radius: 5px;margin-top:5px">
+                                @message.Message
+                        </MudText>
+                    </div>
                 </div>
             }
+            
         </div>
         
         <MudPaper Elevation="25" Class="d-flex flex-row px-2 mx-4" Style="">
@@ -239,12 +200,7 @@
                     {
                         Message = message.Message,
                         CreatedDate = message.CreatedDate,
-                        Users = new User()
-                        {
-                            Email = CurrentUserEmail
-
-                            
-                        }
+                        Users = message.Users
                     });
 
                     await hubConnection.SendAsync("ChatNotificationAsync", $"New Message From {userName}", ContactId, CurrentUserId);
@@ -255,10 +211,7 @@
                         { 
                             Message = message.Message, 
                             CreatedDate = message.CreatedDate, 
-                            Users = new User() 
-                            { 
-                                Email = ContactEmail 
-                            } 
+                            Users = message.Users
                         });
                 }
                 await _jsRuntime.InvokeAsync<string>("ScrollToBottom", "chatContainer");
@@ -287,7 +240,10 @@
                 };
             chatHistory.FromUserId = int.Parse(CurrentUserId);
             chatHistory.UserId = int.Parse(CurrentUserId);
-            Console.WriteLine(hubConnection.State);
+            var user = await ClientGroupChatService.GetSingleUser(int.Parse(CurrentUserId));
+            chatHistory.Users = user;
+
+
             await ClientChatMessageService.SaveMessage(chatHistory);  
             await hubConnection.SendAsync("SendMessage", chatHistory, CurrentUserEmail);
             CurrentMessage = string.Empty;
@@ -298,13 +254,16 @@
     {
         await _jsRuntime.InvokeAsync<string>("ScrollToBottom", "chatContainer");
     }
-        
+
 
     async Task LoadUserChat(int userId)
     {
+        await GetUserConnectionId(userId);
         var contact = await ClientChatMessageService.GetSingleUser(userId);
+        GetUserConnectionId(userId);
         if(contact != null)
         {
+
             ContactId = contact.Id;
             ContactEmail = contact.Email;
             NavigationManager.NavigateTo($"chat/{ContactId}");
@@ -319,4 +278,10 @@
     }
     public bool isConnected => hubConnection.State == HubConnectionState.Connected;
 
+    async Task GetUserConnectionId(int userId)
+    {
+        var currentuser = await ClientChatMessageService.GetSingleUser(userId);
+
+        Console.WriteLine(hubConnection.ConnectionId);
+    }
 }

@@ -84,7 +84,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsServ
 
             // returns the Id of the student that is equal to the current logged in User
             var studentId = await _context.Students
-                .Where(s => s.UserId.ToString() == userId)
+                .Where(s => s.UserId.ToString() == userId)  
                 .Select (s => s.Id)
                 .FirstOrDefaultAsync();
 

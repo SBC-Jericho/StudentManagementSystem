@@ -5,6 +5,7 @@ using MudBlazor;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Net.NetworkInformation;
 using static System.Net.WebRequestMethods;
 
 namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChatService
@@ -135,7 +136,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
         {
             var result = await _http.GetAsync($"api/GroupChat/users-from-group/{groupChatId}");
 
-            if (result.StatusCode == HttpStatusCode.OK)
+            if (result.IsSuccessStatusCode)
             {
                 var users = await result.Content.ReadFromJsonAsync<GetChatMembersDTO>();
                 return users;
@@ -178,9 +179,37 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
             await _http.DeleteAsync($"api/GroupChat/remove-user-to-group/{userId}/{groupChatId}");
         }
 
-        public async Task SaveMessage(GroupChatMessage message)
+
+        public async Task<bool> SaveMessage(GroupChatMessage message)
         {
-            await _http.PostAsJsonAsync("api/GroupChat/save-group-message", message);
+            var result = await _http.PostAsJsonAsync("api/GroupChat/save-group-message", message);
+            if (result.IsSuccessStatusCode)
+            {
+                _snackbar.Add(
+                   "Message send succesfully",
+                   Severity.Success,
+                   config =>
+                   {
+                       config.ShowTransitionDuration = 200;
+                       config.HideTransitionDuration = 400;
+                       config.VisibleStateDuration = 2500;
+                   });
+                return true;
+            }
+            else
+            {
+                _snackbar.Add(
+                   "You are not part of this group",
+                   Severity.Warning,
+                   config =>
+                   {
+                       config.ShowTransitionDuration = 200;
+                       config.HideTransitionDuration = 400;
+                       config.VisibleStateDuration = 2500;
+                   });
+                return false;
+            }
+
         }
 
         public async Task UpdateGroupChat(int id, GroupChatNameDTO request)

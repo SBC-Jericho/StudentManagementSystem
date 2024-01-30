@@ -18,7 +18,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
         Task <List<GroupChat>> GetAllGroup();
         Task<List<User>> GetAllUsersExceptCurrent();
         Task<GroupChat?> GetSingleGroup(int Id);
-        Task SaveMessage(GroupChatMessage message);
+        Task <bool>SaveMessage(GroupChatMessage message);
         Task<string> GetSingleGroupName(int id);
         Task UpdateGroupChat(int id, GroupChatNameDTO request);
         Task<User?> GetSingleUser(int id);

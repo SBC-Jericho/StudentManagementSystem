@@ -128,8 +128,6 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
             }
         }
 
-
-
         [HttpDelete("remove-user-to-group/{userId}/{groupId}")]
         public async Task<ActionResult<bool>> RemoveUserToGroup(int userId, int groupId)
         {
@@ -155,9 +153,12 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
         }
 
         [HttpPost("save-group-message")]
-        public async Task SaveMessage(GroupChatMessage request)
+        public async Task<ActionResult<GroupChatMessage>> SaveMessage(GroupChatMessage request)
         {
-            await _groupChatService.SaveMessage(request);
+            var result = await _groupChatService.SaveMessage(request);
+            if (result is null)
+                return BadRequest();
+            return Ok(result);
 
         }
 
