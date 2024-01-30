@@ -17,27 +17,6 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.ChatMessageService
             _context = context;
             _httpContextAccessor = httpContextAccessor;
         }
-
-        //private async Task<List<ChatMessage>> GetConvo(int contactId)
-        //{
-        //    var userId = _httpContextAccessor?.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        //    List<ChatMessage> messages = await _context.ChatMessages
-        //   .Where(h => (h.FromUserId == contactId.ToString() && h.ToUserId.ToString() == userId) || (h.FromUserId.ToString() == userId && h.ToUserId == contactId.ToString()))
-        //   .OrderBy(a => a.CreatedDate)
-        //   .Include(a => a.Users)
-        //   .Select(x => new ChatMessage
-        //   {
-        //       FromUserId = x.FromUserId,
-        //       Message = x.Message,
-        //       CreatedDate = x.CreatedDate,
-        //       Id = x.Id,
-        //       ToUserId = x.ToUserId,
-        //       Users = x.Users
-        //   }).ToListAsync();
-
-        //    return messages;
-        //}
         public async Task<List<User>> GetAllUsers()
         {
             //Get the user ID of current logged in user
@@ -47,16 +26,36 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.ChatMessageService
             //to avoid seeing your name in your own contact list
             //this is for contact list
 
-            var users = await _context.Users
-               .Where(user => user.Id.ToString() != userId)
-               .ToListAsync();
+            //var users = await _context.Users
+            //   .Where(user => user.Id.ToString() != userId)
+            //   .ToListAsync();
 
-            return users;
+            //return users;
+         var usersWithLastMessage = await _context.Users
+        .Where(user => user.Id.ToString() != userId)
+        .Select(user => new
+        {
+            User = user,
+            LastMessage = _context.ChatMessages
+                .Where(message => (message.FromUserId == user.Id && message.ToUserId.ToString() == userId) ||
+                                  (message.FromUserId.ToString() == userId && message.ToUserId == user.Id))
+                .OrderByDescending(message => message.CreatedDate)
+                .FirstOrDefault()
+        })
+        .ToListAsync();
+
+            var orderedUsers = usersWithLastMessage
+                .OrderByDescending(entry => entry.LastMessage?.CreatedDate ?? DateTime.MinValue)
+                .Select(entry => entry.User)
+                .ToList();
+
+            return orderedUsers;
 
         }
 
         public async Task<List<ChatMessage>> GetConversation(int receiverId)
         {
+            // get the current logged in user Id
             var senderId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             List<ChatMessage> messages = await _context.ChatMessages

@@ -27,19 +27,30 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientUserServi
             }
         }
 
-        public async Task GetAllUser()
+        public async Task<List<User>> GetAllUser()
         {
             var result = await _httpClient.GetFromJsonAsync<List<User>>($"api/User/");
             if (result != null)
             {
                 Users = result;
             }
+
+            return Users;
         }
 
         public async Task<string> GetSingleUserId()
         {
             var result = await _httpClient.GetStringAsync("api/User/single-user-id");
             return result;
+        }
+        public async Task<User> GetUserById(int id)
+        {
+            var result = await _httpClient.GetAsync($"api/User/get-user-byId/{id}");
+            if (result.IsSuccessStatusCode)
+            {
+                return await result.Content.ReadFromJsonAsync<User>();
+            }
+            return null;
         }
 
         public async Task<string> GetSingleUserName()

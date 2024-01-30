@@ -3,11 +3,16 @@
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject IClientChatMessageService ClientChatMessageService
+@inject IClientGroupChatService ClientGroupChatService
 @inject IClientUserService ClientUserService
+@inject ISnackbar _snackBar
+@inject IJSRuntime _jsRuntime
 @rendermode InteractiveWebAssembly
 
-<h3>Chat</h3>
+
+<h3>Chat</h3> 
     
+
 <div class="d-flex flex-grow-1 flex-row">
 
     <MudPaper Elevation="25" Class="py-4 flex-grow-1">
@@ -22,6 +27,7 @@
                 />
 
                 <MudText Typo="Typo.h6">chat</MudText>
+               
             }
 
             else
@@ -36,43 +42,33 @@
 
         </MudToolBar>
 
-        <div class="d-flex flex-column px-4" 
-        style="max-height:65vh;min-height:65vh; overflow:scroll;" 
-        id="chatContainer">
+        <div class="d-flex flex-column px-4" style="max-height:65vh;min-height:65vh; overflow:scroll;" id="chatContainer">
+
 
             @foreach (var message in messages)
             {
-                <div class="d-flex flex-row my-4">
+
+                <div class="d-flex flex-row my-4 @((message?.Users?.Id.ToString() == CurrentUserId) ? "justify-content-end" : "")">
 
                     <div class="mr-4">
-
-                    <MudAvatar 
-                         Color="Color.Secondary" 
-                         Style="height:50px; width:50px;">
-                         <MudImage>@message.Users.Avatar</MudImage>
-                    </MudAvatar>
-
+                        <MudAvatar Color="Color.Secondary" Style="height:50px; width:50px;">
+                            <MudImage Src="@message.Users.Avatar"></MudImage>
+                        </MudAvatar>
                     </div>
 
-                    <div>
+                    <div class="@((message?.Users?.Id.ToString() == CurrentUserId) ? "text-right" : "")">
+
                         <MudText Typo="Typo.body1">@message.Users.Email</MudText>
-
-                        <MudText 
-                            Typo="Typo.caption" 
-                            Style="font-size: xx-small!important;">
-                            @message.CreatedDate
+                            <MudText Typo="Typo.caption" Style="font-size: xx-small!important;">@message.CreatedDate</MudText>
+                            <MudText Typo="Typo.body2" Style="padding: 15px;background-color: var(--mud-palette-background-grey);border-radius: 5px;margin-top:5px">
+                                @message.Message
                         </MudText>
-
-                        <MudText 
-                            Typo="Typo.body2" 
-                            Style=" padding: 15px;background-color: var(--mud-palette-background-grey);border-radius: 5px;margin-top:5px">
-                            @message.Message
-                        </MudText>
-
                     </div>
                 </div>
             }
+            
         </div>
+        
         <MudPaper Elevation="25" Class="d-flex flex-row px-2 mx-4" Style="">
 
             <MudTextField 
@@ -83,19 +79,33 @@
                 @bind-Value="CurrentMessage" 
                 For="@(()=> CurrentMessage)" 
             />
-
-            <MudButton 
+            @if (ContactId == 0)
+            {
+                <MudButton 
                 OnClick="SubmitAsync" 
+                Disabled="true"
                 StartIcon="@Icons.Material.Outlined.Send" 
                 Color="Color.Secondary" 
                 ButtonType="ButtonType.Button">
                 Send
             </MudButton>
+            }
+            else
+            {
+                <MudButton OnClick="SubmitAsync"
+                             
+                                StartIcon="@Icons.Material.Outlined.Send"
+                                Color="Color.Secondary"
+                                ButtonType="ButtonType.Button">
+                    Send
+                </MudButton>
+            }
+
 
         </MudPaper>
     </MudPaper> 
     
-    <MudPaper Elevation="25" Class="pa-3 ml-6" MinWidth="350px">
+    <MudPaper Elevation="25" Class="pa-3 ml-6 pa-4 mud-theme-primary" MinWidth="350px">
 
         <MudToolBar Dense="true">
             <MudText Typo="Typo.h6" Inline="true" Class="mr-2">#</MudText>
@@ -109,24 +119,17 @@
                 {
                     <MudListItem Class="pa-0 px-2" OnClick="@(() => LoadUserChat(user.Id))">
                         <div class="d-flex flex-row mt-n1 mb-n1">
-                            <div class="mr-4">
-                                <MudBadge Class="my-2">
-                                    @if (user.Id == ContactId)
-                                    {
-                                        <MudAvatar 
-                                            Color="Color.Secondary" 
-                                            Style="height:50px; width:50px;">
-                                            @user.Email.ToUpper().FirstOrDefault()
-                                        </MudAvatar>
-                                    }
-                                    else
-                                    {
-                                        <MudAvatar 
-                                            Color="Color.Dark" 
-                                            Style="height:50px; width:50px;">
-                                            @user.Email.ToUpper().FirstOrDefault()
-                                        </MudAvatar>
-                                    }
+                            <div class="mr-4 mb-4" >
+                                <MudBadge 
+                                        Class="my-4" 
+                                        Color="Color.Info">
+                                        
+                                            <MudAvatar 
+                                                Color="Color.Secondary" 
+                                                Style="height:50px; width:50px;">
+                                                <MudImage Src="@user.Avatar"></MudImage>
+                                            </MudAvatar>
+                                       
                                 </MudBadge>
                             </div>
 
@@ -150,51 +153,78 @@
 
     [CascadingParameter]
     private HubConnection hubConnection { get; set; }
-
+    [Parameter]
     public string CurrentMessage { get; set; }
+    [Parameter]
     public string CurrentUserId { get; set; }
+    [Parameter]
     public string CurrentUserEmail { get; set; }
 
     private List<ChatMessage> messages = new List<ChatMessage>();
 
-    public List<User> ChatUsers = new List<User>();
+    public int messageCount { get; set; }
 
-    public string ContactEmail { get; set; }    
+    public List<User> ChatUsers = new List<User>();
+    public string test = "Hi";
+    [Parameter]
+    public string ContactEmail { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        if (hubConnection == null)
+        {
+            hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chathub")).Build();
+        }
+
+        if (hubConnection.State == HubConnectionState.Disconnected)
+        {
+            await hubConnection.StartAsync();
+        }
+        await ClientUserService.GetAllUser();
+
+        //load contacts
         ChatUsers = await ClientChatMessageService.GetAllUsers();
-        
-        hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chathub")).Build();
+        CurrentUserId = await ClientUserService.GetSingleUserId();
+        CurrentUserEmail = await ClientUserService.GetSingleUserName();
+        // hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chathub")).Build();
 
         hubConnection.On<ChatMessage, string>("ReceivedMessage", async (message, userName) =>
         {
+
             if ((ContactId == message.ToUserId && CurrentUserId == message.FromUserId.ToString()) || (ContactId == message.FromUserId && CurrentUserId == message.ToUserId.ToString()))
             {
 
                 if ((ContactId == message.ToUserId && CurrentUserId == message.FromUserId.ToString()))
                 {
-                    messages.Add(new ChatMessage { Message = message.Message, CreatedDate = message.CreatedDate, Users = new User() { Email = CurrentUserEmail } });
+                    messages.Add(new ChatMessage
+                    {
+                        Message = message.Message,
+                        CreatedDate = message.CreatedDate,
+                        Users = message.Users
+                    });
+
                     await hubConnection.SendAsync("ChatNotificationAsync", $"New Message From {userName}", ContactId, CurrentUserId);
                 }
                 else if ((ContactId == message.FromUserId && CurrentUserId == message.ToUserId.ToString()))
                 {
-                    messages.Add(new ChatMessage { Message = message.Message, CreatedDate = message.CreatedDate, Users = new User() { Email = ContactEmail } });
+                    messages.Add(new ChatMessage 
+                        { 
+                            Message = message.Message, 
+                            CreatedDate = message.CreatedDate, 
+                            Users = message.Users
+                        });
                 }
+                await _jsRuntime.InvokeAsync<string>("ScrollToBottom", "chatContainer");
+                StateHasChanged();  
             }
-            StateHasChanged();
+
         });
 
-        await hubConnection.StartAsync();
-
-        CurrentUserId = await ClientUserService.GetSingleUserId();
-        CurrentUserEmail = await ClientUserService.GetSingleUserName();
 
         if (!string.IsNullOrEmpty(ContactId.ToString()))
         {
             await LoadUserChat(ContactId);
         }
-      
     }
 
     public async Task SubmitAsync()
@@ -206,33 +236,52 @@
                 {
                     Message = CurrentMessage,
                     ToUserId = ContactId,
-                    CreatedDate = DateTime.Now,
-                    FromUserId = int.Parse(CurrentUserId)
-
+                    CreatedDate = DateTime.Now, 
                 };
-            await ClientChatMessageService.SaveMessage(chatHistory);    
+            chatHistory.FromUserId = int.Parse(CurrentUserId);
+            chatHistory.UserId = int.Parse(CurrentUserId);
+            var user = await ClientGroupChatService.GetSingleUser(int.Parse(CurrentUserId));
+            chatHistory.Users = user;
+
+
+            await ClientChatMessageService.SaveMessage(chatHistory);  
             await hubConnection.SendAsync("SendMessage", chatHistory, CurrentUserEmail);
             CurrentMessage = string.Empty;
         }
+        await InvokeAsync(StateHasChanged);
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await _jsRuntime.InvokeAsync<string>("ScrollToBottom", "chatContainer");
     }
 
-       async Task LoadUserChat(int userId)
+
+    async Task LoadUserChat(int userId)
+    {
+        await GetUserConnectionId(userId);
+        var contact = await ClientChatMessageService.GetSingleUser(userId);
+        GetUserConnectionId(userId);
+        if(contact != null)
         {
-            var contact = await ClientChatMessageService.GetSingleUser(userId);
-            if(contact != null)
-                {
-                    ContactId = contact.Id;
-                    ContactEmail = contact.Email;
-                    NavigationManager.NavigateTo($"chat/{ContactId}");
-                    messages = new List<ChatMessage>();
-                    messages = await ClientChatMessageService.GetConversation(ContactId);
-                }
-            else
-                {
-                    // Handle the case where contact is null (e.g., log an error, display a message)
-                    Console.WriteLine("Contact is null.");
-                }
+
+            ContactId = contact.Id;
+            ContactEmail = contact.Email;
+            NavigationManager.NavigateTo($"chat/{ContactId}");
+            messages = new List<ChatMessage>();
+            messages = await ClientChatMessageService.GetConversation(ContactId);
         }
+        else
+        {
+            // Handle the case where contact is null (e.g., log an error, display a message)
+            Console.WriteLine("Contact is null.");
+        }
+    }
     public bool isConnected => hubConnection.State == HubConnectionState.Connected;
 
+    async Task GetUserConnectionId(int userId)
+    {
+        var currentuser = await ClientChatMessageService.GetSingleUser(userId);
+
+        Console.WriteLine(hubConnection.ConnectionId);
+    }
 }

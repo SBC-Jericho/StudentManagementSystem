@@ -12,8 +12,7 @@
         </button>
     </div>
 </div> *@
-
-<MudPaper Class="pa-16 ma-2" Height="100vh" Elevation="3">
+    
       <MudNavMenu>
         <AuthorizeView>
             <Authorized>
@@ -169,9 +168,13 @@
                 Chat
             </MudNavLink>
 
+            <MudNavLink Href="groupchat"
+                        Icon="@Icons.Material.Filled.AddCard"
+                        IconColor="Color.Tertiary">
+                Group Chat
+            </MudNavLink>
+
   </MudNavMenu>
-</MudPaper>
-    <p style="height:500px;"></p>
 
 @code 
 {

@@ -13,7 +13,6 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.DTOs
         public string? FirstName { get; set; } = string.Empty;
         public string? LastName { get; set; } = string.Empty;
         public DateTime? BirthDate { get; set; } = DateTime.Now;
-        [Required]
         public string? Image { get; set; } = string.Empty;
         //[Required(ErrorMessage = "Contact is required.")]
         //[Phone (ErrorMessage = "Invalid contact format.")]

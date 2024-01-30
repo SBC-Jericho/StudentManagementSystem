@@ -1,0 +1,50 @@
+﻿@inject IClientGroupChatService ClientGroupChatService
+@inject IClientUserService ClientUserService
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField @bind-Value="groupName" Label="Name"></MudTextField>
+        <MudSelect
+            T="User"
+            ToStringFunc="@((User user) => user.Email)"
+            Label="Users"
+            MultiSelection="true"
+            @bind-SelectedValues="selectedUserIds">
+
+            @foreach (User user in Users)
+            {
+                <MudSelectItem T="User" Value="@user">@user.Email</MudSelectItem>
+            }
+        </MudSelect>
+        
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        @if (string.IsNullOrEmpty(groupName))
+        {
+            <MudButton Color="Color.Primary" Disabled=true OnClick="Submit">Ok</MudButton>
+        }
+        else
+        {
+            <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
+
+
+    public List<User> Users = new List<User>();
+    private IEnumerable<User> selectedUserIds { get; set; } = new HashSet<User>();
+    private string? groupName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Users = await ClientUserService.GetAllUser();
+    }
+
+
+    void Submit() => MudDialog.Close(DialogResult.Ok(new GroupChatDTO { Name = groupName, ParticipantIds = selectedUserIds.Select(user => user.Id).ToList() }));
+
+    void Cancel() => MudDialog.Cancel();
+}

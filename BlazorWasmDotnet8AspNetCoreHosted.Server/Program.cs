@@ -16,6 +16,8 @@ using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService;
 using BlazorWasmDotnet8AspNetCoreHosted.Server.Hubs;
 using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AnnouncementService;
 using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.ChatMessageService;
+using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,6 +35,24 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
                 ValidateIssuer = false,
                 ValidateAudience = false
+            };
+
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    var accessToken = context.Request.Query["access_token"];
+                    Console.WriteLine(accessToken);
+                    // If the request is for our hub...
+                    var path = context.HttpContext.Request.Path;
+                    if (!string.IsNullOrEmpty(accessToken) &&
+                        path.StartsWithSegments("/chathub"))
+                    {
+                        // Read the token out of the query string
+                        context.Token = accessToken;
+                    }
+                    return Task.CompletedTask;
+                }
             };
         })
     ;
@@ -57,15 +77,20 @@ builder.Services.AddScoped<IBorrowedBookService, BorrowedBookService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IChatMessageService, ChatMessageService>();
 builder.Services.AddScoped<IAnnouncementService, AnnouncementService>();
+builder.Services.AddScoped<IGroupChatService, GroupChatService>();
 builder.Services.AddDbContext<DataContext>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
+
+builder.Services.AddSingleton<IUserIdProvider, EmailBasedUserIdProvider>();
+
 
 builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -19,7 +19,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientChatMessa
         public async Task<List<User>> GetAllUsers()
         {
                 var result = await _http.GetFromJsonAsync<List<User>>($"api/chatmessage/users");
-            return result;
+                return result;
         }
 
         //public async Task<List<ChatMessage>> GetConversationAsync(int contactId)
