@@ -185,15 +185,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
             var result = await _http.PostAsJsonAsync("api/GroupChat/save-group-message", message);
             if (result.IsSuccessStatusCode)
             {
-                _snackbar.Add(
-                   "Message send succesfully",
-                   Severity.Success,
-                   config =>
-                   {
-                       config.ShowTransitionDuration = 200;
-                       config.HideTransitionDuration = 400;
-                       config.VisibleStateDuration = 2500;
-                   });
+               
                 return true;
             }
             else

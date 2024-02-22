@@ -24,5 +24,6 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Shared.Models
         public List<ChatMessage> ChatMessages{ get; set; } = new List<ChatMessage>();
         [JsonIgnore]
         public List<GroupChat> GroupChats { get; set; } = new List<GroupChat>();
+        public bool ActiveStatus { get; set; } = false;
     }
 }

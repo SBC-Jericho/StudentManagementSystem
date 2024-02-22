@@ -36,13 +36,10 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.ChatMessageService
         .Select(user => new
         {
             User = user,
-            LastMessage = _context.ChatMessages
-                .Where(message => (message.FromUserId == user.Id && message.ToUserId.ToString() == userId) ||
-                                  (message.FromUserId.ToString() == userId && message.ToUserId == user.Id))
+            LastMessage = _context.ChatMessages.Where(message => (message.FromUserId == user.Id && message.ToUserId.ToString() == userId) ||(message.FromUserId.ToString() == userId && message.ToUserId == user.Id))
                 .OrderByDescending(message => message.CreatedDate)
                 .FirstOrDefault()
-        })
-        .ToListAsync();
+        }).ToListAsync();
 
             var orderedUsers = usersWithLastMessage
                 .OrderByDescending(entry => entry.LastMessage?.CreatedDate ?? DateTime.MinValue)
@@ -76,6 +73,71 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.ChatMessageService
             return messages;
         }
 
+        public async Task<int> MessageCountFromAllUser(int receiverId)
+        {
+            // get the current logged in user Id
+            //var senderId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            List<ChatMessage> messages = await _context.ChatMessages
+           .Where(h => h.FromUserId != receiverId)
+           .OrderBy(a => a.CreatedDate)
+           .Include(a => a.Users)
+           .Select(x => new ChatMessage
+           {
+               FromUserId = x.FromUserId,
+               ToUserId = x.ToUserId,
+               Message = x.Message,
+               CreatedDate = x.CreatedDate,
+               Id = x.Id,
+               Users = x.Users
+           }).ToListAsync();
+
+            return messages.Count;
+        }
+        public async Task<int> MessageCountFromOneUser(int receiverId)
+        {
+            // get the current logged in user Id
+            var senderId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            List<ChatMessage> messages = await _context.ChatMessages
+           .Where(h => h.FromUserId == receiverId && h.ToUserId.ToString() == senderId)
+           .OrderBy(a => a.CreatedDate)
+           .Include(a => a.Users)
+           .Select(x => new ChatMessage
+           {
+               FromUserId = x.FromUserId,
+               ToUserId = x.ToUserId,
+               Message = x.Message,
+               CreatedDate = x.CreatedDate,
+               Id = x.Id,
+               Users = x.Users
+           }).ToListAsync();
+
+            return messages.Count;
+        }
+
+        public async Task<int> MessageCount(int senderId, int receiverId)
+        {
+            // get the current logged in user Id
+            //var senderId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            List<ChatMessage> messages = await _context.ChatMessages
+           .Where(h => (h.FromUserId == receiverId && h.ToUserId == senderId)
+           || (h.FromUserId == senderId && h.ToUserId == receiverId))
+           .OrderBy(a => a.CreatedDate)
+           .Include(a => a.Users)
+           .Select(x => new ChatMessage
+           {
+               FromUserId = x.FromUserId,
+               ToUserId = x.ToUserId,
+               Message = x.Message,
+               CreatedDate = x.CreatedDate,
+               Id = x.Id,
+               Users = x.Users
+           }).ToListAsync();
+
+            return messages.Count;
+        }
         public async Task<User> GetSingleUser(int userId)
         {
             var user = await _context.Users
@@ -96,6 +158,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.ChatMessageService
         //    return user;
         //}
 
+       
         public async Task SaveMessage(ChatMessage message) 
         {
             var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

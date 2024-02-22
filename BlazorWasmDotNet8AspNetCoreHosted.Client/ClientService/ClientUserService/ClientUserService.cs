@@ -2,16 +2,19 @@
 using System.Net.Http.Json;
 using System.Net;
 using static System.Net.WebRequestMethods;
+using Microsoft.AspNetCore.Components;
 
 namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientUserService
 {
     public class ClientUserService : IClientUserService
     {
         private readonly HttpClient _httpClient;
+        private readonly NavigationManager _navigationManager;
 
-        public ClientUserService(HttpClient httpClient)
+        public ClientUserService(HttpClient httpClient, NavigationManager navigationManager)
         {
             _httpClient = httpClient;
+            _navigationManager = navigationManager;
         }
         public List<User> Users { get; set; } = new List<User>();
 
@@ -36,6 +39,17 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientUserServi
             }
 
             return Users;
+        }
+
+        public async Task<User?> GetSingleUser(int id)
+        {
+            var result = await _httpClient.GetAsync($"api/User/get-single-user/{id}");
+            if (result.IsSuccessStatusCode)
+            {
+                return await result.Content.ReadFromJsonAsync<User>();
+            }
+
+            return null;
         }
 
         public async Task<string> GetSingleUserId()
@@ -92,6 +106,34 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientUserServi
         {
             var result = await _httpClient.GetStringAsync("api/User/user-role");
             return result;
+        }
+
+        public async Task<int> GetUserIdbyRole(int id, string role)
+        {
+            var result = await _httpClient.GetAsync($"api/User/user-id-by-Role?id={id}&role={role}");
+            if (result.IsSuccessStatusCode)
+            {
+                var userId = await result.Content.ReadFromJsonAsync<int>();
+                return userId;
+            }
+            return 5;
+        }
+
+        public async Task UpdateUser(int id, User request)
+        {
+            await _httpClient.PutAsJsonAsync($"api/user/update-user/{id}", request);
+            _navigationManager.NavigateTo("all-user");
+        }
+
+        public async Task<bool> UpdateStatus(string userEmail, bool status)
+        {
+            var result = await _httpClient.PutAsJsonAsync($"api/user/update-user-status/", userEmail);
+            if (result.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            return false;
+
         }
     }
 }

@@ -11,9 +11,13 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Hubs
         Task ReceiveNewGroupChat(GroupChat groupChat);
         Task DeleteGroupChatHub(int groupId);
         Task UpdateGroupName(int groupId, GroupChatNameDTO request);
-        Task RemoveUser(int userId);
+        Task RemoveUser(string userEmail);
         Task AddUserToGroupChat(User request);
-        Task ReceivedGroupMessage(GroupChatMessage message);
-
+        Task ReceivedGroupMessage(GroupChatMessage message, string groupName);
+        Task ReceiveSystemMessage(string m);
+        Task onError(string error);
+        Task UpdateUserStatus(string email, bool status);
+        Task UpdateStatusToOff(string status);
+        Task RemoveMemberNotification(GroupChatMessage message, string userName);
     }
 }

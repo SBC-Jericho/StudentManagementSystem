@@ -1,6 +1,8 @@
 ﻿using BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService;
+using BlazorWasmDotNet8AspNetCoreHosted.Shared.DTOs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
 {
@@ -23,6 +25,15 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("get-single-user/{id}")]
+        public async Task<ActionResult<User>> GetSingleUser(int id)
+        {
+            var result = await _userService.GetSingleUser(id);
+
+            return Ok(result);
+        }
+
 
         [HttpGet("single-user-name")]
         public async Task<ActionResult<string>> GetSingleUserName()
@@ -87,6 +98,33 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
         public async Task<ActionResult<string>> GetUserRole()
         {
             var result = await _userService.GetUserRole();
+
+            return Ok(result);
+        }
+
+
+        [HttpGet("user-id-by-Role")]
+        public async Task<ActionResult<int>> GetUserIdbyRole(int id, string role)
+        {
+            var result = await _userService.GetUserIdbyRole(id, role);
+
+            return Ok(result);
+        }
+
+        [HttpPut("update-user/{id}")]
+        public async Task<ActionResult<User>> UpdateUser(int id, UserDetailsDTO request)
+        {
+            var result = await _userService.UpdateUser(id, request);
+            if (result is null)
+                return NotFound("Hero Not Found");
+
+            return Ok(result);
+        }
+
+        [HttpPut("update-user-status")]
+        public async Task<ActionResult<bool>> UpdateStatus(string userEmail, bool status)
+        {
+            var result = await _userService.UpdateStatus(userEmail, status);
 
             return Ok(result);
         }

@@ -100,7 +100,7 @@ else
         {
             await ClientProfessorService.UpdateProfessor((int)Id, professor);
             Snackbar.Add(
-          "Professor Updated",
+          "User Updated",
           Severity.Success,
           config =>
           {
@@ -108,6 +108,7 @@ else
               config.HideTransitionDuration = 400;
               config.VisibleStateDuration = 2500;
           });
+            NavigationManager.NavigateTo("/all-user");
         }
 
     }

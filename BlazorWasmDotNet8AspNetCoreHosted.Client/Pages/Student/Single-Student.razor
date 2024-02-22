@@ -104,7 +104,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        btnText = Id == null ? "Save new Student" : "Update Student";
+        btnText = Id == null ? "Save new User" : "Update User";
     }
 
     protected override async Task OnParametersSetAsync()
@@ -142,7 +142,7 @@ else
         {
             await ClientStudentService.UpdateStudent((int)Id, student);
             Snackbar.Add(
-          "Student Updated",
+          "User Updated",
           Severity.Success,
           config =>
           {
@@ -150,6 +150,7 @@ else
               config.HideTransitionDuration = 400;
               config.VisibleStateDuration = 2500;
           });
+            NavigationManager.NavigateTo("/all-user");
         }
 
     }

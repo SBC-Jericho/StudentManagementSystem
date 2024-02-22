@@ -6,6 +6,7 @@
 @inject IClientGroupChatService ClientGroupChatService
 @inject IClientUserService ClientUserService
 @inject ISnackbar _snackBar
+@inject ILocalStorageService _localStorage
 @inject IJSRuntime _jsRuntime
 @rendermode InteractiveWebAssembly
 
@@ -120,9 +121,9 @@
                     <MudListItem Class="pa-0 px-2" OnClick="@(() => LoadUserChat(user.Id))">
                         <div class="d-flex flex-row mt-n1 mb-n1">
                             <div class="mr-4 mb-4" >
-                                <MudBadge 
-                                        Class="my-4" 
-                                        Color="Color.Info">
+                                <MudBadge Content="@MessageCount"
+                                        Class="my-4"
+                                          Color="@((user.ActiveStatus) ? Color.Success : Color.Default)">
                                         
                                             <MudAvatar 
                                                 Color="Color.Secondary" 
@@ -150,7 +151,6 @@
 {
     [Parameter]
     public int ContactId { get; set; }
-
     [CascadingParameter]
     private HubConnection hubConnection { get; set; }
     [Parameter]
@@ -162,18 +162,27 @@
 
     private List<ChatMessage> messages = new List<ChatMessage>();
 
-    public int messageCount { get; set; }
-
     public List<User> ChatUsers = new List<User>();
+
     public string test = "Hi";
+
     [Parameter]
     public string ContactEmail { get; set; }
 
+    public int MessageCount { get; set; }
+
     protected override async Task OnInitializedAsync()
     {
+        Console.WriteLine("Hello");
+        string token = await _localStorage.GetItemAsStringAsync("token");
+        string foo = token.Replace("\"", "");
         if (hubConnection == null)
         {
-            hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chathub")).Build();
+            hubConnection = new HubConnectionBuilder()
+            .WithUrl(NavigationManager.ToAbsoluteUri("/chathub"), options =>
+            {
+                options.AccessTokenProvider = async () => foo;
+            }).WithAutomaticReconnect().Build();
         }
 
         if (hubConnection.State == HubConnectionState.Disconnected)
@@ -188,6 +197,44 @@
         CurrentUserEmail = await ClientUserService.GetSingleUserName();
         // hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chathub")).Build();
 
+        hubConnection.On<string, bool>("UpdateUserStatus", async (email, status) =>
+       {
+           var user = ChatUsers.FirstOrDefault(user => user.Email == email);
+           if (user != null)
+           {
+               user.ActiveStatus = status;
+               StateHasChanged();
+           }
+       });
+
+        //  hubConnection.On<string>("UpdateStatusToOff", async (email) =>
+        // {
+        //     ChatUsers.First(user => user.Email == email).ActiveStatus = false;
+        //     StateHasChanged();
+        // });
+
+
+        hubConnection.On<string, int, string>("ReceiveChatNotification", (message, receiverUserId, senderUserId) =>
+        {
+            if (CurrentUserId == receiverUserId.ToString())
+            {
+                _jsRuntime.InvokeAsync<string>("PlayAudio", "notification");
+                _snackBar.Add(message, Severity.Info, config =>
+                {
+                    config.VisibleStateDuration = 10000;
+                    config.HideTransitionDuration = 500;
+                    config.ShowTransitionDuration = 500;
+                    config.Action = "Chat?";
+                    config.ActionColor = Color.Info;
+                    config.Onclick = snackbar =>
+                    {
+                        NavigationManager.NavigateTo($"chat/{int.Parse(senderUserId)}");
+                        return Task.CompletedTask;
+                    };
+                });
+            }
+        });
+
         hubConnection.On<ChatMessage, string>("ReceivedMessage", async (message, userName) =>
         {
 
@@ -200,8 +247,10 @@
                     {
                         Message = message.Message,
                         CreatedDate = message.CreatedDate,
-                        Users = message.Users
+                        Users = message.Users,
+
                     });
+
 
                     await hubConnection.SendAsync("ChatNotificationAsync", $"New Message From {userName}", ContactId, CurrentUserId);
                 }
@@ -258,17 +307,17 @@
 
     async Task LoadUserChat(int userId)
     {
-        await GetUserConnectionId(userId);
+        // await GetUserConnectionId(userId);
         var contact = await ClientChatMessageService.GetSingleUser(userId);
-        GetUserConnectionId(userId);
+        // GetUserConnectionId(userId);
         if(contact != null)
         {
-
             ContactId = contact.Id;
             ContactEmail = contact.Email;
             NavigationManager.NavigateTo($"chat/{ContactId}");
             messages = new List<ChatMessage>();
             messages = await ClientChatMessageService.GetConversation(ContactId);
+            MessageCount = await ClientChatMessageService.MessageCountFromOneUser(userId);
         }
         else
         {

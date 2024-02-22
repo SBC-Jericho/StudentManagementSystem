@@ -13,7 +13,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
 
         public ChatMessageController(IChatMessageService chatMessageService)
         {
-            _chatMessageService = chatMessageService;   
+            _chatMessageService = chatMessageService;
         }
         //[HttpGet("get-chat/{receiverId}")]
         //public async Task<ActionResult<List<ChatMessage>>> GetConversationAsync(int receiverId)
@@ -28,10 +28,10 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
 
         [HttpGet("get-conversation/{receiverId}")]
 
-        public async Task<ActionResult<List<ChatMessage>>> GetConversation(int receiverId) 
+        public async Task<ActionResult<List<ChatMessage>>> GetConversation(int receiverId)
         {
-           List<ChatMessage> result = await _chatMessageService.GetConversation(receiverId);
-            if (result is null) 
+            List<ChatMessage> result = await _chatMessageService.GetConversation(receiverId);
+            if (result is null)
             {
                 return BadRequest("No Conversation Found");
             }
@@ -39,27 +39,49 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
         }
 
         [HttpGet("users")]
-        public async Task<ActionResult<List<User>>> GetAllUser() 
+        public async Task<ActionResult<List<User>>> GetAllUser()
         {
-            List<User> result =  await _chatMessageService.GetAllUsers();
+            List<User> result = await _chatMessageService.GetAllUsers();
             if (result is null)
             {
                 return BadRequest("No User Found");
             }
             return Ok(result);
-         
+
         }
 
         [HttpGet("single-user/{id}")]
-        public async Task<ActionResult<User>> GetSingleUser(int id) 
+        public async Task<ActionResult<User>> GetSingleUser(int id)
         {
             var result = await _chatMessageService.GetSingleUser(id);
-            if (result == null) 
+            if (result == null)
             {
                 return NotFound("User Not Found");
             }
             return Ok(result);
         }
+
+        [HttpGet("get-message-count")]
+        public async Task<ActionResult<int>> MessageCount(int senderId, int receiverId) 
+        {
+            var result = await _chatMessageService.MessageCount(senderId, receiverId);
+            return Ok(result);
+        }
+
+        [HttpGet("get-message-count-from-others")]
+        public async Task<ActionResult<int>> MessageCountFromOneUser(int receiverId)
+        {
+            var result = await _chatMessageService.MessageCountFromOneUser(receiverId);
+            return Ok(result);
+        }
+        [HttpGet("get-message-count-from-all")]
+        public async Task<ActionResult<int>> MessageCountFromAllUser(int receiverId)
+        {
+            var result = await _chatMessageService.MessageCountFromAllUser(receiverId);
+            return Ok(result);
+        }
+
+
 
         //[HttpGet("user-detail/{id}")]
         //public async Task<ActionResult<User>> GetUserDetailsAsync(int id)

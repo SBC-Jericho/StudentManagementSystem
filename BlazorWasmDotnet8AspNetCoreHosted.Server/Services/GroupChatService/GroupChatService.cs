@@ -189,8 +189,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
             var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             List<GroupChatMessage> messages = await _context.GroupChatMessages
-                .Where(m =>
-                    (m.GroupChatId == groupChatId)
+                .Where(m => (m.GroupChatId == groupChatId)
                      // Assuming User is a navigation property in GroupChatMessage
                 )
                 .OrderBy(message => message.Timestamp)
@@ -324,7 +323,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
                                     .FirstOrDefaultAsync(gc => gc.Id == groupChatId);
 
             if (myGroupChat != null && myGroupChat.Paticipants != null)
-            {
+            {   
                 GetChatMembersDTO response = new GetChatMembersDTO();
                 response.OwnerId = myGroupChat.OwnerId;
                 response.users = myGroupChat.Paticipants.Select(user => new User

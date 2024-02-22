@@ -1,0 +1,26 @@
+﻿
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthStateProvider
+@inject ISnackbar Snackbar
+
+
+
+<MudBadge Content="100" Color="Color.Primary" Overlap="true" Bordered="true" Class="mx-6 my-4">
+    <MudButton OnClick="NavigateToChat"
+               Class="mt-4"
+               Color="Color.Tertiary"
+               Variant="Variant.Filled"
+               Size="Size.Small">
+        Notification
+    </MudButton>
+</MudBadge>
+
+@code {
+
+
+    void NavigateToChat()
+    {
+        NavigationManager.NavigateTo("/chat");
+    }
+}
