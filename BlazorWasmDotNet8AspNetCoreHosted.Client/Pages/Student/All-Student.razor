@@ -64,12 +64,13 @@
     private string searchString1 = "";
     private Student selectedItem1 = null;
     private HashSet<Student> selectedItems = new HashSet<Student>();
- 
+
     private IEnumerable<Student> Students = new List<Student>();
     // lifecycle method
     protected override async Task OnInitializedAsync()
     {
         Students = await ClientStudentService.GetAllStudent();
+        Console.WriteLine("Hello from all-student page");
     }
 
     private bool FilterFunc1(Student student) => FilterFunc(student, searchString1);

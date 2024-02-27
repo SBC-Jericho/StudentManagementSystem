@@ -86,7 +86,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsServ
             var studentId = await _context.Students
                 .Where(s => s.UserId.ToString() == userId)  
                 .Select (s => s.Id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(); 
 
             if (userRole == "Student")
             {
@@ -119,7 +119,9 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.EnrolledSubjectsServ
         public async Task<List<EnrolledSubjects>> GetSingleEnrolledStudent(int id)
         {
             var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             var userRole = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Role)?.Value;
+
             List<EnrolledSubjects> subjects = new List<EnrolledSubjects>();
 
             var professorId = await _context.Professors

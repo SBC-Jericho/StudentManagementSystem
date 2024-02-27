@@ -8,5 +8,6 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientChatMessa
         Task SaveMessage(ChatMessage message);
         Task<List<ChatMessage>> GetConversation(int receiverId);
         Task<User?> GetSingleUser(int userId);
+        Task<int> MessageCountFromOneUser(int receiverId);
     }
 }

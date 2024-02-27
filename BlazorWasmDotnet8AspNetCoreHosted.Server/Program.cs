@@ -42,11 +42,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 OnMessageReceived = context =>
                 {
                     var accessToken = context.Request.Query["access_token"];
-                    Console.WriteLine(accessToken);
+
                     // If the request is for our hub...
                     var path = context.HttpContext.Request.Path;
                     if (!string.IsNullOrEmpty(accessToken) &&
-                        path.StartsWithSegments("/chathub"))
+                        (path.StartsWithSegments("/chathub")))
                     {
                         // Read the token out of the query string
                         context.Token = accessToken;
@@ -87,7 +87,6 @@ builder.Services.AddSingleton<IUserIdProvider, EmailBasedUserIdProvider>();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
-
 
 var app = builder.Build();
 

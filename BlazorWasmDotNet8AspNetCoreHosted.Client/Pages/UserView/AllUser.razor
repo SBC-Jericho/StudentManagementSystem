@@ -28,7 +28,16 @@
 
     <ToolBarContent>
         <MudSpacer/>
-        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+
+        <MudTextField 
+            @bind-Value="searchString1" 
+            Placeholder="Search" 
+            Adornment="Adornment.Start" 
+            AdornmentIcon="@Icons.Material.Filled.Search" 
+            IconSize="Size.Medium" 
+            Class="mt-0">
+        </MudTextField>
+
     </ToolBarContent>
 
     <HeaderContent>
@@ -80,11 +89,26 @@
 
         </MudTd>
 
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+                
+                <MudTd DataLabel="Edit">
+                    <MudIconButton 
+                        OnClick="(() => EditUser(userDetails.Id, userDetails.Role))"
+                        Icon="@Icons.Material.Filled.Edit"
+                        Color="Color.Primary"
+                        Variant="Variant.Filled" />
+                </MudTd>
+                
+            </Authorized>
+        </AuthorizeView>
+
         <MudTd DataLabel="Delete">
-            <MudIconButton OnClick="(() => DeleteUser(userDetails.Id))"
-                           Icon="@Icons.Material.Filled.Delete"
-                           Color="Color.Error"
-                           Variant="Variant.Filled"></MudIconButton>
+            <MudIconButton 
+                OnClick="(() => DeleteUser(userDetails.Id))"
+                Icon="@Icons.Material.Filled.Delete"
+                Color="Color.Error"
+                Variant="Variant.Filled"></MudIconButton>
         </MudTd>
     </RowTemplate>
 
@@ -122,6 +146,22 @@
     void CreateNewUser()
     {
         NavigationManager.NavigateTo("/register-user");
+    }
+
+    async Task EditUser(int id, string role)
+    {
+
+        int userId = await ClientUserService.GetUserIdbyRole(id, role);
+
+        Console.WriteLine(userId);
+        if(role == "Student")
+        {
+            NavigationManager.NavigateTo($"single-Student/{userId}");
+        }
+        else if (role == "Professor")
+        {
+            NavigationManager.NavigateTo($"single-professor/{userId}");
+        }
     }
 
     async Task DeleteUser(int id)

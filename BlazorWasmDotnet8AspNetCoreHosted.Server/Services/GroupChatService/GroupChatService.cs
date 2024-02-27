@@ -183,14 +183,31 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
 
             return await _context.GroupChats.ToListAsync();
         }
-        public async Task<List<GroupChatMessage>> GetGroupChatConversation(int groupChatId)
+       
+        public async Task<bool> CheckIfMemebr(int groupId) 
+        {
+
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            var isMember = await _context.GroupChats
+           .Where(g => g.Id == groupId)
+           .AnyAsync(g => g.Paticipants.Any(p => p.Id.ToString() == userId));
+
+            if (!isMember) 
+            {
+                return false;
+            }
+
+            return true;
+
+        }
+         public async Task<List<GroupChatMessage>> GetGroupChatConversation(int groupChatId)
         {
             //Get the current logged-in user Id
             var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             List<GroupChatMessage> messages = await _context.GroupChatMessages
-                .Where(m =>
-                    (m.GroupChatId == groupChatId)
+                .Where(m => (m.GroupChatId == groupChatId && m.GroupChat.Paticipants.Any(u => u.Id.ToString() == userId))
                      // Assuming User is a navigation property in GroupChatMessage
                 )
                 .OrderBy(message => message.Timestamp)
@@ -237,8 +254,10 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
 
         public async Task<List<User>> GetGroupMembers(int groupId)
         {
+            var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             var groupChat = await _context.GroupChats
-                .Where(group => group.Id == groupId)
+                .Where(group => group.Id == groupId && group.Paticipants.Any(u => u.Id.ToString() == userId))
                 .SelectMany(group => group.Paticipants)
                 .ToListAsync();
 
@@ -324,7 +343,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
                                     .FirstOrDefaultAsync(gc => gc.Id == groupChatId);
 
             if (myGroupChat != null && myGroupChat.Paticipants != null)
-            {
+            {   
                 GetChatMembersDTO response = new GetChatMembersDTO();
                 response.OwnerId = myGroupChat.OwnerId;
                 response.users = myGroupChat.Paticipants.Select(user => new User

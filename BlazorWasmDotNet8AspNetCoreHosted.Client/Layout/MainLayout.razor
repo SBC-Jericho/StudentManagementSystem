@@ -4,6 +4,7 @@
 @inject IJSRuntime _jsRuntime
 @inject AuthenticationStateProvider _stateProvider;
 @inject IClientUserService ClientUserService
+@inject ILocalStorageService _localStorage
 <audio id="notification" src="/media/tone-message-deep-voice.mp3" />
 
 
@@ -11,6 +12,7 @@
     <MudAppBar Elevation="1">
         <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
         <MudSpacer />
+        <Notification/>
         <LoginLogoutButton />
     </MudAppBar>
 
@@ -28,9 +30,9 @@
 
     <MudMainContent Class="pt-16 px-16">
        
-            <CascadingValue Value="hubConnection">
+            @* <CascadingValue Value="hubConnection"> *@
                 @Body
-            </CascadingValue>
+          @*   </CascadingValue> *@
 
     </MudMainContent>
 </MudLayout>
@@ -52,56 +54,96 @@
 
 @code 
 {
-    private HubConnection hubConnection;
-    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
-    public string CurrentUserId { get; set; }
-    protected override async Task OnInitializedAsync()
-    {
-        hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chathub")).Build();
-      
-        hubConnection.On<string, int, string>("ReceiveChatNotification", (message, receiverUserId, senderUserId) =>
-        {
-            if (CurrentUserId == receiverUserId.ToString())
-            {
-                _jsRuntime.InvokeAsync<string>("PlayAudio", "notification");
-                _snackBar.Add(message, Severity.Info, config =>
-                {
-                    config.VisibleStateDuration = 10000;
-                    config.HideTransitionDuration = 500;
-                    config.ShowTransitionDuration = 500;
-                    config.Action = "Chat?";
-                    config.ActionColor = Color.Info;
-                    config.Onclick = snackbar =>
-                    {
-                        NavigationManager.NavigateTo($"chat/{int.Parse(senderUserId)}");
-                        return Task.CompletedTask;
-                    };
-                });
-            }
-        });
+    // private HubConnection hubConnection;
+    // public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+    // public string CurrentUserId { get; set; }
 
-        hubConnection.On<string, int, int>("ReceiveGroupChatNotification", (message, senderUserId, groupChatId) =>
-        {
-            if (CurrentUserId != senderUserId.ToString())
-            {
-                _jsRuntime.InvokeAsync<string>("PlayAudio", "notification");
-                _snackBar.Add(message, Severity.Info, config =>
-                {
-                    config.VisibleStateDuration = 10000;
-                    config.HideTransitionDuration = 500;
-                    config.ShowTransitionDuration = 500;
-                    config.Action = "Chat?";
-                    config.ActionColor = Color.Info;
-                    config.Onclick = snackbar =>
-                    {
-                        NavigationManager.NavigateTo($"groupchat/{groupChatId}");
-                        return Task.CompletedTask;
-                    };
-                });
-            }
-        });
+    protected override async Task OnInitializedAsync() 
+     {
+
+       //  Console.WriteLine("Hello");
+       //  string token = await _localStorage.GetItemAsStringAsync("token");
+       //  string foo = token.Replace("\"", "");
+       //  if (hubConnection == null)
+       //  {
+       //      hubConnection = new HubConnectionBuilder()
+       //      .WithUrl(NavigationManager.ToAbsoluteUri("/chathub"), options =>
+       //      {
+       //          options.AccessTokenProvider = async () => foo;
+       //      }).WithAutomaticReconnect().Build();
+       //  }
+
+       //  if (hubConnection.State == HubConnectionState.Disconnected)
+       //  {
+       //      await hubConnection.StartAsync();
+       //  }
+
+
+       //  hubConnection.On<string>("MessageNotification", (message) =>
+       // {
+       //     // if (CurrentUserId == receiverUserId.ToString())
+       //     //   {
+       //     _jsRuntime.InvokeAsync<string>("PlayAudio", "notification");
+       //     _snackBar.Add(message, Severity.Info, config =>
+       //  {
+       //      config.VisibleStateDuration = 10000;
+       //      config.HideTransitionDuration = 500;
+       //      config.ShowTransitionDuration = 500;
+       //      config.Action = "Chat?";
+       //      config.ActionColor = Color.Info;
+       //      // config.Onclick = snackbar =>
+       //      // {
+       //      //     NavigationManager.NavigateTo($"chat/{int.Parse(senderUserId)}");
+       //      //     return Task.CompletedTask;
+       //      // };
+       //  });
+       //     // }
+       // });
+    //     hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chathub")).Build();
+      
+    //     hubConnection.On<string, int, string>("ReceiveChatNotification", (message, receiverUserId, senderUserId) =>
+    //     {
+    //         if (CurrentUserId == receiverUserId.ToString())
+    //         {
+    //             _jsRuntime.InvokeAsync<string>("PlayAudio", "notification");
+    //             _snackBar.Add(message, Severity.Info, config =>
+    //             {
+    //                 config.VisibleStateDuration = 10000;
+    //                 config.HideTransitionDuration = 500;
+    //                 config.ShowTransitionDuration = 500;
+    //                 config.Action = "Chat?";
+    //                 config.ActionColor = Color.Info;
+    //                 config.Onclick = snackbar =>
+    //                 {
+    //                     NavigationManager.NavigateTo($"chat/{int.Parse(senderUserId)}");
+    //                     return Task.CompletedTask;
+    //                 };
+    //             });
+    //         }
+    //     });
+
+    //     hubConnection.On<string, int, int>("ReceiveGroupChatNotification", (message, senderUserId, groupChatId) =>
+    //     {
+    //         if (CurrentUserId != senderUserId.ToString())
+    //         {
+    //             _jsRuntime.InvokeAsync<string>("PlayAudio", "notification");
+    //             _snackBar.Add(message, Severity.Info, config =>
+    //             {
+    //                 config.VisibleStateDuration = 10000;
+    //                 config.HideTransitionDuration = 500;
+    //                 config.ShowTransitionDuration = 500;
+    //                 config.Action = "Chat?";
+    //                 config.ActionColor = Color.Info;
+    //                 config.Onclick = snackbar =>
+    //                 {
+    //                     NavigationManager.NavigateTo($"groupchat/{groupChatId}");
+    //                     return Task.CompletedTask;
+    //                 };
+    //             });
+    //         }
+    //     });
  
-        CurrentUserId = await ClientUserService.GetSingleUserId();
+    //     CurrentUserId = await ClientUserService.GetSingleUserId();
     }
 
     bool preserveOpenState = false;

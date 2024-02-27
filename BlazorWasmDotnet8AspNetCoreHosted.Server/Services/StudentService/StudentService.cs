@@ -62,6 +62,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.StudentService
 
         public async Task<List<Student>?> UpdateStudent(int id, UserDetailsDTO request)
         {
+
             var student = await _context.Students
                 .Include(u => u.User)   
                 .Where(u => u.Id == id)
@@ -75,6 +76,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.StudentService
             student.Contact = request.Contact;
             student.Address = request.Address;
             student.Image = request.Image;
+            student.User.Avatar = request.Image;
 
             await _context.SaveChangesAsync();
 

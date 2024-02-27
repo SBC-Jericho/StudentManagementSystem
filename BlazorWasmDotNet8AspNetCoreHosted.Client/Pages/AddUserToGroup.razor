@@ -30,10 +30,9 @@
         }
     </DialogActions>
 </MudDialog>
+
 @code {
     [CascadingParameter] MudDialogInstance? MudDialog { get; set; }
-
-
     public List<User> Users = new List<User>();
     private IEnumerable<User> selectedUserIds { get; set; } = new HashSet<User>();
     private string? groupName;

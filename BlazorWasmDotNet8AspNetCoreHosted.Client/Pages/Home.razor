@@ -5,6 +5,9 @@
 @inject NavigationManager NavigationManager
 @rendermode InteractiveWebAssembly
 @inject IClientAnnouncementService ClientAnnouncementService
+@inject NavigationManager NavigationManager
+
+@inject ILocalStorageService _localStorage
 <PageTitle>Dashboard</PageTitle>
 
 <AuthorizeView>
@@ -14,7 +17,7 @@
         </Authorized>
 </AuthorizeView>
 
-
+@*
     @if (isConnected)
 {
     @foreach (var message in messages)
@@ -26,7 +29,7 @@
                 </MudCardContent>
             </MudCard>
     }
-}
+} *@
 
 
 @code
@@ -38,29 +41,28 @@
 
     public List<Announcement> announcement = new List<Announcement>();
 
-    protected override async Task OnInitializedAsync()
-    {
-        hubConnection = new HubConnectionBuilder()
-        .WithUrl(NavigationManager.ToAbsoluteUri("/announcementhub"))
-        .Build();
+    // protected override async Task OnInitializedAsync()
+    // {
+     
+    // if (hubConnection == null)
 
-        announcement = await ClientAnnouncementService.GetAllAnnouncement();
+    //     {
+    //         string token = await _localStorage.GetItemAsStringAsync("token");
 
-        foreach (var result in announcement)
-        {
-            messages.Add(result.Message);
-        }
+    //         string foo = token.Replace("\"", "");
 
-        hubConnection.On<string>("ReceivedAnnouncement", (message) =>
-        {
-            var encodeMessage = $"{message}";
-            messages.Add(encodeMessage);
-            InvokeAsync(StateHasChanged);
+    //         hubConnection = new HubConnectionBuilder()
 
-        });
+    //         .WithUrl(NavigationManager.ToAbsoluteUri("/chathub"), options =>
+    //         {
+    //             options.AccessTokenProvider = async () => foo;
 
-        await hubConnection.StartAsync();
-    }
+    //         }).WithAutomaticReconnect().Build();
 
-    public bool isConnected => hubConnection.State == HubConnectionState.Connected;
+    //         await hubConnection.StartAsync();
+
+    //     }
+       
+    // }
+
 }

@@ -98,7 +98,8 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AuthService
                 Email = request.Email,
                 PasswordHash = passwordHash,
                 PasswordSalt = passwordSalt,
-                Role = request.Role
+                Role = request.Role,
+                Avatar = request.Avatar
             };
 
             if (request.Role == "Admin")
@@ -118,7 +119,6 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AuthService
                     User = new_user,
                     UserId = new_user.Id
                 };
-                new_user.Avatar = student_details.Image;
                 _context.Students.Add(student_details);
             }
             else if (request.Role == "Professor")
@@ -134,7 +134,6 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.AuthService
                     User = new_user,
                     UserId = new_user.Id
                 };
-                new_user.Avatar = professor_details.Image;
                 _context.Professors.Add(professor_details);
             }
 

@@ -50,5 +50,19 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientChatMessa
         {
             await _http.PostAsJsonAsync("api/chatmessage", message);
         }
+
+        public async Task<int> MessageCountFromOneUser(int receiverId)
+        {
+            var response = await _http.GetAsync($"api/chatmessage/get-message-count-one-user/{receiverId}");
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Response content: {content}");
+
+                var count = await response.Content.ReadFromJsonAsync<int>();
+                return count;
+            }
+            return 0;
+        }
     }
 }

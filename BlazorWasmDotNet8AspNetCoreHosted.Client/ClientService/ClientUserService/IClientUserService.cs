@@ -14,5 +14,9 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientUserServi
         Task<Professor?> GetSingleProfessor();
         Task<int> GetSingleProfessor(int id);
         Task<string> GetUserRole();
+        Task<User?> GetSingleUser(int id);
+        Task UpdateUser(int id, User request);
+        Task<bool> UpdateStatus(string userEmail, bool status);
+        Task<int> GetUserIdbyRole(int id, string role);
     }
 }

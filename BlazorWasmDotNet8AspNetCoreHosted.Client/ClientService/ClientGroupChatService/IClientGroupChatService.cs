@@ -18,11 +18,14 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
         Task <List<GroupChat>> GetAllGroup();
         Task<List<User>> GetAllUsersExceptCurrent();
         Task<GroupChat?> GetSingleGroup(int Id);
+
         Task <bool>SaveMessage(GroupChatMessage message);
+        Task<bool> CheckIfGroupMember(int groupId);
         Task<string> GetSingleGroupName(int id);
         Task UpdateGroupChat(int id, GroupChatNameDTO request);
         Task<User?> GetSingleUser(int id);
         Task DeleteGroupChat(int id);
         Task<GetChatMembersDTO> GetGroupChatMembers(int groupChatId);
+        Task<bool> CheckIfMemebr(int groupId);
     }
 }
