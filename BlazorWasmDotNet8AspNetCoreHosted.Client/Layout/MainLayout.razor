@@ -60,6 +60,45 @@
 
     protected override async Task OnInitializedAsync() 
      {
+
+       //  Console.WriteLine("Hello");
+       //  string token = await _localStorage.GetItemAsStringAsync("token");
+       //  string foo = token.Replace("\"", "");
+       //  if (hubConnection == null)
+       //  {
+       //      hubConnection = new HubConnectionBuilder()
+       //      .WithUrl(NavigationManager.ToAbsoluteUri("/chathub"), options =>
+       //      {
+       //          options.AccessTokenProvider = async () => foo;
+       //      }).WithAutomaticReconnect().Build();
+       //  }
+
+       //  if (hubConnection.State == HubConnectionState.Disconnected)
+       //  {
+       //      await hubConnection.StartAsync();
+       //  }
+
+
+       //  hubConnection.On<string>("MessageNotification", (message) =>
+       // {
+       //     // if (CurrentUserId == receiverUserId.ToString())
+       //     //   {
+       //     _jsRuntime.InvokeAsync<string>("PlayAudio", "notification");
+       //     _snackBar.Add(message, Severity.Info, config =>
+       //  {
+       //      config.VisibleStateDuration = 10000;
+       //      config.HideTransitionDuration = 500;
+       //      config.ShowTransitionDuration = 500;
+       //      config.Action = "Chat?";
+       //      config.ActionColor = Color.Info;
+       //      // config.Onclick = snackbar =>
+       //      // {
+       //      //     NavigationManager.NavigateTo($"chat/{int.Parse(senderUserId)}");
+       //      //     return Task.CompletedTask;
+       //      // };
+       //  });
+       //     // }
+       // });
     //     hubConnection = new HubConnectionBuilder().WithUrl(NavigationManager.ToAbsoluteUri("/chathub")).Build();
       
     //     hubConnection.On<string, int, string>("ReceiveChatNotification", (message, receiverUserId, senderUserId) =>

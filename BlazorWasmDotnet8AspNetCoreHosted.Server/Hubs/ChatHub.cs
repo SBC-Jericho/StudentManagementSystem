@@ -142,6 +142,11 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Hubs
             await Clients.All.UpdateUserStatus(email, status);
         }
 
+        public async Task CountMessages(int senderId)
+        {
+            await Clients.All.CountOtherUserMessage(senderId);
+        }
+
         public async Task UserToRemove(string groupName, string connectionId)
         {
             await Groups.RemoveFromGroupAsync(connectionId, groupName);

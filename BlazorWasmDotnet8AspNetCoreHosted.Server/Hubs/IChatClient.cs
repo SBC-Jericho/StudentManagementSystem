@@ -18,6 +18,8 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Hubs
         Task onError(string error);
         Task UpdateUserStatus(string email, bool status);
         Task UpdateStatusToOff(string status);
+        Task CountOtherUserMessage(int senderId);
+
         Task RemoveMemberNotification(GroupChatMessage message, string userName);
     }
 }

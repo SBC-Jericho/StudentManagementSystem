@@ -16,13 +16,13 @@
 <h3>Group Chat</h3>
 
 <div class="d-flex flex-grow-1 flex-row">
-
+   
     <MudPaper Elevation="25" Class="pa-3 ml-6 col-md-3">
 
         <MudToolBar Dense="true">
             @* <MudText Typo="Typo.h6" Inline="true" Class="mr-2">#</MudText> *@
             <MudText Typo="Typo.h6">CHAT ROOMS</MudText>
-             <div style="position: absolute; right: 50px; width: 30px; height: 30px; border-radius: 50%;"
+             <div style="position: absolute; right: 50px; width: 30px; height: 30px; border-radius: 50%;">
 
              <MudIconButton 
                     OnClick="@OpenUsers"
@@ -71,9 +71,6 @@
            
             }
 
-            
-                @if (CurrentUserId == Members.OwnerId.ToString())
-                {
                     <div class="d-flex">
                         <MudIconButton OnClick="@ToggleEditMode"
                                        Class="btn btn-link text-secondary px-1"
@@ -97,7 +94,7 @@
                             </MudButton>
                         </YesButton>
                     </MudMessageBox>
-                }
+                
     
         </MudToolBar>
 
@@ -107,9 +104,8 @@
           
             @foreach (var message in groupChatMessage)
             {
-
-
-                <div class="d-flex flex-row my-4 @((message?.User?.Id.ToString() == CurrentUserId) ? "justify-content-end" : "")">
+                
+                    <div class="d-flex flex-row my-4 @((message?.User?.Id.ToString() == CurrentUserId) ? "justify-content-end" : "")">
 
                     <div class="mr-4">
                         <MudAvatar Color="Color.Secondary" Style="height:50px; width:50px;">
@@ -125,8 +121,10 @@
                                 @message.Content
                         </MudText>
                     </div>
-                </div>
-            }
+                   </div>
+                
+
+              }
         </div>
             
    
@@ -175,8 +173,7 @@
                     <MudSelectItem T="int" Value="@user.Id">@user.Email</MudSelectItem>
                 }
             </MudSelect>
-             @if (CurrentUserId == Members.OwnerId.ToString())
-              {
+            
                 <MudTd DataLabel="Add">
 
                 <MudButton 
@@ -186,7 +183,7 @@
                     Add
                 </MudButton>
                 </MudTd>
-                }
+                
             <MudTd DataLabel="Delete">
                 <MudButton 
                     OnClick="@(() => DeleteUserToGroup(int.Parse(CurrentUserId), GroupchatId))"
@@ -199,9 +196,8 @@
 
         <div class="d-flex flex-column px-4" style="max-height:70vh;min-height:70vh; overflow:scroll;">
             <MudList Clickable="true">
-                @foreach (var groupMember in Members.users)
+                @foreach (var groupMember in Users)
                 {
-                    @if (groupMember.Id == Members.OwnerId) continue;
                     <MudListItem Class="pa-0 px-2">
                         <div class="d-flex flex-row mt-n1 mb-n1">
 
@@ -222,8 +218,7 @@
 
                             </div>
 
-                                @if (int.Parse(CurrentUserId) == Members.OwnerId)
-                            {
+                                
                                 <div style="position: absolute; right: 50px; width: 30px; height: 30px; border-radius: 50%;">
                                     <MudTd DataLabel="Delete">
                                         <MudIconButton 
@@ -247,7 +242,7 @@
                                         </YesButton>
                                     </MudMessageBox>
                                 </div>
-                            }
+                            
                         </div>
                     </MudListItem>
                 }
@@ -290,6 +285,7 @@
     private bool IsHubConnected => hubConnection?.State == HubConnectionState.Connected;
 
 
+
     protected override async Task OnInitializedAsync()
     {
         GroupChatList = await ClientGroupChatService.GetAllGroupsForUser();
@@ -300,7 +296,7 @@
 
         CurrentGroupName = await ClientGroupChatService.GetSingleGroupName(GroupchatId);
 
-
+        // Users = await ClientGroupChatService.GetGroupMembers(GroupchatId);
 
         string token = await _localStorage.GetItemAsStringAsync("token");
         string foo = token.Replace("\"", "");
@@ -308,10 +304,10 @@
         if (hubConnection == null)
         {
             hubConnection = new HubConnectionBuilder()
-            .WithUrl(NavigationManager.ToAbsoluteUri("/chathub"), options  => {
+            .WithUrl(NavigationManager.ToAbsoluteUri("/chathub"), options => {
                 options.AccessTokenProvider = async () => foo;
             }).WithAutomaticReconnect().Build();
-        } 
+        }
 
         if (hubConnection.State == HubConnectionState.Disconnected)
         {
@@ -322,7 +318,7 @@
         hubConnection.On<string, bool>("UpdateUserStatus", async (email, status) =>
         {
 
-            var user = Members.users.FirstOrDefault(user => user.Email == email);
+            var user = Users.FirstOrDefault(user => user.Email == email);
 
             if (user != null)
             {
@@ -341,11 +337,11 @@
            if (GroupchatId == message.GroupChatId && CurrentUserId == message.UserId.ToString())
            {
                groupChatMessage.Add(new GroupChatMessage
-               {
-                   Content = $"{userName} has been removed!",
-                   Timestamp = message.Timestamp,
-                   User = message.User
-               });
+                   {
+                       Content = $"{userName} has been removed!",
+                       Timestamp = message.Timestamp,
+                       User = message.User
+                   });
            }
            StateHasChanged();
        });
@@ -363,7 +359,7 @@
 
         await hubConnection.SendAsync("ReceiveSystemMessage");
 
-        hubConnection.On<int,GroupChatNameDTO>("UpdateGroupName", async (groupId, newGroupChat) =>
+        hubConnection.On<int, GroupChatNameDTO>("UpdateGroupName", async (groupId, newGroupChat) =>
        {
            var groupChatToUpdate = GroupChatList.FirstOrDefault(g => g.Id == groupId);
            if (groupChatToUpdate != null)
@@ -380,7 +376,7 @@
         hubConnection.On<User>("AddUserToGroupChat", async (message) =>
            {
                Console.WriteLine("ADD USER Connected: Connection ID: " + hubConnection.ConnectionId);
-               Members.users.Add(new User
+               Users.Add(new User
                    {
                        Email = message.Email,
                        Avatar = message.Avatar,
@@ -395,7 +391,7 @@
         {
             Console.WriteLine("REMOVE USER Connected: Connection ID: " + hubConnection.ConnectionId);
 
-            Members.users.RemoveAll(user => user.Email == userEmail);
+            Users.RemoveAll(user => user.Email == userEmail);
 
             await InvokeAsync(StateHasChanged);
         });
@@ -439,7 +435,7 @@
         hubConnection.On<GroupChatMessage, string>("ReceivedGroupMessage", async (message, groupName) =>
          {
              Console.WriteLine("GROUP MESSAGE Connected: Connection ID: " + hubConnection.ConnectionId);
-             if (GroupchatId == message.GroupChatId && CurrentUserId == message.UserId.ToString())
+             if (GroupchatId == message.GroupChatId)
              {
                  groupChatMessage.Add(new GroupChatMessage
                      {
@@ -447,8 +443,6 @@
                          Timestamp = message.Timestamp,
                          User = message.User
                      });
-
-
                  await hubConnection.SendAsync("GroupChatNotificationAsync", $"New message from group {groupName}", message.UserId, GroupchatId);
                  Console.WriteLine($"Sender ID: {message.UserId}");
              }
@@ -456,7 +450,7 @@
 
          });
 
-        if (!string.IsNullOrEmpty(GroupchatId.ToString()))
+        if (GroupchatId != 0)
         {
             await LoadGroupChat(GroupchatId);
         }
@@ -633,11 +627,18 @@
             await hubConnection.SendAsync("Join", passGroupName);
             NavigationManager.NavigateTo($"groupchat/{GroupchatId}");
             groupChatMessage = new List<GroupChatMessage>();
-            groupChatMessage = await ClientGroupChatService.GetGroupChatConversation(groupId);
-            Members = await ClientGroupChatService.GetGroupChatMembers(groupId);
-            getGroupNotMembers = await ClientGroupChatService.GetNotMembers(groupId);
-            CurrentGroupName = passGroupName;
-            StateHasChanged();
+            // var response = await ClientGroupChatService.CheckIfGroupMember(groupId);
+
+            // if (response == true)
+            // {
+            
+                groupChatMessage = await ClientGroupChatService.GetGroupChatConversation(groupId);
+                Users = await ClientGroupChatService.GetGroupMembers(groupId);
+                getGroupNotMembers = await ClientGroupChatService.GetNotMembers(groupId);
+                CurrentGroupName = passGroupName;
+                StateHasChanged();
+            // }
+
         }
     }
 

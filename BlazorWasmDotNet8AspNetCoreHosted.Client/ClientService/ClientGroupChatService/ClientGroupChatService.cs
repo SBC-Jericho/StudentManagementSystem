@@ -112,10 +112,7 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
             return clientUser;
         }
 
-        public async Task<List<GroupChatMessage>> GetGroupChatConversation(int receiverId)
-        {
-            return await _http.GetFromJsonAsync<List<GroupChatMessage>>($"api/GroupChat/get-groupchat-conversation/{receiverId}");
-        }
+       
 
         public async Task<List<User>> GetGroupMembers(int groupId)
         {
@@ -129,6 +126,31 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
             var result = await _http.GetFromJsonAsync<List<User>>($"api/GroupChat/get-notgroup-members/{groupId}");
 
             return result;
+
+        }
+        public async Task<bool> CheckIfMemebr(int groupId)
+        {
+            var result = await _http.GetAsync($"api/GroupChat/check-if-member/{groupId}");
+
+            if (result.IsSuccessStatusCode)
+            {
+
+                return true;
+            }
+            else
+            {
+                _snackbar.Add(
+                   "You are not part of this group",
+                   Severity.Warning,
+                   config =>
+                   {
+                       config.ShowTransitionDuration = 200;
+                       config.HideTransitionDuration = 400;
+                       config.VisibleStateDuration = 2500;
+                   });
+                return false;
+            }
+
 
         }
 
@@ -180,6 +202,10 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
         }
 
 
+         public async Task<List<GroupChatMessage>> GetGroupChatConversation(int receiverId)
+        {
+            return await _http.GetFromJsonAsync<List<GroupChatMessage>>($"api/GroupChat/get-groupchat-conversation/{receiverId}");
+        }
         public async Task<bool> SaveMessage(GroupChatMessage message)
         {
             var result = await _http.PostAsJsonAsync("api/GroupChat/save-group-message", message);
@@ -202,6 +228,16 @@ namespace BlazorWasmDotNet8AspNetCoreHosted.Client.ClientService.ClientGroupChat
                 return false;
             }
 
+        }
+
+        public async Task<bool> CheckIfGroupMember(int groupId)
+        {
+            var result = await _http.GetAsync("api/GroupChat/check-if-group-member");
+            if (result.IsSuccessStatusCode)
+            {
+                return true;
+            }
+            return false;
         }
 
         public async Task UpdateGroupChat(int id, GroupChatNameDTO request)

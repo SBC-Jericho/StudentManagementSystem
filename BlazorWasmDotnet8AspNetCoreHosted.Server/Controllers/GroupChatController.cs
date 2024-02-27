@@ -86,6 +86,17 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Controllers
             return Ok(result);
         }
 
+        [HttpGet("check-if-member/{groupId}")]
+        public async Task<ActionResult<bool>> CheckIfMember(int groupId)
+        {
+            var result = await _groupChatService.CheckIfMemebr(groupId);
+            if (result == false)
+            {
+                return false;
+            }
+            return Ok(result);
+        }
+
         [HttpGet("single-group-name/{id}")]
         public async Task<ActionResult<string>> GetSingleGroupName(int id)
         {

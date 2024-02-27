@@ -21,5 +21,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.GroupChatService
         Task<GroupChat> GetGroupById(int id);
         Task<List<GroupChat>?> DeleteGroupChat(int id);
         Task<GetChatMembersDTO> GetGroupChatMembers(int groupChatId);
+
+        Task<bool> CheckIfMemebr(int groupId);
     }
 }

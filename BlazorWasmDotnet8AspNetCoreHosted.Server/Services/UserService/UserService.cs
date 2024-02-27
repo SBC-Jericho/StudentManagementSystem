@@ -32,7 +32,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService
         {
             var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            var users = await _context.Users    
+            var users = await _context.Users
                      .Where(p => p.Id.ToString() == userId)
                       .Select(p => p.Id.ToString())
                      .FirstOrDefaultAsync();
@@ -42,7 +42,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService
 
         public async Task<User> GetUserById(int userId)
         {
-            
+
             var users = await _context.Users
                      .Where(p => p.Id == userId)
                      .FirstOrDefaultAsync();
@@ -70,9 +70,9 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService
             return users;
         }
 
-        public async Task<int> GetUserIdbyRole(int id, string role) 
+        public async Task<int> GetUserIdbyRole(int id, string role)
         {
-            if (role == "Student") 
+            if (role == "Student")
             {
                 //select studentId
                 var studentId = await _context.Students
@@ -107,12 +107,12 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService
         {
             var user = await _context.Users
                 .Include(u => u.Students)
-                .Include (u => u.Professor)
+                .Include(u => u.Professor)
                 .Where(u => u.Id == id)
                 .FirstOrDefaultAsync();
             if (user is null)
                 return null;
-            if (user.Role == "Student") 
+            if (user.Role == "Student")
             {
                 user.Students.FirstName = request.FirstName;
                 user.Students.LastName = request.LastName;
@@ -120,10 +120,10 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService
                 user.Students.Contact = request.Contact;
                 user.Students.Address = request.Address;
                 user.Students.Image = request.Image;
-                
+                user.Avatar = request.Image;
             }
 
-            if (user.Role == "Professor") 
+            if (user.Role == "Professor")
             {
                 user.Professor.FirstName = request.FirstName;
                 user.Professor.LastName = request.LastName;
@@ -131,8 +131,9 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService
                 user.Professor.Contact = request.Contact;
                 user.Professor.Address = request.Address;
                 user.Professor.Image = request.Image;
+                user.Avatar = request.Image;
             }
-         
+
             await _context.SaveChangesAsync();
 
             return user;
@@ -159,7 +160,7 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService
                       .FirstOrDefaultAsync();
 
             return student;
-        } 
+        }
         public async Task<Professor?> GetSingleProfessor()
         {
             var userId = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -211,6 +212,14 @@ namespace BlazorWasmDotnet8AspNetCoreHosted.Server.Services.UserService
 
             return user.ActiveStatus;
         }
+
+
+        //public async Task<int> MessageCount() 
+        //{
+
+
+        //    return 0;        
+        //}
 
     }
 }

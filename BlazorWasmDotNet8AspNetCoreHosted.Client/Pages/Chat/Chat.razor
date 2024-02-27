@@ -121,27 +121,32 @@
                     <MudListItem Class="pa-0 px-2" OnClick="@(() => LoadUserChat(user.Id))">
                         <div class="d-flex flex-row mt-n1 mb-n1">
                             <div class="mr-4 mb-4" >
-                                <MudBadge Content="@MessageCount"
-                                        Class="my-4"
-                                          Color="@((user.ActiveStatus) ? Color.Success : Color.Default)">
-                                        
-                                            <MudAvatar 
-                                                Color="Color.Secondary" 
-                                                Style="height:50px; width:50px;">
-                                                <MudImage Src="@user.Avatar"></MudImage>
-                                            </MudAvatar>
-                                       
-                                </MudBadge>
-                            </div>
 
+                                <MudBadge 
+                                    Content="@(user.MessageCount)"
+                                    Class="my-4"
+                                    Color="@((user.ActiveStatus) ? Color.Success : Color.Default)">
+                                        
+                                    <MudAvatar 
+                                        Color="Color.Secondary" 
+                                        Style="height:50px; width:50px;">
+                                        <MudImage Src="@user.Avatar"></MudImage>
+                                    </MudAvatar>
+                                </MudBadge>
+
+                            </div>
+                           
                             <div>
-                                <MudText Typo="Typo.body2" Class="mt-3 mb-n2">@user.Email</MudText>
-                                <MudText Typo="Typo.caption" Style="font-size: xx-small!important;">@user.Id</MudText>
+                                
+                                <MudText Typo="Typo.body2" Class="mt-3 mb-n2">@user.Email </MudText>
+                                <MudText Typo="Typo.caption" Style="font-size: xx-small important!;">@user.Id</MudText>
                             </div>
 
                         </div>
                     </MudListItem>
                 }
+
+
             </MudList>
         </div>
     </MudPaper>
@@ -189,8 +194,12 @@
         {
             await hubConnection.StartAsync();
         }
-        await ClientUserService.GetAllUser();
 
+
+        // var messageCount = ChatUsers
+        // MessageCount = await ClientChatMessageService.MessageCountFromOneUser(22);
+        // Console.WriteLine(MessageCount);
+        await ClientUserService.GetAllUser();
         //load contacts
         ChatUsers = await ClientChatMessageService.GetAllUsers();
         CurrentUserId = await ClientUserService.GetSingleUserId();
@@ -206,6 +215,49 @@
                StateHasChanged();
            }
        });
+
+       //  hubConnection.On<int>("CountOtherUserMessage", async (senderId) =>
+       // {
+       //     foreach (var user in ChatUsers)
+       //     {
+       //         user.MessageCount = await ClientChatMessageService.MessageCountFromOneUser(user.Id);
+       //     }
+
+
+       //     StateHasChanged();
+       //     // var userToUpdate = ChatUsers.FirstOrDefault(u => u.Id == userId);
+       //     // if (userToUpdate != null)
+       //     // {
+       //     //     userToUpdate.MessageCount = MessageCount;
+       //     // }
+       //     // var user = ChatUsers.
+       //     // if (user != null)
+       //     // {
+       //     //     user.ActiveStatus = status;
+       //     //     StateHasChanged();
+       //     // }
+       // });
+
+        hubConnection.On<string>("MessageNotification", (message) =>
+        {
+           // if (CurrentUserId == receiverUserId.ToString())
+           //   {
+                _jsRuntime.InvokeAsync<string>("PlayAudio", "notification");
+                _snackBar.Add(message, Severity.Info, config =>
+                {
+                    config.VisibleStateDuration = 10000;
+                    config.HideTransitionDuration = 500;
+                    config.ShowTransitionDuration = 500;
+                    config.Action = "Chat?";
+                    config.ActionColor = Color.Info;
+                    // config.Onclick = snackbar =>
+                    // {
+                    //     NavigationManager.NavigateTo($"chat/{int.Parse(senderUserId)}");
+                    //     return Task.CompletedTask;
+                    // };
+                });
+             // }
+        });
 
         //  hubConnection.On<string>("UpdateStatusToOff", async (email) =>
         // {
@@ -253,7 +305,10 @@
 
 
                     await hubConnection.SendAsync("ChatNotificationAsync", $"New Message From {userName}", ContactId, CurrentUserId);
+
+
                 }
+
                 else if ((ContactId == message.FromUserId && CurrentUserId == message.ToUserId.ToString()))
                 {
                     messages.Add(new ChatMessage 
@@ -270,7 +325,7 @@
         });
 
 
-        if (!string.IsNullOrEmpty(ContactId.ToString()))
+        if (ContactId != 0)
         {
             await LoadUserChat(ContactId);
         }
@@ -304,7 +359,6 @@
         await _jsRuntime.InvokeAsync<string>("ScrollToBottom", "chatContainer");
     }
 
-
     async Task LoadUserChat(int userId)
     {
         // await GetUserConnectionId(userId);
@@ -317,7 +371,13 @@
             NavigationManager.NavigateTo($"chat/{ContactId}");
             messages = new List<ChatMessage>();
             messages = await ClientChatMessageService.GetConversation(ContactId);
-            MessageCount = await ClientChatMessageService.MessageCountFromOneUser(userId);
+            foreach (var user in ChatUsers)
+            {
+                user.MessageCount = await ClientChatMessageService.MessageCountFromOneUser(user.Id);
+                Console.WriteLine(user.MessageCount);
+            }
+
+            StateHasChanged();
         }
         else
         {
